@@ -1,7 +1,6 @@
 import { ImageInfo } from '@shared/types';
 import { EpubData } from './parser';
 import path from 'path';
-import { JSDOM } from 'jsdom';
 import EpubParser from '@gxl/epub-parser';
 
 export async function extractImages(
@@ -69,59 +68,54 @@ async function extractImagesFromHTML(
   _contentBasePath: string
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
+  let pageOrder = 0;
   
   try {
-    // JSDOMでHTMLを解析
-    const dom = new JSDOM(htmlContent);
-    const document = dom.window.document;
+    // img要素を正規表現で抽出
+    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    let match;
     
-    // img要素を取得
-    const imgElements = document.querySelectorAll('img');
-    const svgElements = document.querySelectorAll('svg image');
-    
-    // 画像要素を処理
-    let pageOrder = 0;
-    
-    // img要素の処理
-    imgElements.forEach((img) => {
-      const src = img.getAttribute('src');
+    while ((match = imgRegex.exec(htmlContent)) !== null) {
+      const src = match[1];
       if (src) {
-        const absoluteSrc = resolveImagePath(src, htmlPath, contentBasePath);
+        const absoluteSrc = resolveImagePath(src, htmlPath, _contentBasePath);
         images.push({
           src: absoluteSrc,
           chapterOrder: pageIndex + 1,
           pageOrder: pageOrder++,
         });
       }
-    });
+    }
     
-    // SVG内のimage要素の処理
-    svgElements.forEach((img) => {
-      const href = img.getAttribute('href') || img.getAttribute('xlink:href');
+    // SVG内のimage要素を正規表現で抽出
+    const svgImageRegex = /<image[^>]+(href|xlink:href)=["']([^"']+)["'][^>]*>/gi;
+    
+    while ((match = svgImageRegex.exec(htmlContent)) !== null) {
+      const href = match[2];
       if (href) {
-        const absoluteSrc = resolveImagePath(href, htmlPath, contentBasePath);
+        const absoluteSrc = resolveImagePath(href, htmlPath, _contentBasePath);
         images.push({
           src: absoluteSrc,
           chapterOrder: pageIndex + 1,
           pageOrder: pageOrder++,
         });
       }
-    });
-
-    // CSS背景画像も確認（必要に応じて）
-    const elementsWithBackground = document.querySelectorAll('[style*="background-image"]');
-    elementsWithBackground.forEach((element) => {
-      const style = element.getAttribute('style') || '';
-      const match = style.match(/background-image:\s*url\(['"]?([^'")]+)['"]?\)/);
-      if (match && match[1]) {
-        const absoluteSrc = resolveImagePath(match[1], htmlPath, contentBasePath);
+    }
+    
+    // CSS背景画像を正規表現で抽出
+    const bgImageRegex = /background-image:\s*url\(["']?([^"')]+)["']?\)/gi;
+    
+    while ((match = bgImageRegex.exec(htmlContent)) !== null) {
+      const bgSrc = match[1];
+      if (bgSrc && !bgSrc.startsWith('data:')) {
+        const absoluteSrc = resolveImagePath(bgSrc, htmlPath, _contentBasePath);
         images.push({
           src: absoluteSrc,
           chapterOrder: pageIndex + 1,
           pageOrder: pageOrder++,
         });
       }
-    });
+    }
 
   } catch (error) {
     console.warn(`HTML解析エラー (${htmlPath}):`, error);
@@ -130,7 +124,7 @@ async function extractImagesFromHTML(
   return images;
 }
 
-function resolveImagePath(imageSrc: string, htmlPath: string, contentBasePath: string): string {
+function resolveImagePath(imageSrc: string, htmlPath: string, _contentBasePath: string): string {
   // 絶対パスの場合はそのまま返す
   if (imageSrc.startsWith('/')) {
     return imageSrc.substring(1); // 先頭の/を除去

@@ -14,8 +14,13 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron/main',
             rollupOptions: {
-              external: ['electron'],
+              external: ['electron', 'jsdom'],
             },
+          },
+          resolve: {
+            // JSDOMをバンドルから除外
+            browserField: false,
+            mainFields: ['module', 'jsnext:main', 'jsnext'],
           },
         },
       },
