@@ -4,7 +4,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 const electronAPI = {
   getVersion: () => ipcRenderer.invoke('app:version'),
   // EPUB処理関連のAPIは後で追加
-  processEpubFiles: (files: File[]) => ipcRenderer.invoke('epub:process', files),
+  processEpubFiles: (filePaths: string[]) => ipcRenderer.invoke('epub:process', filePaths),
   onProgress: (callback: (progress: any) => void) => {
     ipcRenderer.on('epub:progress', (_event, progress) => callback(progress));
   },

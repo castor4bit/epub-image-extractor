@@ -9,6 +9,7 @@ export interface EpubData {
   navigation: ChapterInfo[];
   basePath: string;
   contentPath: string;
+  parser?: any; // パーサーインスタンスを保持
 }
 
 export async function parseEpub(epubPath: string): Promise<EpubData> {
@@ -30,8 +31,9 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
       manifest: epubInfo.manifest || {},
       spine: epubInfo.spine || [],
       navigation,
-      basePath,
+      basePath: epubPath, // EPUBファイルのパスを保持
       contentPath,
+      parser, // パーサーインスタンスを保持
     };
   } catch (error) {
     console.error('EPUB解析エラー:', error);

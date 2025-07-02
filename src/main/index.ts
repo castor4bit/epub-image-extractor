@@ -13,7 +13,7 @@ function createWindow() {
       contextIsolation: true,
       preload: join(__dirname, '../preload/index.js'),
     },
-    icon: join(__dirname, '../../public/icon.png'),
+    // icon: join(__dirname, '../../public/icon.png'),
   });
 
   if (process.env.NODE_ENV === 'development') {

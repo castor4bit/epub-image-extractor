@@ -9,7 +9,7 @@ export async function extractImages(
   onProgress?: (processed: number, total: number) => void
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
-  const parser = new EpubParser(epubData.basePath);
+  const parser = epubData.parser || new EpubParser(epubData.basePath);
   
   try {
     // spine内の各ページを処理

@@ -1,6 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import './App.css';
 import { ProcessingProgress } from '@shared/types';
+import { FileDropZone } from './components/FileDropZone';
+import { ProgressDisplay } from './components/ProgressDisplay';
 
 function App() {
   const [isDragging, setIsDragging] = useState(false);
@@ -63,34 +65,45 @@ function App() {
     }
   }, []);
 
+  // 進捗リスナーを設定
+  useEffect(() => {
+    window.electronAPI.onProgress((progressData: ProcessingProgress) => {
+      setProgress(prev => ({
+        ...prev,
+        [progressData.fileId]: progressData
+      }));
+    });
+  }, []);
+
   // ファイル処理
   const processFiles = async (filesToProcess: File[]) => {
     setIsProcessing(true);
+    setProgress({}); // 進捗をリセット
     
     try {
-      // Electronに進捗リスナーを登録
-      window.electronAPI.onProgress((progressData: ProcessingProgress) => {
-        setProgress(prev => ({
-          ...prev,
-          [progressData.fileId]: progressData
-        }));
-      });
-
       // ファイルパスの配列を作成
-      const filePaths = filesToProcess.map(file => file.path);
+      const filePaths = filesToProcess.map(file => file.path || '').filter(path => path);
+      
+      if (filePaths.length === 0) {
+        throw new Error('有効なファイルパスがありません');
+      }
       
       // EPUB処理を実行
       const result = await window.electronAPI.processEpubFiles(filePaths);
       
       if (result.success) {
-        alert('処理が完了しました！');
+        setTimeout(() => {
+          alert('処理が完了しました！');
+          setIsProcessing(false);
+          setProgress({});
+        }, 1000);
       } else {
         alert(`エラーが発生しました: ${result.error}`);
+        setIsProcessing(false);
       }
     } catch (error) {
       console.error('処理エラー:', error);
       alert('処理中にエラーが発生しました');
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -102,56 +115,16 @@ function App() {
       </header>
       <main className="app-main">
         {!isProcessing ? (
-          <div
-            className={`drop-zone ${isDragging ? 'active' : ''}`}
+          <FileDropZone
+            isDragging={isDragging}
             onDragEnter={handleDragEnter}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-          >
-            <p>EPUBファイルをここにドラッグ&ドロップ</p>
-            <p>または</p>
-            <input
-              type="file"
-              id="file-input"
-              multiple
-              accept=".epub,application/epub+zip"
-              onChange={handleFileSelect}
-              style={{ display: 'none' }}
-            />
-            <label htmlFor="file-input" className="select-button">
-              ファイルを選択
-            </label>
-          </div>
+            onFileSelect={handleFileSelect}
+          />
         ) : (
-          <div className="progress-container">
-            <h2>処理中...</h2>
-            {Object.values(progress).map((p) => (
-              <div key={p.fileId} className="progress-item">
-                <div className="progress-header">
-                  <span className="file-name">{p.fileName}</span>
-                  <span className="progress-status">
-                    {p.status === 'completed' ? '✓' : 
-                     p.status === 'error' ? '✗' : '...'}
-                  </span>
-                </div>
-                {p.totalImages > 0 && (
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill"
-                      style={{ width: `${(p.processedImages / p.totalImages) * 100}%` }}
-                    />
-                  </div>
-                )}
-                <div className="progress-text">
-                  {p.processedImages} / {p.totalImages} 画像
-                </div>
-                {p.error && (
-                  <div className="error-message">{p.error}</div>
-                )}
-              </div>
-            ))}
-          </div>
+          <ProgressDisplay progress={progress} />
         )}
       </main>
     </div>

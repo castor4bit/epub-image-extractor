@@ -1,11 +1,11 @@
-import { ipcMain, dialog, app } from 'electron';
+import { ipcMain, dialog, app, BrowserWindow } from 'electron';
 import { processEpubFiles } from '../epub/processor';
 import { ProcessingProgress } from '@shared/types';
 import path from 'path';
 import fs from 'fs/promises';
 
 // 出力ディレクトリ選択
-export function registerIpcHandlers(mainWindow: Electron.BrowserWindow) {
+export function registerIpcHandlers(mainWindow: BrowserWindow) {
   // 出力ディレクトリ選択ダイアログ
   ipcMain.handle('dialog:selectDirectory', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {

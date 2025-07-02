@@ -2,6 +2,7 @@ import { ProcessingProgress, ExtractionResult } from '@shared/types';
 import { parseEpub } from './parser';
 import { extractImages } from './imageExtractor';
 import { organizeByChapters } from './chapterOrganizer';
+import { handleError } from '../utils/errorHandler';
 import path from 'path';
 import fs from 'fs/promises';
 import pLimit from 'p-limit';
@@ -108,7 +109,7 @@ async function processEpubFile(
       errors,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '不明なエラー';
+    const errorMessage = handleError(error, `EPUB処理: ${fileName}`);
     errors.push(errorMessage);
 
     // 進捗通知：エラー
@@ -121,6 +122,6 @@ async function processEpubFile(
       error: errorMessage,
     });
 
-    throw error;
+    throw new Error(errorMessage);
   }
 }
