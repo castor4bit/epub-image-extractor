@@ -1,7 +1,6 @@
 import { ImageInfo } from '@shared/types';
 import { EpubData } from './parser';
 import path from 'path';
-import fs from 'fs/promises';
 import { JSDOM } from 'jsdom';
 import EpubParser from '@gxl/epub-parser';
 
@@ -67,7 +66,7 @@ async function extractImagesFromHTML(
   htmlContent: string,
   htmlPath: string,
   pageIndex: number,
-  contentBasePath: string
+  _contentBasePath: string
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
   

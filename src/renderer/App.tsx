@@ -4,7 +4,7 @@ import { ProcessingProgress } from '@shared/types';
 
 function App() {
   const [isDragging, setIsDragging] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
+  const [_files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<Record<string, ProcessingProgress>>({});
   const [isProcessing, setIsProcessing] = useState(false);
 

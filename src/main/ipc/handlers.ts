@@ -55,7 +55,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow) {
   });
 
   // 設定の保存
-  ipcMain.handle('settings:save', async (_event, settings: any) => {
+  ipcMain.handle('settings:save', async (_event, _settings: any) => {
     // 後で electron-store を使って実装
     return { success: true };
   });

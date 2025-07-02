@@ -1,7 +1,6 @@
 import EpubParser from '@gxl/epub-parser';
 import { ChapterInfo } from '@shared/types';
 import path from 'path';
-import fs from 'fs/promises';
 import { parseStringPromise } from 'xml2js';
 
 export interface EpubData {
@@ -119,7 +118,7 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
     if (navMap?.navPoint) {
       let order = 1;
       
-      function processNavPoint(navPoint: any) {
+      const processNavPoint = (navPoint: any) => {
         const title = navPoint.navLabel?.[0]?.text?.[0];
         const href = navPoint.content?.[0]?.$?.src;
         
@@ -131,7 +130,7 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
         if (navPoint.navPoint) {
           navPoint.navPoint.forEach(processNavPoint);
         }
-      }
+      };
       
       navMap.navPoint.forEach(processNavPoint);
     }
