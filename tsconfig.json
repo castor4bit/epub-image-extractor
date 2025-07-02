@@ -20,11 +20,12 @@
       "@renderer/*": ["src/renderer/*"],
       "@shared/*": ["src/shared/*"]
     },
-    "types": ["vite/client", "node", "jest"],
+    "types": ["node", "jest"],
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
-    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "electron.vite.config.ts"
   ],
   "exclude": [
@@ -35,9 +36,4 @@
     "**/*.spec.ts",
     "**/*.test.ts"
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
 }

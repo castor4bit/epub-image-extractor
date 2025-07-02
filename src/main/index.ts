@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
+import { registerIpcHandlers } from './ipc/handlers';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -25,6 +26,9 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // IPCハンドラーを登録
+  registerIpcHandlers(mainWindow);
 }
 
 app.whenReady().then(createWindow);
@@ -39,9 +43,4 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
-});
-
-// IPCハンドラーの登録
-ipcMain.handle('app:version', () => {
-  return app.getVersion();
 });
