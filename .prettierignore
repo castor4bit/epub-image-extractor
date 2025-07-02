@@ -1,0 +1,23 @@
+# 依存関係
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ビルド出力
+dist/
+dist-electron/
+out/
+build/
+release/
+coverage/
+
+# 設定ファイル
+*.config.js
+*.config.ts
+
+# その他
+.vscode/
+.idea/
+*.min.js
+*.min.css
