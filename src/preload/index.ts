@@ -9,6 +9,9 @@ const electronAPI = {
     ipcRenderer.on('epub:progress', (_event, progress) => callback(progress));
   },
   selectOutputDirectory: () => ipcRenderer.invoke('dialog:selectDirectory'),
+  getSettings: () => ipcRenderer.invoke('settings:get'),
+  saveSettings: (settings: any) => ipcRenderer.invoke('settings:save', settings),
+  resetSettings: () => ipcRenderer.invoke('settings:reset'),
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

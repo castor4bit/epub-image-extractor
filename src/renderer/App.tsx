@@ -3,12 +3,14 @@ import './App.css';
 import { ProcessingProgress } from '@shared/types';
 import { FileDropZone } from './components/FileDropZone';
 import { ProgressDisplay } from './components/ProgressDisplay';
+import { SettingsWindow } from './components/SettingsWindow';
 
 function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [_files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<Record<string, ProcessingProgress>>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // ドラッグイベントハンドラー
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -34,16 +36,18 @@ function App() {
     setIsDragging(false);
 
     const droppedFiles = Array.from(e.dataTransfer.files);
-    const epubFiles = droppedFiles.filter(file => 
+    const validFiles = droppedFiles.filter(file => 
       file.name.toLowerCase().endsWith('.epub') || 
-      file.type === 'application/epub+zip'
+      file.name.toLowerCase().endsWith('.zip') ||
+      file.type === 'application/epub+zip' ||
+      file.type === 'application/zip'
     );
 
-    if (epubFiles.length > 0) {
-      setFiles(epubFiles);
-      processFiles(epubFiles);
+    if (validFiles.length > 0) {
+      setFiles(validFiles);
+      processFiles(validFiles);
     } else {
-      alert('EPUBファイルを選択してください');
+      alert('EPUBまたはZIPファイルを選択してください');
     }
   }, []);
 
@@ -51,16 +55,18 @@ function App() {
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (selectedFiles) {
-      const epubFiles = Array.from(selectedFiles).filter(file => 
+      const validFiles = Array.from(selectedFiles).filter(file => 
         file.name.toLowerCase().endsWith('.epub') || 
-        file.type === 'application/epub+zip'
+        file.name.toLowerCase().endsWith('.zip') ||
+        file.type === 'application/epub+zip' ||
+        file.type === 'application/zip'
       );
       
-      if (epubFiles.length > 0) {
-        setFiles(epubFiles);
-        processFiles(epubFiles);
+      if (validFiles.length > 0) {
+        setFiles(validFiles);
+        processFiles(validFiles);
       } else {
-        alert('EPUBファイルを選択してください');
+        alert('EPUBまたはZIPファイルを選択してください');
       }
     }
   }, []);
@@ -112,6 +118,13 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>EPUB画像抽出ツール</h1>
+        <button 
+          className="settings-button" 
+          onClick={() => setIsSettingsOpen(true)}
+          title="設定"
+        >
+          ⚙️
+        </button>
       </header>
       <main className="app-main">
         {!isProcessing ? (
@@ -127,6 +140,10 @@ function App() {
           <ProgressDisplay progress={progress} />
         )}
       </main>
+      <SettingsWindow 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   );
 }

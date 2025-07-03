@@ -8,6 +8,21 @@ interface ElectronAPI {
   }>;
   onProgress: (callback: (progress: any) => void) => void;
   selectOutputDirectory: () => Promise<string | null>;
+  getSettings: () => Promise<{
+    outputDirectory: string;
+    language: string;
+    parallelLimit: number;
+  }>;
+  saveSettings: (settings: {
+    outputDirectory: string;
+    language: string;
+    parallelLimit: number;
+  }) => Promise<{ success: boolean }>;
+  resetSettings: () => Promise<{
+    outputDirectory: string;
+    language: string;
+    parallelLimit: number;
+  }>;
 }
 
 interface Window {

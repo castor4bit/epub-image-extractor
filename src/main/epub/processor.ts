@@ -7,14 +7,14 @@ import path from 'path';
 import fs from 'fs/promises';
 import pLimit from 'p-limit';
 
-// 並列処理の制限（同時に処理するEPUBファイル数）
-const limit = pLimit(3);
-
 export async function processEpubFiles(
   filePaths: string[],
   outputDir: string,
-  onProgress: (progress: ProcessingProgress) => void
+  onProgress: (progress: ProcessingProgress) => void,
+  parallelLimit: number = 3
 ): Promise<ExtractionResult[]> {
+  // 並列処理の制限（同時に処理するEPUBファイル数）
+  const limit = pLimit(parallelLimit);
   const results: ExtractionResult[] = [];
 
   // 各EPUBファイルを並列処理

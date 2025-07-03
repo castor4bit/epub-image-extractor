@@ -41,13 +41,13 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
             strokeLinecap="round"
           />
         </svg>
-        <p className="drop-text">EPUBファイルをここにドラッグ&ドロップ</p>
+        <p className="drop-text">EPUB/ZIPファイルをここにドラッグ&ドロップ</p>
         <p className="drop-or">または</p>
         <input
           type="file"
           id="file-input"
           multiple
-          accept=".epub,application/epub+zip"
+          accept=".epub,application/epub+zip,.zip"
           onChange={onFileSelect}
           style={{ display: 'none' }}
         />
