@@ -33,24 +33,43 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/dist-electron/'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        jsx: 'react-jsx',
-      },
-    },
-  },
   projects: [
     {
       displayName: 'main',
+      preset: 'ts-jest',
       testEnvironment: 'node',
       testMatch: ['<rootDir>/src/main/**/*.test.ts'],
+      transform: {
+        '^.+\\.tsx?$': ['ts-jest', {}],
+      },
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '^@main/(.*)$': '<rootDir>/src/main/$1',
+        '^@renderer/(.*)$': '<rootDir>/src/renderer/$1',
+        '^@shared/(.*)$': '<rootDir>/src/shared/$1',
+        '\\.(css|less|scss|sass)$': '<rootDir>/tests/mocks/styleMock.js',
+      },
     },
     {
       displayName: 'renderer',
+      preset: 'ts-jest',
       testEnvironment: 'jsdom',
       testMatch: ['<rootDir>/src/renderer/**/*.test.tsx'],
       setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+      transform: {
+        '^.+\\.tsx?$': ['ts-jest', {
+          tsconfig: {
+            jsx: 'react-jsx',
+          },
+        }],
+      },
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '^@main/(.*)$': '<rootDir>/src/main/$1',
+        '^@renderer/(.*)$': '<rootDir>/src/renderer/$1',
+        '^@shared/(.*)$': '<rootDir>/src/shared/$1',
+        '\\.(css|less|scss|sass)$': '<rootDir>/tests/mocks/styleMock.js',
+      },
     },
   ],
 };

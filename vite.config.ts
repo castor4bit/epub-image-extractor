@@ -14,11 +14,21 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron/main',
             rollupOptions: {
-              external: ['electron', 'jsdom'],
+              external: [
+                'electron',
+                'jsdom',
+                'canvas',
+                'ws',
+                'xml2js',
+                '@gxl/epub-parser',
+                'adm-zip',
+                'winston',
+                'p-limit'
+              ],
             },
           },
           resolve: {
-            // JSDOMをバンドルから除外
+            // Node.js環境での実行を確保
             browserField: false,
             mainFields: ['module', 'jsnext:main', 'jsnext'],
           },
