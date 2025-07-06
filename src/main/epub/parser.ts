@@ -1,7 +1,8 @@
-import EpubParser from '@gxl/epub-parser';
+// @gxl/epub-parserは使用しない（APIが異なるため）
 import { ChapterInfo } from '@shared/types';
 import path from 'path';
 import { parseStringPromise } from 'xml2js';
+import AdmZip from 'adm-zip';
 
 export interface EpubData {
   manifest: any;
@@ -14,30 +15,118 @@ export interface EpubData {
 
 export async function parseEpub(epubPath: string): Promise<EpubData> {
   try {
-    // EPUBパーサーインスタンスを作成
-    const parser = new EpubParser(epubPath);
+    console.log('EPUB解析開始:', epubPath);
     
-    // EPUB情報を取得
-    const epubInfo = await parser.parse();
+    // 手動でEPUBを解析
+    const zip = new AdmZip(epubPath);
+    
+    // container.xmlを読む
+    const containerEntry = zip.getEntry('META-INF/container.xml');
+    if (!containerEntry) {
+      throw new Error('container.xml not found');
+    }
+    
+    const containerXml = zip.readAsText(containerEntry);
+    const containerData = await parseStringPromise(containerXml);
+    
+    // OPFファイルのパスを取得
+    const rootfiles = containerData.container.rootfiles[0].rootfile;
+    const opfPath = rootfiles[0].$['full-path'];
+    const contentPath = path.dirname(opfPath);
+    
+    // OPFファイルを読む
+    const opfEntry = zip.getEntry(opfPath);
+    if (!opfEntry) {
+      throw new Error('OPF file not found');
+    }
+    
+    const opfXml = zip.readAsText(opfEntry);
+    const opfData = await parseStringPromise(opfXml);
+    
+    // manifestとspineを取得
+    const manifest: any = {};
+    const manifestItems = opfData.package.manifest[0].item || [];
+    
+    manifestItems.forEach((item: any) => {
+      const id = item.$.id;
+      manifest[id] = {
+        id: id,
+        href: item.$.href,
+        'media-type': item.$['media-type']
+      };
+    });
+    
+    // spine情報を取得
+    const spine: any[] = [];
+    const spineItems = opfData.package.spine[0].itemref || [];
+    
+    spineItems.forEach((item: any) => {
+      spine.push({
+        idref: item.$.idref,
+        linear: item.$.linear || 'yes'
+      });
+    });
+    
+    console.log('パーサー実行完了。取得した情報:', {
+      hasManifest: !!manifest,
+      hasSpine: !!spine,
+      manifestKeys: Object.keys(manifest).length,
+      spineLength: spine.length
+    });
     
     // ナビゲーション情報を取得（目次）
-    const navigation = await extractNavigation(parser, epubInfo);
+    const navigation = await extractNavigationFromZip(zip, opfPath, manifest);
     
-    // 基本パスを取得
-    const basePath = path.dirname(epubPath);
-    const contentPath = epubInfo.contentPath || '';
-
     return {
-      manifest: epubInfo.manifest || {},
-      spine: epubInfo.spine || [],
+      manifest,
+      spine,
       navigation,
-      basePath: epubPath, // EPUBファイルのパスを保持
+      basePath: epubPath,
       contentPath,
-      parser, // パーサーインスタンスを保持
+      parser: zip, // zipインスタンスを保持
     };
   } catch (error) {
-    console.error('EPUB解析エラー:', error);
+    console.error('EPUB解析エラー詳細:', {
+      error,
+      message: error instanceof Error ? error.message : '不明なエラー',
+      stack: error instanceof Error ? error.stack : undefined,
+      epubPath
+    });
     throw new Error(`EPUBファイルの解析に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
+  }
+}
+
+async function extractNavigationFromZip(zip: AdmZip, opfPath: string, manifest: any): Promise<ChapterInfo[]> {
+  const chapters: ChapterInfo[] = [];
+  
+  try {
+    // NCXファイルまたはNav Documentを探す
+    const tocItem = Object.values(manifest).find(
+      (item: any) => item['media-type'] === 'application/x-dtbncx+xml' || 
+                     item.id === 'ncx' ||
+                     item.id === 'toc'
+    ) as any;
+
+    if (tocItem) {
+      const contentPath = path.dirname(opfPath);
+      const tocPath = path.join(contentPath, tocItem.href).replace(/\\/g, '/');
+      const tocEntry = zip.getEntry(tocPath);
+      
+      if (tocEntry) {
+        const tocContent = zip.readAsText(tocEntry);
+        
+        if (tocItem['media-type'] === 'application/x-dtbncx+xml') {
+          // NCX形式の目次
+          return await parseNCX(tocContent);
+        }
+      }
+    }
+
+    // 目次が見つからない場合は、空配列を返す
+    return chapters;
+  } catch (error) {
+    console.warn('ナビゲーション抽出エラー:', error);
+    return chapters;
   }
 }
 
