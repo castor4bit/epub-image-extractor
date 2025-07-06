@@ -1,7 +1,7 @@
 import { ImageInfo, ChapterInfo } from '@shared/types';
 import path from 'path';
 import fs from 'fs/promises';
-import EpubParser from '@gxl/epub-parser';
+import AdmZip from 'adm-zip';
 import { sanitizeFileName as secureSanitizeFileName, checkResourceLimits, RESOURCE_LIMITS } from '../utils/pathSecurity';
 
 export async function organizeByChapters(
@@ -10,7 +10,7 @@ export async function organizeByChapters(
   outputDir: string,
   epubPath: string
 ): Promise<number> {
-  const parser = new EpubParser(epubPath);
+  const zip = new AdmZip(epubPath);
   const chapterMap = new Map<number, ChapterInfo>();
   
   // ナビゲーション情報がある場合
@@ -60,7 +60,16 @@ export async function organizeByChapters(
     for (const image of chapterImages) {
       try {
         // EPUBから画像データを取得
-        const imageBuffer = await parser.getFile(image.src);
+        const imageEntry = zip.getEntry(image.src);
+        if (!imageEntry) {
+          console.warn(`画像エントリーが見つかりません: ${image.src}`);
+          continue;
+        }
+        const imageBuffer = zip.readFile(imageEntry);
+        if (!imageBuffer) {
+          console.warn(`画像データが読み取れません: ${image.src}`);
+          continue;
+        }
         
         // 画像サイズチェック
         const sizeCheck = checkResourceLimits(0, imageBuffer.length, process.memoryUsage().heapUsed);
