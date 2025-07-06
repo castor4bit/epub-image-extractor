@@ -100,12 +100,19 @@ async function extractNavigationFromZip(zip: AdmZip, opfPath: string, manifest: 
   const chapters: ChapterInfo[] = [];
   
   try {
-    // NCXファイルまたはNav Documentを探す
-    const tocItem = Object.values(manifest).find(
-      (item: any) => item['media-type'] === 'application/x-dtbncx+xml' || 
-                     item.id === 'ncx' ||
-                     item.id === 'toc'
+    // EPUB3のNavigation Documentを探す（properties="nav"）
+    let tocItem = Object.values(manifest).find(
+      (item: any) => item.properties && item.properties.includes('nav')
     ) as any;
+    
+    // EPUB3のnavigation documentが見つからない場合は、EPUB2のNCXを探す
+    if (!tocItem) {
+      tocItem = Object.values(manifest).find(
+        (item: any) => item['media-type'] === 'application/x-dtbncx+xml' || 
+                       item.id === 'ncx' ||
+                       item.id === 'toc'
+      ) as any;
+    }
 
     if (tocItem) {
       const contentPath = path.dirname(opfPath);
@@ -114,15 +121,22 @@ async function extractNavigationFromZip(zip: AdmZip, opfPath: string, manifest: 
       
       if (tocEntry) {
         const tocContent = zip.readAsText(tocEntry);
+        console.log(`ナビゲーションファイル発見: ${tocPath}`);
         
         if (tocItem['media-type'] === 'application/x-dtbncx+xml') {
           // NCX形式の目次
           return await parseNCX(tocContent);
+        } else if (tocItem.properties && tocItem.properties.includes('nav')) {
+          // EPUB3 Navigation Document
+          return await parseNavigationDocument(tocContent);
+        } else if (tocContent.includes('epub:type="toc"')) {
+          // EPUB3 Navigation Document（propertiesがない場合）
+          return await parseNavigationDocument(tocContent);
         }
       }
     }
 
-    // 目次が見つからない場合は、空配列を返す
+    console.log('ナビゲーション情報が見つかりません');
     return chapters;
   } catch (error) {
     console.warn('ナビゲーション抽出エラー:', error);
@@ -227,6 +241,54 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
     }
   } catch (error) {
     console.warn('NCX解析エラー:', error);
+  }
+  
+  return chapters;
+}
+
+async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo[]> {
+  const chapters: ChapterInfo[] = [];
+  let order = 1;
+  
+  try {
+    // nav要素のtocを探す
+    const navMatch = htmlContent.match(/<nav[^>]*epub:type=["']toc["'][^>]*>([\s\S]*?)<\/nav>/i);
+    if (!navMatch) {
+      console.warn('Navigation Documentにtocが見つかりません');
+      return chapters;
+    }
+    
+    const navContent = navMatch[1];
+    
+    // ol/li要素からリンクを抽出
+    const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
+    let liMatch;
+    
+    while ((liMatch = liRegex.exec(navContent)) !== null) {
+      const liContent = liMatch[1];
+      
+      // a要素を探す
+      const aMatch = liContent.match(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i);
+      if (aMatch) {
+        const href = aMatch[1];
+        const titleHtml = aMatch[2];
+        
+        // HTMLタグを除去してテキストを取得
+        const title = titleHtml.replace(/<[^>]*>/g, '').trim();
+        
+        if (title && href) {
+          chapters.push({
+            order: order++,
+            title,
+            href
+          });
+        }
+      }
+    }
+    
+    console.log(`Navigation Documentから${chapters.length}個の章を抽出しました`);
+  } catch (error) {
+    console.warn('Navigation Document解析エラー:', error);
   }
   
   return chapters;
