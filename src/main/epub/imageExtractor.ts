@@ -2,6 +2,7 @@ import { ImageInfo } from '@shared/types';
 import { EpubData } from './parser';
 import path from 'path';
 import EpubParser from '@gxl/epub-parser';
+import { resolveSecurePath, checkResourceLimits, RESOURCE_LIMITS } from '../utils/pathSecurity';
 
 export async function extractImages(
   epubData: EpubData,
@@ -9,6 +10,7 @@ export async function extractImages(
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
   const parser = epubData.parser || new EpubParser(epubData.basePath);
+  let totalImageCount = 0;
   
   try {
     // spine内の各ページを処理
@@ -36,6 +38,20 @@ export async function extractImages(
         pageIndex,
         epubData.contentPath
       );
+
+      // リソース制限チェック
+      totalImageCount += pageImages.length;
+      const limitCheck = checkResourceLimits(
+        totalImageCount,
+        0, // 個別の画像サイズは後でチェック
+        process.memoryUsage().heapUsed
+      );
+      
+      if (!limitCheck.allowed) {
+        console.warn(`リソース制限: ${limitCheck.reason}`);
+        // 制限に達した場合は警告を出して処理を継続（これまでの画像は保持）
+        break;
+      }
 
       images.push(...pageImages);
 
@@ -65,7 +81,7 @@ async function extractImagesFromHTML(
   htmlContent: string,
   htmlPath: string,
   pageIndex: number,
-  _contentBasePath: string
+  contentBasePath: string
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
   let pageOrder = 0;
@@ -78,12 +94,14 @@ async function extractImagesFromHTML(
     while ((match = imgRegex.exec(htmlContent)) !== null) {
       const src = match[1];
       if (src) {
-        const absoluteSrc = resolveImagePath(src, htmlPath, _contentBasePath);
-        images.push({
-          src: absoluteSrc,
-          chapterOrder: pageIndex + 1,
-          pageOrder: pageOrder++,
-        });
+        const absoluteSrc = resolveImagePath(src, htmlPath, contentBasePath);
+        if (absoluteSrc) {
+          images.push({
+            src: absoluteSrc,
+            chapterOrder: pageIndex + 1,
+            pageOrder: pageOrder++,
+          });
+        }
       }
     }
     
@@ -93,12 +111,14 @@ async function extractImagesFromHTML(
     while ((match = svgImageRegex.exec(htmlContent)) !== null) {
       const href = match[2];
       if (href) {
-        const absoluteSrc = resolveImagePath(href, htmlPath, _contentBasePath);
-        images.push({
-          src: absoluteSrc,
-          chapterOrder: pageIndex + 1,
-          pageOrder: pageOrder++,
-        });
+        const absoluteSrc = resolveImagePath(href, htmlPath, contentBasePath);
+        if (absoluteSrc) {
+          images.push({
+            src: absoluteSrc,
+            chapterOrder: pageIndex + 1,
+            pageOrder: pageOrder++,
+          });
+        }
       }
     }
     
@@ -108,12 +128,14 @@ async function extractImagesFromHTML(
     while ((match = bgImageRegex.exec(htmlContent)) !== null) {
       const bgSrc = match[1];
       if (bgSrc && !bgSrc.startsWith('data:')) {
-        const absoluteSrc = resolveImagePath(bgSrc, htmlPath, _contentBasePath);
-        images.push({
-          src: absoluteSrc,
-          chapterOrder: pageIndex + 1,
-          pageOrder: pageOrder++,
-        });
+        const absoluteSrc = resolveImagePath(bgSrc, htmlPath, contentBasePath);
+        if (absoluteSrc) {
+          images.push({
+            src: absoluteSrc,
+            chapterOrder: pageIndex + 1,
+            pageOrder: pageOrder++,
+          });
+        }
       }
     }
 
@@ -124,16 +146,36 @@ async function extractImagesFromHTML(
   return images;
 }
 
-function resolveImagePath(imageSrc: string, htmlPath: string, _contentBasePath: string): string {
-  // 絶対パスの場合はそのまま返す
-  if (imageSrc.startsWith('/')) {
-    return imageSrc.substring(1); // 先頭の/を除去
+function resolveImagePath(imageSrc: string, htmlPath: string, contentBasePath: string): string {
+  // dataURLの場合はそのまま返す
+  if (imageSrc.startsWith('data:')) {
+    return imageSrc;
   }
   
-  // 相対パスの場合は解決
-  const htmlDir = path.dirname(htmlPath);
-  const resolvedPath = path.join(htmlDir, imageSrc);
+  // EPUBファイルのベースディレクトリを取得
+  const epubBaseDir = path.dirname(contentBasePath);
   
-  // パスを正規化
-  return path.normalize(resolvedPath);
+  // 絶対パスの場合
+  if (imageSrc.startsWith('/')) {
+    // コンテンツベースパスからの相対パスとして解決
+    const securePath = resolveSecurePath(epubBaseDir, imageSrc.substring(1));
+    if (!securePath) {
+      console.warn(`安全でないパスをスキップ: ${imageSrc}`);
+      return '';
+    }
+    return path.relative(epubBaseDir, securePath);
+  }
+  
+  // 相対パスの場合
+  const htmlDir = path.dirname(htmlPath);
+  const fullPath = path.join(epubBaseDir, htmlDir, imageSrc);
+  const securePath = resolveSecurePath(epubBaseDir, path.relative(epubBaseDir, fullPath));
+  
+  if (!securePath) {
+    console.warn(`安全でないパスをスキップ: ${imageSrc}`);
+    return '';
+  }
+  
+  // EPUBファイル内での相対パスを返す
+  return path.relative(epubBaseDir, securePath);
 }

@@ -2,6 +2,7 @@ import { ImageInfo, ChapterInfo } from '@shared/types';
 import path from 'path';
 import fs from 'fs/promises';
 import EpubParser from '@gxl/epub-parser';
+import { sanitizeFileName as secureSanitizeFileName, checkResourceLimits, RESOURCE_LIMITS } from '../utils/pathSecurity';
 
 export async function organizeByChapters(
   images: ImageInfo[],
@@ -48,7 +49,7 @@ export async function organizeByChapters(
     };
 
     // ディレクトリ名を生成（順序番号を3桁でパディング）
-    const dirName = `${String(chapter.order).padStart(3, '0')}_${sanitizeFileName(chapter.title)}`;
+    const dirName = `${String(chapter.order).padStart(3, '0')}_${secureSanitizeFileName(chapter.title)}`;
     const chapterDir = path.join(outputDir, dirName);
     
     // ディレクトリ作成
@@ -60,6 +61,13 @@ export async function organizeByChapters(
       try {
         // EPUBから画像データを取得
         const imageBuffer = await parser.getFile(image.src);
+        
+        // 画像サイズチェック
+        const sizeCheck = checkResourceLimits(0, imageBuffer.length, process.memoryUsage().heapUsed);
+        if (!sizeCheck.allowed) {
+          console.warn(`画像サイズ制限超過 (${image.src}): ${sizeCheck.reason}`);
+          continue;
+        }
         
         // 拡張子を決定
         const ext = getImageExtension(image.src, imageBuffer);
@@ -83,14 +91,9 @@ export async function organizeByChapters(
   return processedChapters;
 }
 
-// ファイル名として使用できない文字を置換
+// ファイル名として使用できない文字を置換（互換性のため残す）
 function sanitizeFileName(fileName: string): string {
-  return fileName
-    .replace(/[<>:"/\\|?*]/g, '_')  // Windowsで使用できない文字
-    .replace(/\s+/g, '_')            // 空白をアンダースコアに
-    .replace(/_{2,}/g, '_')          // 連続するアンダースコアを1つに
-    .replace(/^_|_$/g, '')           // 先頭・末尾のアンダースコアを除去
-    .slice(0, 50);                   // 長すぎる場合は切り詰め
+  return secureSanitizeFileName(fileName);
 }
 
 // 画像の拡張子を決定
