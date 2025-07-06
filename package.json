@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -22,10 +22,12 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "typecheck": "tsc --noEmit",
     "electron": "electron .",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
-    "dist": "npm run build",
+    "electron:dev": "vite",
+    "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
-    "dist:mac": "npm run build && electron-builder --mac"
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:mac-x64": "npm run build && electron-builder --mac --x64",
+    "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
   },
   "dependencies": {
     "@gxl/epub-parser": "^2.0.4",
@@ -90,7 +92,8 @@
             "arm64"
           ]
         }
-      ]
+      ],
+      "hardenedRuntime": false
     },
     "win": {
       "target": [
