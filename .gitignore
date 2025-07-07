@@ -50,7 +50,8 @@ tmp/
 # テスト出力
 **/test-output*/
 **/test-epubs/
-test-duplicate.js
+test-*.js
+test.epub
 
 # Electron
 electron-builder.yml
