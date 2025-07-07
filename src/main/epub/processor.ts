@@ -3,6 +3,7 @@ import { parseEpub } from './parser';
 import { extractImages } from './imageExtractor';
 import { organizeByChapters } from './chapterOrganizer';
 import { handleError } from '../utils/errorHandler';
+import { generateOutputPath } from '../utils/outputPath';
 import path from 'path';
 import fs from 'fs/promises';
 import pLimit from 'p-limit';
@@ -79,9 +80,19 @@ async function processEpubFile(
       });
     });
 
-    // 出力先ディレクトリ作成
-    const fileOutputDir = path.join(outputDir, path.basename(fileName, '.epub'));
-    await fs.mkdir(fileOutputDir, { recursive: true });
+    // 重複を避けた出力先ディレクトリを生成
+    const bookName = path.basename(fileName, '.epub');
+    const outputPathInfo = await generateOutputPath(outputDir, bookName);
+    const fileOutputDir = outputPathInfo.path;
+    
+    // 警告メッセージがある場合はエラーリストに追加
+    if (outputPathInfo.warning) {
+      console.warn(`出力先警告 (${fileName}): ${outputPathInfo.warning}`);
+    }
+    
+    // generateOutputPathが既にディレクトリを作成している場合があるため、
+    // エラーを無視して作成を試みる
+    await fs.mkdir(fileOutputDir, { recursive: true }).catch(() => {});
 
     // 章ごとに整理して保存
     const chapterCount = await organizeByChapters(

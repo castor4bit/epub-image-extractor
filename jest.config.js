@@ -71,5 +71,20 @@ module.exports = {
         '\\.(css|less|scss|sass)$': '<rootDir>/tests/mocks/styleMock.js',
       },
     },
+    {
+      displayName: 'integration',
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      testMatch: ['<rootDir>/tests/integration/**/*.test.ts'],
+      transform: {
+        '^.+\\.tsx?$': ['ts-jest', {}],
+      },
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '^@main/(.*)$': '<rootDir>/src/main/$1',
+        '^@renderer/(.*)$': '<rootDir>/src/renderer/$1',
+        '^@shared/(.*)$': '<rootDir>/src/shared/$1',
+      },
+    },
   ],
 };
