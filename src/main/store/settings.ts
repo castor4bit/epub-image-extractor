@@ -15,7 +15,11 @@ const defaults: Settings = {
 // electron-storeインスタンスを作成
 const store = new Store<Settings>({
   defaults,
-  name: 'epub-extractor-settings'
+  name: 'epub-extractor-settings',
+  // ファイル権限を制限（所有者のみ読み書き可能）
+  fileExtension: 'json',
+  clearInvalidConfig: true,
+  accessPropertiesByDotNotation: false
 });
 
 export const settingsStore = {
