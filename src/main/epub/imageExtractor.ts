@@ -19,6 +19,9 @@ export async function extractImages(
       hasParser: !!epubData.parser
     });
     
+    // チャプターとページのマッピングを作成
+    const chapterPageMapping = createChapterPageMapping(epubData);
+    
     // spine内の各ページを処理
     let processedCount = 0;
     const totalPages = epubData.spine.length;
@@ -33,6 +36,9 @@ export async function extractImages(
         console.warn(`Manifest item not found for spine idref: ${spineItem.idref}`);
         continue;
       }
+      
+      // このページが属するチャプターを取得
+      const chapterOrder = chapterPageMapping.get(pageIndex) || 1;
 
       // HTMLコンテンツを取得
       const contentPath = path.join(epubData.contentPath, manifestItem.href).replace(/\\/g, '/');
@@ -52,7 +58,7 @@ export async function extractImages(
         const pageImages = await extractImagesFromHTML(
           contentString,
           contentPath,
-          pageIndex,
+          chapterOrder,
           epubData.contentPath
         );
 
@@ -105,7 +111,7 @@ export async function extractImages(
 async function extractImagesFromHTML(
   htmlContent: string,
   htmlPath: string,
-  pageIndex: number,
+  chapterOrder: number,
   contentBasePath: string
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
@@ -123,7 +129,7 @@ async function extractImagesFromHTML(
         if (absoluteSrc) {
           images.push({
             src: absoluteSrc,
-            chapterOrder: pageIndex + 1,
+            chapterOrder: chapterOrder,
             pageOrder: pageOrder++,
           });
         }
@@ -140,7 +146,7 @@ async function extractImagesFromHTML(
         if (absoluteSrc) {
           images.push({
             src: absoluteSrc,
-            chapterOrder: pageIndex + 1,
+            chapterOrder: chapterOrder,
             pageOrder: pageOrder++,
           });
         }
@@ -157,7 +163,7 @@ async function extractImagesFromHTML(
         if (absoluteSrc) {
           images.push({
             src: absoluteSrc,
-            chapterOrder: pageIndex + 1,
+            chapterOrder: chapterOrder,
             pageOrder: pageOrder++,
           });
         }
@@ -190,4 +196,95 @@ function resolveImagePath(imageSrc: string, htmlPath: string, contentBasePath: s
   const normalizedPath = path.normalize(resolvedPath).replace(/\\/g, '/');
   
   return normalizedPath;
+}
+
+/**
+ * チャプターとページのマッピングを作成
+ * @param epubData EPUBデータ
+ * @returns ページインデックスからチャプター番号へのマッピング
+ */
+function createChapterPageMapping(epubData: EpubData): Map<number, number> {
+  const mapping = new Map<number, number>();
+  
+  if (!epubData.navigation || epubData.navigation.length === 0) {
+    // ナビゲーションがない場合はすべてチャプター1
+    for (let i = 0; i < epubData.spine.length; i++) {
+      mapping.set(i, 1);
+    }
+    return mapping;
+  }
+  
+  // spineの各アイテムのhrefを事前に取得
+  const spineHrefs: string[] = [];
+  for (const spineItem of epubData.spine) {
+    const manifestItem = epubData.manifest[spineItem.idref];
+    if (manifestItem) {
+      spineHrefs.push(manifestItem.href);
+    } else {
+      spineHrefs.push('');
+    }
+  }
+  
+  // 各チャプターの開始位置を検索
+  const chapterStartIndices: { chapterOrder: number; spineIndex: number }[] = [];
+  
+  for (const chapter of epubData.navigation) {
+    // hrefからフラグメントを除去
+    const chapterHref = chapter.href.split('#')[0];
+    
+    // spine内での位置を検索
+    const spineIndex = spineHrefs.findIndex(href => href === chapterHref);
+    
+    if (spineIndex !== -1) {
+      chapterStartIndices.push({
+        chapterOrder: chapter.order,
+        spineIndex: spineIndex
+      });
+    }
+  }
+  
+  // チャプター開始位置をspine順でソート
+  chapterStartIndices.sort((a, b) => a.spineIndex - b.spineIndex);
+  
+  // 各ページがどのチャプターに属するかを決定
+  let currentChapterIndex = 0;
+  
+  for (let spineIndex = 0; spineIndex < epubData.spine.length; spineIndex++) {
+    // 次のチャプターの開始位置に達したか確認
+    if (currentChapterIndex < chapterStartIndices.length - 1 &&
+        spineIndex >= chapterStartIndices[currentChapterIndex + 1].spineIndex) {
+      currentChapterIndex++;
+    }
+    
+    // 現在のチャプター番号を設定
+    if (currentChapterIndex < chapterStartIndices.length) {
+      mapping.set(spineIndex, chapterStartIndices[currentChapterIndex].chapterOrder);
+    } else {
+      // チャプター情報がないページは最後のチャプターに属する
+      mapping.set(spineIndex, chapterStartIndices[chapterStartIndices.length - 1].chapterOrder);
+    }
+  }
+  
+  // デバッグ情報を出力
+  console.log('チャプターページマッピング:', {
+    ナビゲーション数: epubData.navigation.length,
+    spine数: epubData.spine.length,
+    チャプター開始位置: chapterStartIndices.slice(0, 10),
+    マッピングサンプル: Array.from(mapping.entries()).slice(0, 10)
+  });
+  
+  // 特定チャプターの詳細情報
+  const chapter3Info = chapterStartIndices.find(c => c.chapterOrder === 3);
+  const chapter4Info = chapterStartIndices.find(c => c.chapterOrder === 4);
+  const chapter6Info = chapterStartIndices.find(c => c.chapterOrder === 6);
+  const chapter7Info = chapterStartIndices.find(c => c.chapterOrder === 7);
+  
+  if (chapter3Info && chapter4Info) {
+    console.log(`チャプター3（巻頭特集）: spine ${chapter3Info.spineIndex} から ${chapter4Info.spineIndex - 1} まで（${chapter4Info.spineIndex - chapter3Info.spineIndex}ページ）`);
+  }
+  if (chapter6Info && chapter7Info) {
+    console.log(`チャプター6（勇者は魔王が好きらしい）: spine ${chapter6Info.spineIndex} から ${chapter7Info.spineIndex - 1} まで（${chapter7Info.spineIndex - chapter6Info.spineIndex}ページ）`);
+  }
+  
+  return mapping;
 }
