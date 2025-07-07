@@ -11,17 +11,14 @@ interface ElectronAPI {
   getSettings: () => Promise<{
     outputDirectory: string;
     language: string;
-    parallelLimit: number;
   }>;
   saveSettings: (settings: {
     outputDirectory: string;
     language: string;
-    parallelLimit: number;
   }) => Promise<{ success: boolean }>;
   resetSettings: () => Promise<{
     outputDirectory: string;
     language: string;
-    parallelLimit: number;
   }>;
 }
 
