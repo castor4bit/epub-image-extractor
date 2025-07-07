@@ -5,13 +5,11 @@ import path from 'path';
 interface Settings {
   outputDirectory: string;
   language: string;
-  parallelLimit: number;
 }
 
 const defaults: Settings = {
   outputDirectory: path.join(app.getPath('desktop'), 'EPUB_Images'),
-  language: 'ja',
-  parallelLimit: 3
+  language: 'ja'
 };
 
 // electron-storeインスタンスを作成
@@ -24,8 +22,7 @@ export const settingsStore = {
   get: (): Settings => {
     return {
       outputDirectory: store.get('outputDirectory'),
-      language: store.get('language'),
-      parallelLimit: store.get('parallelLimit')
+      language: store.get('language')
     };
   },
 

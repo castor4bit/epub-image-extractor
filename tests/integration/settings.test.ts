@@ -22,104 +22,88 @@ describe('設定ストア統合テスト', () => {
   
   beforeEach(async () => {
     // electron-storeのモックをリセット
-    (Store as jest.MockedClass<typeof Store>).mockClear();
-    
-    // 設定ストアモジュールを再インポート
     jest.resetModules();
-    const { settingsStore: store } = await import('../../src/main/store/settings');
-    settingsStore = store;
+    jest.clearAllMocks();
   });
 
   describe('設定の読み書き', () => {
-    test('デフォルト設定を取得できる', () => {
-      const mockGet = jest.fn((key: string) => {
-        const defaults = {
-          outputDirectory: path.join('/mock/desktop', 'EPUB_Images'),
-          language: 'ja',
-          parallelLimit: 3
-        };
-        return (defaults as any)[key];
-      });
-      
-      (Store as any).mockImplementation(() => ({
-        get: mockGet,
+    test('デフォルト設定を取得できる', async () => {
+      const mockStore = {
+        get: jest.fn((key: string) => {
+          const defaults = {
+            outputDirectory: path.join('/mock/desktop', 'EPUB_Images'),
+            language: 'ja'
+          };
+          return (defaults as any)[key];
+        }),
         set: jest.fn(),
         clear: jest.fn()
-      }));
+      };
       
+      (Store as any).mockImplementation(() => mockStore);
+      
+      const { settingsStore } = await import('../../src/main/store/settings');
       const settings = settingsStore.get();
       
       expect(settings).toEqual({
         outputDirectory: path.join('/mock/desktop', 'EPUB_Images'),
-        language: 'ja',
-        parallelLimit: 3
+        language: 'ja'
       });
     });
 
-    test('設定を更新できる', () => {
+    test('設定を更新できる', async () => {
       const mockSet = jest.fn();
-      
-      (Store as any).mockImplementation(() => ({
+      const mockStore = {
         get: jest.fn(),
         set: mockSet,
         clear: jest.fn()
-      }));
+      };
       
+      (Store as any).mockImplementation(() => mockStore);
+      
+      const { settingsStore } = await import('../../src/main/store/settings');
       settingsStore.set({
         outputDirectory: '/custom/path',
-        parallelLimit: 5
+        language: 'en'
       });
       
       expect(mockSet).toHaveBeenCalledWith('outputDirectory', '/custom/path');
-      expect(mockSet).toHaveBeenCalledWith('parallelLimit', 5);
+      expect(mockSet).toHaveBeenCalledWith('language', 'en');
     });
 
-    test('出力ディレクトリを個別に設定できる', () => {
+    test('出力ディレクトリを個別に設定できる', async () => {
       const mockSet = jest.fn();
-      
-      (Store as any).mockImplementation(() => ({
+      const mockStore = {
         get: jest.fn(),
         set: mockSet,
         clear: jest.fn()
-      }));
+      };
       
+      (Store as any).mockImplementation(() => mockStore);
+      
+      const { settingsStore } = await import('../../src/main/store/settings');
       settingsStore.setOutputDirectory('/new/output/dir');
       
       expect(mockSet).toHaveBeenCalledWith('outputDirectory', '/new/output/dir');
     });
 
-    test('設定をリセットできる', () => {
+    test('設定をリセットできる', async () => {
       const mockClear = jest.fn();
-      
-      (Store as any).mockImplementation(() => ({
+      const mockStore = {
         get: jest.fn(),
         set: jest.fn(),
         clear: mockClear
-      }));
+      };
       
+      (Store as any).mockImplementation(() => mockStore);
+      
+      const { settingsStore } = await import('../../src/main/store/settings');
       settingsStore.resetToDefaults();
       
       expect(mockClear).toHaveBeenCalled();
     });
   });
 
-  describe('並列処理数の検証', () => {
-    test('有効な並列処理数を設定できる', () => {
-      const mockSet = jest.fn();
-      
-      (Store as any).mockImplementation(() => ({
-        get: jest.fn(),
-        set: mockSet,
-        clear: jest.fn()
-      }));
-      
-      // 1から10の範囲内
-      [1, 3, 5, 10].forEach(limit => {
-        settingsStore.set({ parallelLimit: limit });
-        expect(mockSet).toHaveBeenCalledWith('parallelLimit', limit);
-      });
-    });
-  });
 });
 
 describe('ZIPハンドラー統合テスト', () => {

@@ -5,9 +5,13 @@ import { registerIpcHandlers } from './ipc/handlers';
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
+  // 以前のサイズ（1200x800）に対して、幅50%、高さ70%に設定
+  const windowWidth = 600;   // 1200 * 0.5
+  const windowHeight = 560;  // 800 * 0.7
+  
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: windowWidth,
+    height: windowHeight,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

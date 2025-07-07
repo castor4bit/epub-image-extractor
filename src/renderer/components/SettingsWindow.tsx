@@ -4,7 +4,6 @@ import './SettingsWindow.css';
 interface Settings {
   outputDirectory: string;
   language: string;
-  parallelLimit: number;
 }
 
 interface SettingsWindowProps {
@@ -15,8 +14,7 @@ interface SettingsWindowProps {
 export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose }) => {
   const [settings, setSettings] = useState<Settings>({
     outputDirectory: '',
-    language: 'ja',
-    parallelLimit: 3
+    language: 'ja'
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -91,18 +89,6 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
             </select>
           </div>
 
-          <div className="setting-group">
-            <label htmlFor="parallel-limit">同時処理ファイル数</label>
-            <input
-              id="parallel-limit"
-              type="number"
-              min="1"
-              max="10"
-              value={settings.parallelLimit}
-              onChange={(e) => setSettings(prev => ({ ...prev, parallelLimit: parseInt(e.target.value) || 3 }))}
-            />
-            <small>1〜10の範囲で指定してください</small>
-          </div>
         </div>
 
         <div className="settings-footer">

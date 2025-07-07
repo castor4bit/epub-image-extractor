@@ -70,9 +70,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
         mainWindow.webContents.send('epub:progress', progress);
       };
 
-      // EPUB処理を実行（設定から並列数を取得）
-      const settings = settingsStore.get();
-      const results = await processEpubFiles(epubPaths, outputDir, onProgress, settings.parallelLimit);
+      // EPUB処理を実行（並列数は固定で3）
+      const results = await processEpubFiles(epubPaths, outputDir, onProgress, 3);
       
       // 一時ファイルをクリーンアップ
       await cleanupTempFiles(tempFiles);
