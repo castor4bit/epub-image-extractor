@@ -89,8 +89,12 @@ export async function organizeByChapters(
         // 拡張子を決定
         const ext = getImageExtension(image.src, imageBuffer);
 
-        // ファイル名を生成（3桁でパディング）
-        const fileName = `${String(imageIndex).padStart(3, '0')}${ext}`;
+        // 元のファイル名から拡張子を除いた部分を取得
+        const originalBaseName = path.basename(image.src, path.extname(image.src));
+        const sanitizedOriginalName = secureSanitizeFileName(originalBaseName);
+
+        // ファイル名を生成（4桁でパディング + 元のファイル名）
+        const fileName = `${String(imageIndex).padStart(4, '0')}_${sanitizedOriginalName}${ext}`;
         const filePath = path.join(chapterDir, fileName);
 
         // 画像を保存
