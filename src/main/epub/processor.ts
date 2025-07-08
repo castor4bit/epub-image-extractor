@@ -100,6 +100,7 @@ async function processEpubFile(
         totalImages: total,
         processedImages: processed,
         status: 'processing',
+        phase: 'extracting',
       });
     });
 
@@ -116,6 +117,16 @@ async function processEpubFile(
     // generateOutputPathが既にディレクトリを作成している場合があるため、
     // エラーを無視して作成を試みる
     await fs.mkdir(fileOutputDir, { recursive: true }).catch(() => {});
+
+    // 画像保存フェーズの開始を通知
+    onProgress({
+      fileId: actualFileId,
+      fileName,
+      totalImages: images.length,
+      processedImages: images.length,
+      status: 'processing',
+      phase: 'organizing',
+    });
 
     // 章ごとに整理して保存
     const chapterCount = await organizeByChapters(

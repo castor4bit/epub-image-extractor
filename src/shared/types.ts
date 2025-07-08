@@ -10,6 +10,7 @@ export interface ProcessingProgress {
   totalImages: number;
   processedImages: number;
   status: 'pending' | 'processing' | 'completed' | 'error';
+  phase?: 'extracting' | 'organizing'; // 処理フェーズ
   error?: string;
   outputPath?: string;
   chapters?: number;

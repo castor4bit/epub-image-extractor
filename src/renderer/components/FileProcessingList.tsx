@@ -12,6 +12,7 @@ interface ProcessingItem {
   fileId: string;
   fileName: string;
   status: 'pending' | 'processing' | 'completed' | 'error';
+  phase?: 'extracting' | 'organizing';
   totalImages?: number;
   processedImages?: number;
   chapters?: number;
@@ -53,6 +54,7 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
         fileId,
         fileName: prog.fileName,
         status: prog.status,
+        phase: prog.phase,
         totalImages: prog.totalImages,
         processedImages: prog.processedImages,
         error: prog.error,
@@ -110,7 +112,11 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
 
       <div className="processing-items">
         {sortedItems.map((item) => (
-          <div key={item.fileId} className={`processing-item ${item.status}`}>
+          <div
+            key={item.fileId}
+            className={`processing-item ${item.status}`}
+            data-phase={item.phase}
+          >
             <div className="item-header">
               <span className="status-icon">{getStatusIcon(item.status)}</span>
               <span className="file-name">{item.fileName}</span>
@@ -121,11 +127,19 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
                 <div className="progress-bar">
                   <div
                     className="progress-fill"
-                    style={{ width: `${((item.processedImages || 0) / item.totalImages) * 100}%` }}
+                    style={{
+                      width: `${
+                        item.phase === 'organizing'
+                          ? '95%'
+                          : `${Math.min(95, ((item.processedImages || 0) / item.totalImages) * 100)}%`
+                      }`,
+                    }}
                   />
                 </div>
                 <div className="progress-text">
-                  処理中: {item.processedImages || 0} / {item.totalImages} 画像
+                  {item.phase === 'organizing'
+                    ? `画像を保存中... (${item.totalImages}画像)`
+                    : `画像を抽出中: ${item.processedImages || 0} / ${item.totalImages}`}
                 </div>
               </>
             )}
