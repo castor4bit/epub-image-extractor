@@ -35,13 +35,13 @@ function getLogger(): winston.Logger {
     if (!logPath) {
       logPath = getLogPath();
     }
-    
+
     logger = winston.createLogger({
       level: 'info',
       format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.errors({ stack: true }),
-        winston.format.json()
+        winston.format.json(),
       ),
       transports: [
         // エラーログをファイルに記録
@@ -64,15 +64,12 @@ function getLogger(): winston.Logger {
     if (process.env.NODE_ENV !== 'production') {
       logger.add(
         new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()
-          ),
-        })
+          format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
+        }),
       );
     }
   }
-  
+
   return logger;
 }
 

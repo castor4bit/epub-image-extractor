@@ -20,6 +20,7 @@ interface ElectronAPI {
     outputDirectory: string;
     language: string;
   }>;
+  openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 interface Window {

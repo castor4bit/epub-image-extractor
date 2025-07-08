@@ -35,12 +35,14 @@ describe('App Component', () => {
 
   it('ドラッグオーバー時にアクティブクラスを追加する', () => {
     render(<App />);
-    const dropZone = screen.getByText('EPUBファイルをここにドラッグ&ドロップ').closest('.drop-zone');
-    
+    const dropZone = screen
+      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .closest('.drop-zone');
+
     if (dropZone) {
       fireEvent.dragEnter(dropZone);
       expect(dropZone).toHaveClass('active');
-      
+
       fireEvent.dragLeave(dropZone);
       expect(dropZone).not.toHaveClass('active');
     }
@@ -48,13 +50,15 @@ describe('App Component', () => {
 
   it('EPUBファイルをドロップすると処理を開始する', async () => {
     render(<App />);
-    const dropZone = screen.getByText('EPUBファイルをここにドラッグ&ドロップ').closest('.drop-zone');
-    
+    const dropZone = screen
+      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .closest('.drop-zone');
+
     if (dropZone) {
       // モックファイルを作成
       const mockFile = new File(['test content'], 'test.epub', { type: 'application/epub+zip' });
       Object.defineProperty(mockFile, 'path', { value: '/test/path/test.epub' });
-      
+
       // ドロップイベントを発火
       fireEvent.drop(dropZone, {
         dataTransfer: {
@@ -71,11 +75,13 @@ describe('App Component', () => {
   it('EPUB以外のファイルをドロップするとアラートを表示する', () => {
     window.alert = jest.fn();
     render(<App />);
-    const dropZone = screen.getByText('EPUBファイルをここにドラッグ&ドロップ').closest('.drop-zone');
-    
+    const dropZone = screen
+      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .closest('.drop-zone');
+
     if (dropZone) {
       const mockFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
-      
+
       fireEvent.drop(dropZone, {
         dataTransfer: {
           files: [mockFile],
@@ -88,7 +94,7 @@ describe('App Component', () => {
 
   it('処理中は進捗を表示する', async () => {
     render(<App />);
-    
+
     // 進捗コールバックを設定
     mockElectronAPI.onProgress.mockImplementation((callback) => {
       callback({
@@ -100,12 +106,14 @@ describe('App Component', () => {
       });
     });
 
-    const dropZone = screen.getByText('EPUBファイルをここにドラッグ&ドロップ').closest('.drop-zone');
-    
+    const dropZone = screen
+      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .closest('.drop-zone');
+
     if (dropZone) {
       const mockFile = new File(['test content'], 'test.epub', { type: 'application/epub+zip' });
       Object.defineProperty(mockFile, 'path', { value: '/test/path/test.epub' });
-      
+
       fireEvent.drop(dropZone, {
         dataTransfer: {
           files: [mockFile],

@@ -1,4 +1,4 @@
-import { ipcMain, dialog, app, BrowserWindow } from 'electron';
+import { ipcMain, dialog, app, BrowserWindow, shell } from 'electron';
 import { processEpubFiles } from '../epub/processor';
 import { ProcessingProgress } from '@shared/types';
 import path from 'path';
@@ -26,7 +26,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   // EPUBファイル処理
   ipcMain.handle('epub:process', async (_event, filePaths: string[]) => {
     const tempFiles: string[] = [];
-    
+
     try {
       // 設定から出力先を取得
       const outputDir = settingsStore.getOutputDirectory();
@@ -35,7 +35,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
       // EPUBファイルとZIPファイルを分離
       const epubPaths: string[] = [];
       const zipPaths: string[] = [];
-      
+
       for (const filePath of filePaths) {
         if (isZipFile(filePath)) {
           zipPaths.push(filePath);
@@ -43,7 +43,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
           epubPaths.push(filePath);
         }
       }
-      
+
       // ZIPファイルからEPUBを展開
       for (const zipPath of zipPaths) {
         try {
@@ -59,7 +59,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
             totalImages: 0,
             processedImages: 0,
             status: 'error',
-            error: `ZIPファイルの展開に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`
+            error: `ZIPファイルの展開に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
           };
           mainWindow.webContents.send('epub:progress', progress);
         }
@@ -72,19 +72,19 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
 
       // EPUB処理を実行（並列数は固定で3）
       const results = await processEpubFiles(epubPaths, outputDir, onProgress, 3);
-      
+
       // 一時ファイルをクリーンアップ
       await cleanupTempFiles(tempFiles);
-      
+
       return { success: true, results };
     } catch (error) {
       // エラー時も一時ファイルをクリーンアップ
       await cleanupTempFiles(tempFiles);
-      
+
       console.error('EPUB処理エラー:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : '不明なエラーが発生しました' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '不明なエラーが発生しました',
       };
     }
   });
@@ -104,5 +104,19 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   ipcMain.handle('settings:reset', async () => {
     settingsStore.resetToDefaults();
     return settingsStore.get();
+  });
+
+  // フォルダを開く
+  ipcMain.handle('file:openFolder', async (_event, folderPath: string) => {
+    try {
+      await shell.openPath(folderPath);
+      return { success: true };
+    } catch (error) {
+      console.error('フォルダを開けませんでした:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '不明なエラー',
+      };
+    }
   });
 }

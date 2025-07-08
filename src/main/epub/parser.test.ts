@@ -10,7 +10,9 @@ describe('EPUB Parser', () => {
     try {
       await fs.access(testEpubPath);
     } catch {
-      console.warn('テスト用EPUBファイルが見つかりません。実際のEPUBファイルでテストしてください。');
+      console.warn(
+        'テスト用EPUBファイルが見つかりません。実際のEPUBファイルでテストしてください。',
+      );
     }
   });
 
@@ -19,7 +21,7 @@ describe('EPUB Parser', () => {
     try {
       await fs.access(testEpubPath);
       const result = await parseEpub(testEpubPath);
-      
+
       expect(result).toHaveProperty('manifest');
       expect(result).toHaveProperty('spine');
       expect(result).toHaveProperty('navigation');
@@ -33,7 +35,7 @@ describe('EPUB Parser', () => {
 
   it('存在しないファイルでエラーを投げる', async () => {
     const invalidPath = '/path/to/nonexistent.epub';
-    
+
     await expect(parseEpub(invalidPath)).rejects.toThrow('EPUBファイルの解析に失敗しました');
   });
 });

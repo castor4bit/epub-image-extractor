@@ -12,15 +12,28 @@ export async function processEpubFiles(
   filePaths: string[],
   outputDir: string,
   onProgress: (progress: ProcessingProgress) => void,
-  parallelLimit: number = 3
+  parallelLimit: number = 3,
 ): Promise<ExtractionResult[]> {
   // 並列処理の制限（同時に処理するEPUBファイル数）
   const limit = pLimit(parallelLimit);
   const results: ExtractionResult[] = [];
 
+  // すべてのファイルの進捗を初期化（pending状態）
+  filePaths.forEach((filePath, index) => {
+    const fileName = path.basename(filePath);
+    const fileId = `file-${index}-${Date.now()}`;
+    onProgress({
+      fileId,
+      fileName,
+      totalImages: 0,
+      processedImages: 0,
+      status: 'pending',
+    });
+  });
+
   // 各EPUBファイルを並列処理
-  const promises = filePaths.map((filePath) =>
-    limit(() => processEpubFile(filePath, outputDir, onProgress))
+  const promises = filePaths.map((filePath, index) =>
+    limit(() => processEpubFile(filePath, outputDir, onProgress, `file-${index}-${Date.now()}`)),
   );
 
   const processResults = await Promise.allSettled(promises);
@@ -50,16 +63,17 @@ export async function processEpubFiles(
 async function processEpubFile(
   filePath: string,
   outputDir: string,
-  onProgress: (progress: ProcessingProgress) => void
+  onProgress: (progress: ProcessingProgress) => void,
+  fileId?: string,
 ): Promise<ExtractionResult> {
   const fileName = path.basename(filePath);
-  const fileId = `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const actualFileId = fileId || `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const errors: string[] = [];
 
   try {
     // 進捗通知：処理開始
     onProgress({
-      fileId,
+      fileId: actualFileId,
       fileName,
       totalImages: 0,
       processedImages: 0,
@@ -68,11 +82,11 @@ async function processEpubFile(
 
     // EPUB解析
     const epubData = await parseEpub(filePath);
-    
+
     // 画像抽出
     const images = await extractImages(epubData, (processed, total) => {
       onProgress({
-        fileId,
+        fileId: actualFileId,
         fileName,
         totalImages: total,
         processedImages: processed,
@@ -84,12 +98,12 @@ async function processEpubFile(
     const bookName = path.basename(fileName, '.epub');
     const outputPathInfo = await generateOutputPath(outputDir, bookName);
     const fileOutputDir = outputPathInfo.path;
-    
+
     // 警告メッセージがある場合はエラーリストに追加
     if (outputPathInfo.warning) {
       console.warn(`出力先警告 (${fileName}): ${outputPathInfo.warning}`);
     }
-    
+
     // generateOutputPathが既にディレクトリを作成している場合があるため、
     // エラーを無視して作成を試みる
     await fs.mkdir(fileOutputDir, { recursive: true }).catch(() => {});
@@ -99,12 +113,12 @@ async function processEpubFile(
       images,
       epubData.navigation,
       fileOutputDir,
-      epubData.basePath
+      epubData.basePath,
     );
 
     // 進捗通知：完了
     onProgress({
-      fileId,
+      fileId: actualFileId,
       fileName,
       totalImages: images.length,
       processedImages: images.length,
@@ -112,7 +126,7 @@ async function processEpubFile(
     });
 
     return {
-      fileId,
+      fileId: actualFileId,
       fileName,
       outputPath: fileOutputDir,
       totalImages: images.length,
@@ -125,7 +139,7 @@ async function processEpubFile(
 
     // 進捗通知：エラー
     onProgress({
-      fileId,
+      fileId: actualFileId,
       fileName,
       totalImages: 0,
       processedImages: 0,

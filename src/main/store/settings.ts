@@ -9,7 +9,7 @@ interface Settings {
 
 const defaults: Settings = {
   outputDirectory: path.join(app.getPath('desktop'), 'EPUB_Images'),
-  language: 'ja'
+  language: 'ja',
 };
 
 // electron-storeインスタンスを作成
@@ -19,14 +19,14 @@ const store = new Store<Settings>({
   // ファイル権限を制限（所有者のみ読み書き可能）
   fileExtension: 'json',
   clearInvalidConfig: true,
-  accessPropertiesByDotNotation: false
+  accessPropertiesByDotNotation: false,
 });
 
 export const settingsStore = {
   get: (): Settings => {
     return {
       outputDirectory: store.get('outputDirectory'),
-      language: store.get('language')
+      language: store.get('language'),
     };
   },
 
@@ -48,5 +48,5 @@ export const settingsStore = {
 
   resetToDefaults: (): void => {
     store.clear();
-  }
+  },
 };

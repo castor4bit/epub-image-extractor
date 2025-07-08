@@ -7,7 +7,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     test('navigation-documents.xhtmlから章情報を抽出できること', async () => {
       // テスト用のEPUBをモック
       const mockZip = new AdmZip();
-      
+
       // container.xml
       const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -16,7 +16,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </rootfiles>
 </container>`;
       mockZip.addFile('META-INF/container.xml', Buffer.from(containerXml));
-      
+
       // OPFファイル
       const opfXml = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
@@ -34,7 +34,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </spine>
 </package>`;
       mockZip.addFile('item/standard.opf', Buffer.from(opfXml));
-      
+
       // Navigation Document
       const navXhtml = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
@@ -53,24 +53,24 @@ describe('parseEpub - ナビゲーション抽出', () => {
 </body>
 </html>`;
       mockZip.addFile('item/navigation-documents.xhtml', Buffer.from(navXhtml));
-      
+
       // EPUBをファイルに書き出し
       const tempPath = path.join(__dirname, 'test-nav.epub');
       mockZip.writeZip(tempPath);
-      
+
       try {
         const result = await parseEpub(tempPath);
-        
+
         expect(result.navigation).toHaveLength(2);
         expect(result.navigation[0]).toEqual({
           order: 1,
           title: '第1章 はじめに',
-          href: 'xhtml/p-001.xhtml'
+          href: 'xhtml/p-001.xhtml',
         });
         expect(result.navigation[1]).toEqual({
           order: 2,
           title: '第2章 本編',
-          href: 'xhtml/p-002.xhtml'
+          href: 'xhtml/p-002.xhtml',
         });
       } finally {
         // クリーンアップ
@@ -83,7 +83,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
 
     test('propertiesがnavのアイテムを識別できること', async () => {
       const mockZip = new AdmZip();
-      
+
       const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
@@ -91,7 +91,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </rootfiles>
 </container>`;
       mockZip.addFile('META-INF/container.xml', Buffer.from(containerXml));
-      
+
       const opfXml = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
   <metadata>
@@ -106,7 +106,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </spine>
 </package>`;
       mockZip.addFile('OEBPS/content.opf', Buffer.from(opfXml));
-      
+
       const navXhtml = `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
 <body>
@@ -118,10 +118,10 @@ describe('parseEpub - ナビゲーション抽出', () => {
 </body>
 </html>`;
       mockZip.addFile('OEBPS/nav.xhtml', Buffer.from(navXhtml));
-      
+
       const tempPath = path.join(__dirname, 'test-nav-properties.epub');
       mockZip.writeZip(tempPath);
-      
+
       try {
         const result = await parseEpub(tempPath);
         expect(result.navigation).toHaveLength(1);
@@ -138,7 +138,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   describe('EPUB2 NCX', () => {
     test('NCXファイルから章情報を抽出できること', async () => {
       const mockZip = new AdmZip();
-      
+
       const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
@@ -146,7 +146,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </rootfiles>
 </container>`;
       mockZip.addFile('META-INF/container.xml', Buffer.from(containerXml));
-      
+
       const opfXml = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
   <metadata>
@@ -161,7 +161,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </spine>
 </package>`;
       mockZip.addFile('OEBPS/content.opf', Buffer.from(opfXml));
-      
+
       const ncxXml = `<?xml version="1.0" encoding="UTF-8"?>
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
   <navMap>
@@ -174,10 +174,10 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </navMap>
 </ncx>`;
       mockZip.addFile('OEBPS/toc.ncx', Buffer.from(ncxXml));
-      
+
       const tempPath = path.join(__dirname, 'test-ncx.epub');
       mockZip.writeZip(tempPath);
-      
+
       try {
         const result = await parseEpub(tempPath);
         expect(result.navigation).toHaveLength(1);

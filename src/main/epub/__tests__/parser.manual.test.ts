@@ -30,7 +30,7 @@ describe('parseEpub - 手動解析実装', () => {
       const result = await parseEpub(testEpubPath);
 
       expect(Object.keys(result.manifest).length).toBeGreaterThan(0);
-      
+
       // manifest項目の構造を確認
       const firstItem = Object.values(result.manifest)[0] as any;
       expect(firstItem).toHaveProperty('id');
@@ -42,7 +42,7 @@ describe('parseEpub - 手動解析実装', () => {
       const result = await parseEpub(testEpubPath);
 
       expect(result.spine.length).toBeGreaterThan(0);
-      
+
       // spine項目の構造を確認
       const firstSpineItem = result.spine[0];
       expect(firstSpineItem).toHaveProperty('idref');
@@ -52,8 +52,8 @@ describe('parseEpub - 手動解析実装', () => {
     test('画像アイテムが正しく識別されること', async () => {
       const result = await parseEpub(testEpubPath);
 
-      const imageItems = Object.values(result.manifest).filter(
-        (item: any) => item['media-type']?.startsWith('image/')
+      const imageItems = Object.values(result.manifest).filter((item: any) =>
+        item['media-type']?.startsWith('image/'),
       );
 
       expect(imageItems.length).toBeGreaterThan(0);
@@ -64,9 +64,7 @@ describe('parseEpub - 手動解析実装', () => {
     test('存在しないファイルの場合エラーをスローすること', async () => {
       const invalidPath = '/path/to/nonexistent.epub';
 
-      await expect(parseEpub(invalidPath)).rejects.toThrow(
-        'EPUBファイルの解析に失敗しました'
-      );
+      await expect(parseEpub(invalidPath)).rejects.toThrow('EPUBファイルの解析に失敗しました');
     });
 
     test('不正なEPUBファイルの場合エラーをスローすること', async () => {

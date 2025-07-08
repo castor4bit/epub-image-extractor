@@ -16,67 +16,67 @@ export interface EpubData {
 export async function parseEpub(epubPath: string): Promise<EpubData> {
   try {
     console.log('EPUB解析開始:', epubPath);
-    
+
     // 手動でEPUBを解析
     const zip = new AdmZip(epubPath);
-    
+
     // container.xmlを読む
     const containerEntry = zip.getEntry('META-INF/container.xml');
     if (!containerEntry) {
       throw new Error('container.xml not found');
     }
-    
+
     const containerXml = zip.readAsText(containerEntry);
     const containerData = await parseStringPromise(containerXml);
-    
+
     // OPFファイルのパスを取得
     const rootfiles = containerData.container.rootfiles[0].rootfile;
     const opfPath = rootfiles[0].$['full-path'];
     const contentPath = path.dirname(opfPath);
-    
+
     // OPFファイルを読む
     const opfEntry = zip.getEntry(opfPath);
     if (!opfEntry) {
       throw new Error('OPF file not found');
     }
-    
+
     const opfXml = zip.readAsText(opfEntry);
     const opfData = await parseStringPromise(opfXml);
-    
+
     // manifestとspineを取得
     const manifest: any = {};
     const manifestItems = opfData.package.manifest[0].item || [];
-    
+
     manifestItems.forEach((item: any) => {
       const id = item.$.id;
       manifest[id] = {
         id: id,
         href: item.$.href,
-        'media-type': item.$['media-type']
+        'media-type': item.$['media-type'],
       };
     });
-    
+
     // spine情報を取得
     const spine: any[] = [];
     const spineItems = opfData.package.spine[0].itemref || [];
-    
+
     spineItems.forEach((item: any) => {
       spine.push({
         idref: item.$.idref,
-        linear: item.$.linear || 'yes'
+        linear: item.$.linear || 'yes',
       });
     });
-    
+
     console.log('パーサー実行完了。取得した情報:', {
       hasManifest: !!manifest,
       hasSpine: !!spine,
       manifestKeys: Object.keys(manifest).length,
-      spineLength: spine.length
+      spineLength: spine.length,
     });
-    
+
     // ナビゲーション情報を取得（目次）
     const navigation = await extractNavigationFromZip(zip, opfPath, manifest);
-    
+
     return {
       manifest,
       spine,
@@ -90,27 +90,34 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
       error,
       message: error instanceof Error ? error.message : '不明なエラー',
       stack: error instanceof Error ? error.stack : undefined,
-      epubPath
+      epubPath,
     });
-    throw new Error(`EPUBファイルの解析に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
+    throw new Error(
+      `EPUBファイルの解析に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    );
   }
 }
 
-async function extractNavigationFromZip(zip: AdmZip, opfPath: string, manifest: any): Promise<ChapterInfo[]> {
+async function extractNavigationFromZip(
+  zip: AdmZip,
+  opfPath: string,
+  manifest: any,
+): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
-  
+
   try {
     // EPUB3のNavigation Documentを探す（properties="nav"）
     let tocItem = Object.values(manifest).find(
-      (item: any) => item.properties && item.properties.includes('nav')
+      (item: any) => item.properties && item.properties.includes('nav'),
     ) as any;
-    
+
     // EPUB3のnavigation documentが見つからない場合は、EPUB2のNCXを探す
     if (!tocItem) {
       tocItem = Object.values(manifest).find(
-        (item: any) => item['media-type'] === 'application/x-dtbncx+xml' || 
-                       item.id === 'ncx' ||
-                       item.id === 'toc'
+        (item: any) =>
+          item['media-type'] === 'application/x-dtbncx+xml' ||
+          item.id === 'ncx' ||
+          item.id === 'toc',
       ) as any;
     }
 
@@ -118,11 +125,11 @@ async function extractNavigationFromZip(zip: AdmZip, opfPath: string, manifest: 
       const contentPath = path.dirname(opfPath);
       const tocPath = path.join(contentPath, tocItem.href).replace(/\\/g, '/');
       const tocEntry = zip.getEntry(tocPath);
-      
+
       if (tocEntry) {
         const tocContent = zip.readAsText(tocEntry);
         console.log(`ナビゲーションファイル発見: ${tocPath}`);
-        
+
         if (tocItem['media-type'] === 'application/x-dtbncx+xml') {
           // NCX形式の目次
           return await parseNCX(tocContent);
@@ -146,7 +153,7 @@ async function extractNavigationFromZip(zip: AdmZip, opfPath: string, manifest: 
 
 async function extractNavigation(parser: any, epubInfo: any): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
-  
+
   try {
     // navigationプロパティが存在する場合
     if (epubInfo.navigation) {
@@ -156,13 +163,13 @@ async function extractNavigation(parser: any, epubInfo: any): Promise<ChapterInf
     // navigationプロパティがない場合の回避策
     // NCXファイルまたはNav Documentから直接取得を試みる
     const tocItem = Object.values(epubInfo.manifest || {}).find(
-      (item: any) => item.properties?.includes('nav') || item.id === 'ncx'
+      (item: any) => item.properties?.includes('nav') || item.id === 'ncx',
     ) as any;
 
     if (tocItem) {
       const tocContent = await parser.getFile(tocItem.href);
       const tocString = tocContent.toString('utf-8');
-      
+
       if (tocItem.mediaType === 'application/x-dtbncx+xml') {
         // NCX形式の目次
         return await parseNCX(tocString);
@@ -197,7 +204,7 @@ function parseNavigationData(navigation: any): ChapterInfo[] {
         href: navPoint.href || '',
       });
     }
-    
+
     // 子要素も処理
     if (navPoint.children && Array.isArray(navPoint.children)) {
       navPoint.children.forEach(processNavPoint);
@@ -215,41 +222,41 @@ function parseNavigationData(navigation: any): ChapterInfo[] {
 
 async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
-  
+
   try {
     const parsed = await parseStringPromise(ncxContent);
     const navMap = parsed.ncx?.navMap?.[0];
-    
+
     if (navMap?.navPoint) {
       let order = 1;
-      
+
       const processNavPoint = (navPoint: any) => {
         const title = navPoint.navLabel?.[0]?.text?.[0];
         const href = navPoint.content?.[0]?.$?.src;
-        
+
         if (title && href) {
           chapters.push({ order: order++, title, href });
         }
-        
+
         // 子navPointも処理
         if (navPoint.navPoint) {
           navPoint.navPoint.forEach(processNavPoint);
         }
       };
-      
+
       navMap.navPoint.forEach(processNavPoint);
     }
   } catch (error) {
     console.warn('NCX解析エラー:', error);
   }
-  
+
   return chapters;
 }
 
 async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
   let order = 1;
-  
+
   try {
     // nav要素のtocを探す
     const navMatch = htmlContent.match(/<nav[^>]*epub:type=["']toc["'][^>]*>([\s\S]*?)<\/nav>/i);
@@ -257,63 +264,63 @@ async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo
       console.warn('Navigation Documentにtocが見つかりません');
       return chapters;
     }
-    
+
     const navContent = navMatch[1];
-    
+
     // ol/li要素からリンクを抽出
     const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
     let liMatch;
-    
+
     while ((liMatch = liRegex.exec(navContent)) !== null) {
       const liContent = liMatch[1];
-      
+
       // a要素を探す
       const aMatch = liContent.match(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i);
       if (aMatch) {
         const href = aMatch[1];
         const titleHtml = aMatch[2];
-        
+
         // HTMLタグを除去してテキストを取得
         const title = titleHtml.replace(/<[^>]*>/g, '').trim();
-        
+
         if (title && href) {
           chapters.push({
             order: order++,
             title,
-            href
+            href,
           });
         }
       }
     }
-    
+
     console.log(`Navigation Documentから${chapters.length}個の章を抽出しました`);
   } catch (error) {
     console.warn('Navigation Document解析エラー:', error);
   }
-  
+
   return chapters;
 }
 
 function parseHTMLNavigation(htmlContent: string): ChapterInfo[] {
   const chapters: ChapterInfo[] = [];
   let order = 1;
-  
+
   // 簡易的なHTML解析（nav要素内のリンクを抽出）
   const navMatch = htmlContent.match(/<nav[^>]*>([\s\S]*?)<\/nav>/i);
   if (navMatch) {
     const navContent = navMatch[1];
     const linkRegex = /<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
     let match;
-    
+
     while ((match = linkRegex.exec(navContent)) !== null) {
       const href = match[1];
       const title = match[2].replace(/<[^>]+>/g, '').trim();
-      
+
       if (title && href) {
         chapters.push({ order: order++, title, href });
       }
     }
   }
-  
+
   return chapters;
 }

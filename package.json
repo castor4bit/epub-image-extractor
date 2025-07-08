@@ -1,6 +1,6 @@
 {
   "name": "epub-image-extractor",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "EPUBファイルから章別に画像を抽出するデスクトップアプリケーション",
   "main": "dist-electron/main/index.js",
   "author": "Toru Tanaka",
@@ -46,6 +46,7 @@
     "@playwright/test": "^1.40.1",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/adm-zip": "^0.5.7",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",

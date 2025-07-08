@@ -31,7 +31,7 @@ describe('Chapter Organizer', () => {
 
     // モックのEPUBパスパーサーを作成
     const mockEpubPath = path.join(tempDir, 'mock.epub');
-    
+
     // organizeByChaptersの実行にはEpubParserのモックが必要
     // ここでは統合テストのみ実装
     expect(mockImages).toHaveLength(3);
@@ -48,7 +48,7 @@ describe('Chapter Organizer', () => {
 
     // 空のナビゲーションの場合、すべての画像が未分類フォルダに入る
     expect(emptyNavigation).toHaveLength(0);
-    expect(mockImages.every(img => img.chapterOrder === 1)).toBe(true);
+    expect(mockImages.every((img) => img.chapterOrder === 1)).toBe(true);
   });
 
   it('ファイル名をサニタイズする', async () => {

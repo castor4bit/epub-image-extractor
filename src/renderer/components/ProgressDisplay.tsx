@@ -8,8 +8,8 @@ interface ProgressDisplayProps {
 export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({ progress }) => {
   const progressItems = Object.values(progress);
   const totalFiles = progressItems.length;
-  const completedFiles = progressItems.filter(p => p.status === 'completed').length;
-  const hasErrors = progressItems.some(p => p.status === 'error');
+  const completedFiles = progressItems.filter((p) => p.status === 'completed').length;
+  const hasErrors = progressItems.some((p) => p.status === 'error');
 
   return (
     <div className="progress-container">
@@ -19,7 +19,7 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({ progress }) =>
           {completedFiles} / {totalFiles} ファイル完了
         </div>
       </div>
-      
+
       <div className="progress-items">
         {progressItems.map((p) => (
           <div key={p.fileId} className={`progress-item ${p.status}`}>
@@ -31,11 +31,11 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({ progress }) =>
                 {p.status === 'processing' && <span className="status-icon">⋯</span>}
               </span>
             </div>
-            
+
             {p.totalImages > 0 && p.status === 'processing' && (
               <>
                 <div className="progress-bar">
-                  <div 
+                  <div
                     className="progress-fill"
                     style={{ width: `${(p.processedImages / p.totalImages) * 100}%` }}
                   />
@@ -45,25 +45,17 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({ progress }) =>
                 </div>
               </>
             )}
-            
+
             {p.status === 'completed' && (
-              <div className="progress-text success">
-                {p.totalImages} 画像を抽出しました
-              </div>
+              <div className="progress-text success">{p.totalImages} 画像を抽出しました</div>
             )}
-            
-            {p.error && (
-              <div className="error-message">{p.error}</div>
-            )}
+
+            {p.error && <div className="error-message">{p.error}</div>}
           </div>
         ))}
       </div>
-      
-      {hasErrors && (
-        <div className="progress-footer error">
-          エラーが発生したファイルがあります
-        </div>
-      )}
+
+      {hasErrors && <div className="progress-footer error">エラーが発生したファイルがあります</div>}
     </div>
   );
 };
