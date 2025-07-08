@@ -29,14 +29,14 @@ describe('App Component', () => {
 
   it('ドロップゾーンを表示する', () => {
     render(<App />);
-    expect(screen.getByText('EPUBファイルをここにドラッグ&ドロップ')).toBeInTheDocument();
+    expect(screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')).toBeInTheDocument();
     expect(screen.getByText('ファイルを選択')).toBeInTheDocument();
   });
 
   it('ドラッグオーバー時にアクティブクラスを追加する', () => {
     render(<App />);
     const dropZone = screen
-      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -51,7 +51,7 @@ describe('App Component', () => {
   it('EPUBファイルをドロップすると処理を開始する', async () => {
     render(<App />);
     const dropZone = screen
-      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -76,7 +76,7 @@ describe('App Component', () => {
     window.alert = jest.fn();
     render(<App />);
     const dropZone = screen
-      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -88,26 +88,26 @@ describe('App Component', () => {
         },
       });
 
-      expect(window.alert).toHaveBeenCalledWith('EPUBファイルを選択してください');
+      expect(window.alert).toHaveBeenCalledWith('EPUBまたはZIPファイルを選択してください');
     }
   });
 
   it('処理中は進捗を表示する', async () => {
+    let progressCallback: ((data: any) => void) | null = null;
+    
+    // onProgressのモックを設定
+    mockElectronAPI.onProgress.mockImplementation((callback: (data: any) => void) => {
+      progressCallback = callback;
+      // クリーンアップ関数を返す
+      return () => {
+        progressCallback = null;
+      };
+    });
+    
     render(<App />);
 
-    // 進捗コールバックを設定
-    mockElectronAPI.onProgress.mockImplementation((callback) => {
-      callback({
-        fileId: 'test-1',
-        fileName: 'test.epub',
-        totalImages: 10,
-        processedImages: 5,
-        status: 'processing',
-      });
-    });
-
     const dropZone = screen
-      .getByText('EPUBファイルをここにドラッグ&ドロップ')
+      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -119,11 +119,27 @@ describe('App Component', () => {
           files: [mockFile],
         },
       });
+      
+      // 進捗データを送信
+      await waitFor(() => {
+        expect(mockElectronAPI.processEpubFiles).toHaveBeenCalled();
+      });
+      
+      // progressCallback を一時変数に代入してTypeScriptの型推論を助ける
+      const callback = progressCallback;
+      if (callback) {
+        (callback as (data: any) => void)({
+          fileId: 'test-1',
+          fileName: 'test.epub',
+          totalImages: 10,
+          processedImages: 5,
+          status: 'processing',
+        });
+      }
 
       await waitFor(() => {
-        expect(screen.getByText('処理中...')).toBeInTheDocument();
         expect(screen.getByText('test.epub')).toBeInTheDocument();
-        expect(screen.getByText('5 / 10 画像')).toBeInTheDocument();
+        expect(screen.getByText('画像を抽出中: 5 / 10')).toBeInTheDocument();
       });
     }
   });

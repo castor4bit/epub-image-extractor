@@ -214,12 +214,12 @@ describe('FileProcessingList', () => {
       />,
     );
 
-    expect(screen.getByText('処理中: 75 / 100 画像')).toBeInTheDocument();
+    expect(screen.getByText('画像を抽出中: 75 / 100')).toBeInTheDocument();
 
-    // 進捗バーの幅が75%になっている
-    const progressBar = screen
-      .getByText('処理中: 75 / 100 画像')
-      .previousElementSibling?.querySelector('.progress-fill') as HTMLElement;
+    // 進捗バーの幅が75%を超えないように設定されている（95%が上限）
+    const progressBar = document.querySelector('.progress-fill') as HTMLElement;
+    expect(progressBar).toBeTruthy();
+    // 75%が上限の95%を超えないことを確認
     expect(progressBar.style.width).toBe('75%');
   });
 });

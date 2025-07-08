@@ -119,7 +119,7 @@ describe('FileProcessingList - 重複表示の防止', () => {
 
     // 処理中のファイルは1つ
     expect(screen.getByText('processing.epub')).toBeInTheDocument();
-    expect(screen.getByText('処理中: 50 / 100 画像')).toBeInTheDocument();
+    expect(screen.getByText('画像を抽出中: 50 / 100')).toBeInTheDocument();
 
     // 完了ファイルは1つ（重複なし）
     const completedElements = screen.getAllByText('completed.epub');

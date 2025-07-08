@@ -18,8 +18,6 @@ jest.mock('electron', () => ({
 }));
 
 describe('設定ストア統合テスト', () => {
-  let settingsStore: any;
-  
   beforeEach(async () => {
     // electron-storeのモックをリセット
     jest.resetModules();
@@ -28,6 +26,13 @@ describe('設定ストア統合テスト', () => {
 
   describe('設定の読み書き', () => {
     test('デフォルト設定を取得できる', async () => {
+      // まずelectron-storeとelectronのモックを設定
+      jest.doMock('electron', () => ({
+        app: {
+          getPath: jest.fn(() => '/mock/desktop')
+        }
+      }));
+      
       const mockStore = {
         get: jest.fn((key: string) => {
           const defaults = {
@@ -43,7 +48,9 @@ describe('設定ストア統合テスト', () => {
         clear: jest.fn()
       };
       
-      (Store as any).mockImplementation(() => mockStore);
+      jest.doMock('electron-store', () => {
+        return jest.fn().mockImplementation(() => mockStore);
+      });
       
       const { settingsStore } = await import('../../src/main/store/settings');
       const settings = settingsStore.get();
@@ -58,6 +65,12 @@ describe('設定ストア統合テスト', () => {
     });
 
     test('設定を更新できる', async () => {
+      jest.doMock('electron', () => ({
+        app: {
+          getPath: jest.fn(() => '/mock/desktop')
+        }
+      }));
+      
       const mockSet = jest.fn();
       const mockStore = {
         get: jest.fn(),
@@ -65,7 +78,9 @@ describe('設定ストア統合テスト', () => {
         clear: jest.fn()
       };
       
-      (Store as any).mockImplementation(() => mockStore);
+      jest.doMock('electron-store', () => {
+        return jest.fn().mockImplementation(() => mockStore);
+      });
       
       const { settingsStore } = await import('../../src/main/store/settings');
       settingsStore.set({
@@ -78,6 +93,12 @@ describe('設定ストア統合テスト', () => {
     });
 
     test('出力ディレクトリを個別に設定できる', async () => {
+      jest.doMock('electron', () => ({
+        app: {
+          getPath: jest.fn(() => '/mock/desktop')
+        }
+      }));
+      
       const mockSet = jest.fn();
       const mockStore = {
         get: jest.fn(),
@@ -85,7 +106,9 @@ describe('設定ストア統合テスト', () => {
         clear: jest.fn()
       };
       
-      (Store as any).mockImplementation(() => mockStore);
+      jest.doMock('electron-store', () => {
+        return jest.fn().mockImplementation(() => mockStore);
+      });
       
       const { settingsStore } = await import('../../src/main/store/settings');
       settingsStore.setOutputDirectory('/new/output/dir');
@@ -94,6 +117,12 @@ describe('設定ストア統合テスト', () => {
     });
 
     test('設定をリセットできる', async () => {
+      jest.doMock('electron', () => ({
+        app: {
+          getPath: jest.fn(() => '/mock/desktop')
+        }
+      }));
+      
       const mockClear = jest.fn();
       const mockStore = {
         get: jest.fn(),
@@ -101,7 +130,9 @@ describe('設定ストア統合テスト', () => {
         clear: mockClear
       };
       
-      (Store as any).mockImplementation(() => mockStore);
+      jest.doMock('electron-store', () => {
+        return jest.fn().mockImplementation(() => mockStore);
+      });
       
       const { settingsStore } = await import('../../src/main/store/settings');
       settingsStore.resetToDefaults();

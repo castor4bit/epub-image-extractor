@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 
@@ -16,9 +16,10 @@ const mockElectronAPI = {
 };
 
 // window.electronAPIをモック
-(global as any).window = {
-  electronAPI: mockElectronAPI,
-};
+Object.defineProperty(window, 'electronAPI', {
+  value: mockElectronAPI,
+  writable: true,
+});
 
 // localStorageのモック
 const localStorageMock = {
@@ -35,7 +36,7 @@ describe('App - 結果の永続化', () => {
     localStorageMock.getItem.mockReturnValue(null);
   });
 
-  test('起動時にlocalStorageから前回の結果を復元する', () => {
+  test('起動時にlocalStorageから前回の結果を復元する', async () => {
     const savedResults = [
       {
         fileId: 'file-1-1000',
@@ -63,10 +64,12 @@ describe('App - 結果の永続化', () => {
     expect(localStorageMock.getItem).toHaveBeenCalledWith('epubExtractionResults');
 
     // 保存された結果が表示されていることを確認
-    expect(screen.getByText('saved1.epub')).toBeInTheDocument();
-    expect(screen.getByText('saved2.epub')).toBeInTheDocument();
-    expect(screen.getByText('100画像, 10章')).toBeInTheDocument();
-    expect(screen.getByText('50画像, 5章')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('saved1.epub')).toBeInTheDocument();
+      expect(screen.getByText('saved2.epub')).toBeInTheDocument();
+      expect(screen.getByText('100画像, 10章')).toBeInTheDocument();
+      expect(screen.getByText('50画像, 5章')).toBeInTheDocument();
+    });
   });
 
   test('処理完了時に結果をlocalStorageに保存する', async () => {
@@ -91,6 +94,10 @@ describe('App - 結果の永続化', () => {
     let progressCallback: any;
     mockElectronAPI.onProgress.mockImplementation((callback) => {
       progressCallback = callback;
+      // クリーンアップ関数を返す
+      return () => {
+        progressCallback = null;
+      };
     });
 
     render(<App />);
@@ -145,23 +152,34 @@ describe('App - 結果の永続化', () => {
   test('pendingステータスのアイテムは処理完了後に削除される', async () => {
     const user = userEvent.setup();
 
-    mockElectronAPI.processEpubFiles.mockResolvedValue({
-      success: true,
-      results: [
-        {
-          fileId: 'file-1-1000',
-          fileName: 'processed.epub',
-          outputPath: '/output/processed',
-          totalImages: 50,
-          chapters: 5,
-          errors: [],
-        },
-      ],
+    // 処理を遅延させて、pendingステータスが表示される時間を確保
+    mockElectronAPI.processEpubFiles.mockImplementation(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            success: true,
+            results: [
+              {
+                fileId: 'file-1-1000',
+                fileName: 'processed.epub',
+                outputPath: '/output/processed',
+                totalImages: 50,
+                chapters: 5,
+                errors: [],
+              },
+            ],
+          });
+        }, 100);
+      });
     });
 
     let progressCallback: any;
     mockElectronAPI.onProgress.mockImplementation((callback) => {
       progressCallback = callback;
+      // クリーンアップ関数を返す
+      return () => {
+        progressCallback = null;
+      };
     });
 
     render(<App />);
@@ -174,7 +192,7 @@ describe('App - 結果の永続化', () => {
     await user.upload(input, file);
 
     // pendingステータスを送信
-    await waitFor(() => {
+    act(() => {
       if (progressCallback) {
         progressCallback({
           fileId: 'file-1-1000',
@@ -182,21 +200,30 @@ describe('App - 結果の永続化', () => {
           status: 'pending',
           totalImages: 0,
           processedImages: 0,
+          outputPath: '',
+          chapters: 0
         });
       }
     });
 
     // pendingが表示されることを確認
-    expect(screen.getByText('待機中')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('test.epub')).toBeInTheDocument();
+      expect(screen.getByText('待機中')).toBeInTheDocument();
+    });
 
     // 処理完了を待つ
     await waitFor(() => {
       expect(mockElectronAPI.processEpubFiles).toHaveBeenCalled();
     });
 
-    // pendingステータスが消えていることを確認
+    // 処理完了後、pendingステータスが完了に置き換わり、"待機中"テキストがなくなることを確認
     await waitFor(() => {
       expect(screen.queryByText('待機中')).not.toBeInTheDocument();
+      // pendingステータスのtest.epubは削除され、completedステータスのprocessed.epubだけが表示される
+      expect(screen.queryByText('test.epub')).not.toBeInTheDocument();
+      expect(screen.getByText('processed.epub')).toBeInTheDocument();
+      expect(screen.getByText('50画像, 5章')).toBeInTheDocument();
     });
   });
 });

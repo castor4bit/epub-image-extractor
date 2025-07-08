@@ -1,3 +1,18 @@
+// electronモックを最初に設定
+jest.mock('electron', () => ({
+  app: {
+    getPath: jest.fn(() => '/mock/desktop')
+  }
+}));
+
+// electron-storeモック
+jest.mock('electron-store');
+
+// handleErrorモック
+jest.mock('../../utils/errorHandler', () => ({
+  handleError: jest.fn(),
+}));
+
 import { processEpubFiles } from '../processor';
 import path from 'path';
 import fs from 'fs/promises';

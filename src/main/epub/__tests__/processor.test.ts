@@ -15,6 +15,7 @@ import { organizeByChapters } from '../chapterOrganizer';
 import { generateOutputPath } from '../../utils/outputPath';
 import { settingsStore } from '../../store/settings';
 import { AppError, ErrorCode } from '../../../shared/error-types';
+import { handleError } from '../../utils/errorHandler';
 import path from 'path';
 import fs from 'fs/promises';
 import AdmZip from 'adm-zip';
@@ -26,6 +27,7 @@ jest.mock('../chapterOrganizer');
 jest.mock('../../utils/outputPath');
 jest.mock('../../store/settings');
 jest.mock('fs/promises');
+jest.mock('../../utils/errorHandler');
 
 describe('processEpubFiles', () => {
   const mockOnProgress = jest.fn();
@@ -42,11 +44,20 @@ describe('processEpubFiles', () => {
     
     (generateOutputPath as jest.Mock).mockImplementation((outputDir, filename) => ({
       path: path.join(outputDir, filename),
+      isNew: true,
       warning: null
     }));
     
     (fs.access as jest.Mock).mockResolvedValue(undefined);
     (fs.mkdir as jest.Mock).mockResolvedValue(undefined);
+    
+    // handleErrorのモック
+    (handleError as jest.Mock).mockImplementation((error, context) => {
+      if (error instanceof AppError) {
+        return error.userMessage;
+      }
+      return error?.message || '不明なエラー';
+    });
   });
 
   describe('正常系', () => {

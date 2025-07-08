@@ -1,3 +1,42 @@
+// electronモックを最初に設定
+jest.mock('electron', () => ({
+  app: {
+    getPath: jest.fn(() => '/mock/desktop')
+  }
+}));
+
+// electron-storeモック
+jest.mock('electron-store');
+
+// handleErrorモック
+jest.mock('../../utils/errorHandler', () => ({
+  handleError: jest.fn((error) => {
+    return error.message || '処理中にエラーが発生しました';
+  }),
+  getLogger: jest.fn(() => ({
+    debug: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  })),
+}));
+
+// settingsStoreモック
+jest.mock('../../store/settings', () => ({
+  settingsStore: {
+    get: jest.fn(() => ({
+      outputDirectory: '/mock/desktop/EPUB_Images',
+      language: 'ja',
+      alwaysOnTop: true,
+      includeOriginalFilename: true,
+      includePageSpread: true,
+    })),
+    set: jest.fn(),
+    getOutputDirectory: jest.fn(() => '/mock/desktop/EPUB_Images'),
+    setOutputDirectory: jest.fn(),
+    resetToDefaults: jest.fn(),
+  },
+}));
+
 import { processEpubFiles } from '../processor';
 import path from 'path';
 import fs from 'fs/promises';
@@ -28,6 +67,7 @@ describe('processEpubFiles - 重複ファイル処理', () => {
     <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Test Book</dc:title>
   </metadata>
   <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
     <item id="page1" href="page1.xhtml" media-type="application/xhtml+xml"/>
     <item id="img1" href="image1.jpg" media-type="image/jpeg"/>
   </manifest>
@@ -36,6 +76,19 @@ describe('processEpubFiles - 重複ファイル処理', () => {
   </spine>
 </package>`;
     mockZip.addFile('OEBPS/content.opf', Buffer.from(opfXml));
+
+    const navContent = `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head><title>Navigation</title></head>
+<body>
+<nav epub:type="toc">
+<ol>
+<li><a href="page1.xhtml">Chapter 1</a></li>
+</ol>
+</nav>
+</body>
+</html>`;
+    mockZip.addFile('OEBPS/nav.xhtml', Buffer.from(navContent));
 
     const htmlContent = `<html><body><img src="image1.jpg"/></body></html>`;
     mockZip.addFile('OEBPS/page1.xhtml', Buffer.from(htmlContent));
@@ -46,8 +99,7 @@ describe('processEpubFiles - 重複ファイル処理', () => {
 
   afterEach(async () => {
     // クリーンアップ
-    const rimraf = (await import('rimraf')).default;
-    await rimraf(outputDir);
+    await fs.rm(outputDir, { recursive: true, force: true }).catch(() => {});
     await fs.unlink(testEpubPath).catch(() => {});
   });
 
@@ -56,6 +108,9 @@ describe('processEpubFiles - 重複ファイル処理', () => {
 
     // 1回目の処理
     const results1 = await processEpubFiles([testEpubPath], outputDir, onProgress, 1);
+
+    console.log('Results1:', JSON.stringify(results1, null, 2));
+    console.log('Errors:', results1[0].errors);
 
     expect(results1).toHaveLength(1);
     expect(results1[0].errors).toHaveLength(0);
@@ -112,6 +167,7 @@ describe('processEpubFiles - 重複ファイル処理', () => {
     <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Different Book</dc:title>
   </metadata>
   <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
     <item id="page1" href="page1.xhtml" media-type="application/xhtml+xml"/>
     <item id="img1" href="different.png" media-type="image/png"/>
   </manifest>
@@ -119,6 +175,21 @@ describe('processEpubFiles - 重複ファイル処理', () => {
     <itemref idref="page1"/>
   </spine>
 </package>`),
+    );
+
+    mockZip2.addFile(
+      'OEBPS/nav.xhtml',
+      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head><title>Navigation</title></head>
+<body>
+<nav epub:type="toc">
+<ol>
+<li><a href="page1.xhtml">Chapter 1</a></li>
+</ol>
+</nav>
+</body>
+</html>`),
     );
 
     mockZip2.addFile(
