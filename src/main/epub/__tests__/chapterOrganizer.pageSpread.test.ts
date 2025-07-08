@@ -40,7 +40,10 @@ describe('chapterOrganizer - page-spread サポート', () => {
     const outputDir = path.join(tempDir, 'output');
     await fs.mkdir(outputDir, { recursive: true });
 
-    await organizeByChapters(images, navigation, outputDir, testEpubPath);
+    await organizeByChapters(images, navigation, outputDir, testEpubPath, {
+      includeOriginalFilename: true,
+      includePageSpread: true,
+    });
 
     // 出力されたファイルを確認
     const chapterDir = path.join(outputDir, '001_第1章');
@@ -64,7 +67,10 @@ describe('chapterOrganizer - page-spread サポート', () => {
     const outputDir = path.join(tempDir, 'output');
     await fs.mkdir(outputDir, { recursive: true });
 
-    await organizeByChapters(images, navigation, outputDir, testEpubPath);
+    await organizeByChapters(images, navigation, outputDir, testEpubPath, {
+      includeOriginalFilename: true,
+      includePageSpread: true,
+    });
 
     // 出力されたファイルを確認
     const chapterDir = path.join(outputDir, '001_第1章');
@@ -93,7 +99,10 @@ describe('chapterOrganizer - page-spread サポート', () => {
     const outputDir = path.join(tempDir, 'output');
     await fs.mkdir(outputDir, { recursive: true });
 
-    await organizeByChapters(images, navigation, outputDir, testEpubPath);
+    await organizeByChapters(images, navigation, outputDir, testEpubPath, {
+      includeOriginalFilename: true,
+      includePageSpread: true,
+    });
 
     // 第1章のファイル
     const chapter1Dir = path.join(outputDir, '001_第1章');

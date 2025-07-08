@@ -6,12 +6,16 @@ interface Settings {
   outputDirectory: string;
   language: string;
   alwaysOnTop: boolean;
+  includeOriginalFilename: boolean; // 元のファイル名を含めるか
+  includePageSpread: boolean; // 左右情報を含めるか
 }
 
 const defaults: Settings = {
   outputDirectory: path.join(app.getPath('desktop'), 'EPUB_Images'),
   language: 'ja',
   alwaysOnTop: true,
+  includeOriginalFilename: true,
+  includePageSpread: true,
 };
 
 // electron-storeインスタンスを作成
@@ -30,6 +34,8 @@ export const settingsStore = {
       outputDirectory: store.get('outputDirectory'),
       language: store.get('language'),
       alwaysOnTop: store.get('alwaysOnTop'),
+      includeOriginalFilename: store.get('includeOriginalFilename'),
+      includePageSpread: store.get('includePageSpread'),
     };
   },
 

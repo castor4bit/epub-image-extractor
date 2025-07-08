@@ -120,6 +120,24 @@
   font-size: 0.875rem;
 }
 
+.setting-group h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.setting-group label[for='include-original-filename'],
+.setting-group label[for='include-page-spread'] {
+  display: block;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.setting-group input[type='checkbox'] {
+  margin-right: 0.5rem;
+}
+
 .settings-footer {
   display: flex;
   justify-content: space-between;

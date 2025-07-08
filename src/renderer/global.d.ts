@@ -12,16 +12,22 @@ interface ElectronAPI {
     outputDirectory: string;
     language: string;
     alwaysOnTop: boolean;
+    includeOriginalFilename: boolean;
+    includePageSpread: boolean;
   }>;
   saveSettings: (settings: {
     outputDirectory: string;
     language: string;
     alwaysOnTop: boolean;
+    includeOriginalFilename: boolean;
+    includePageSpread: boolean;
   }) => Promise<{ success: boolean }>;
   resetSettings: () => Promise<{
     outputDirectory: string;
     language: string;
     alwaysOnTop: boolean;
+    includeOriginalFilename: boolean;
+    includePageSpread: boolean;
   }>;
   openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
 }

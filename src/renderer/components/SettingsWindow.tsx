@@ -5,6 +5,8 @@ interface Settings {
   outputDirectory: string;
   language: string;
   alwaysOnTop: boolean;
+  includeOriginalFilename: boolean;
+  includePageSpread: boolean;
 }
 
 interface SettingsWindowProps {
@@ -17,6 +19,8 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
     outputDirectory: '',
     language: 'ja',
     alwaysOnTop: true,
+    includeOriginalFilename: true,
+    includePageSpread: true,
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -24,7 +28,13 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
     if (isOpen) {
       // 設定を読み込む
       window.electronAPI.getSettings().then((loadedSettings) => {
-        setSettings(loadedSettings);
+        setSettings({
+          outputDirectory: loadedSettings.outputDirectory ?? '',
+          language: loadedSettings.language ?? 'ja',
+          alwaysOnTop: loadedSettings.alwaysOnTop ?? true,
+          includeOriginalFilename: loadedSettings.includeOriginalFilename ?? true,
+          includePageSpread: loadedSettings.includePageSpread ?? true,
+        });
       });
     }
   }, [isOpen]);
@@ -50,7 +60,13 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
 
   const handleReset = async () => {
     const defaultSettings = await window.electronAPI.resetSettings();
-    setSettings(defaultSettings);
+    setSettings({
+      outputDirectory: defaultSettings.outputDirectory ?? '',
+      language: defaultSettings.language ?? 'ja',
+      alwaysOnTop: defaultSettings.alwaysOnTop ?? true,
+      includeOriginalFilename: defaultSettings.includeOriginalFilename ?? true,
+      includePageSpread: defaultSettings.includePageSpread ?? true,
+    });
   };
 
   if (!isOpen) return null;
@@ -101,6 +117,32 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
                 }
               />
               ウィンドウを最前面に表示
+            </label>
+          </div>
+
+          <div className="setting-group">
+            <h3>ファイル名設定</h3>
+            <label htmlFor="include-original-filename">
+              <input
+                id="include-original-filename"
+                type="checkbox"
+                checked={settings.includeOriginalFilename}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, includeOriginalFilename: e.target.checked }))
+                }
+              />
+              元のファイル名を含める
+            </label>
+            <label htmlFor="include-page-spread">
+              <input
+                id="include-page-spread"
+                type="checkbox"
+                checked={settings.includePageSpread}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, includePageSpread: e.target.checked }))
+                }
+              />
+              左右情報（left/right）を含める
             </label>
           </div>
         </div>

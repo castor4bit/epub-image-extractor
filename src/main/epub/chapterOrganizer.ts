@@ -8,11 +8,17 @@ import {
   RESOURCE_LIMITS,
 } from '../utils/pathSecurity';
 
+export interface FilenamingOptions {
+  includeOriginalFilename: boolean;
+  includePageSpread: boolean;
+}
+
 export async function organizeByChapters(
   images: ImageInfo[],
   navigation: ChapterInfo[],
   outputDir: string,
   epubPath: string,
+  options: FilenamingOptions = { includeOriginalFilename: true, includePageSpread: true },
 ): Promise<number> {
   const zip = new AdmZip(epubPath);
   const chapterMap = new Map<number, ChapterInfo>();
@@ -89,15 +95,22 @@ export async function organizeByChapters(
         // 拡張子を決定
         const ext = getImageExtension(image.src, imageBuffer);
 
-        // 元のファイル名から拡張子を除いた部分を取得
-        const originalBaseName = path.basename(image.src, path.extname(image.src));
-        const sanitizedOriginalName = secureSanitizeFileName(originalBaseName);
-
-        // pageSpreadサフィックスを追加
-        const pageSpreadSuffix = image.pageSpread ? `-${image.pageSpread}` : '';
-
-        // ファイル名を生成（4桁でパディング + 元のファイル名 + pageSpreadサフィックス）
-        const fileName = `${String(imageIndex).padStart(4, '0')}_${sanitizedOriginalName}${pageSpreadSuffix}${ext}`;
+        // ファイル名を生成
+        let fileName = String(imageIndex).padStart(4, '0');
+        
+        // 元のファイル名を含める設定の場合
+        if (options.includeOriginalFilename) {
+          const originalBaseName = path.basename(image.src, path.extname(image.src));
+          const sanitizedOriginalName = secureSanitizeFileName(originalBaseName);
+          fileName += `_${sanitizedOriginalName}`;
+        }
+        
+        // pageSpread情報を含める設定の場合
+        if (options.includePageSpread && image.pageSpread) {
+          fileName += `-${image.pageSpread}`;
+        }
+        
+        fileName += ext;
         const filePath = path.join(chapterDir, fileName);
 
         // 画像を保存

@@ -1,9 +1,10 @@
 import { ProcessingProgress, ExtractionResult } from '@shared/types';
 import { parseEpub } from './parser';
 import { extractImages } from './imageExtractor';
-import { organizeByChapters } from './chapterOrganizer';
+import { organizeByChapters, FilenamingOptions } from './chapterOrganizer';
 import { handleError } from '../utils/errorHandler';
 import { generateOutputPath } from '../utils/outputPath';
+import { settingsStore } from '../store/settings';
 import path from 'path';
 import fs from 'fs/promises';
 import pLimit from 'p-limit';
@@ -128,12 +129,20 @@ async function processEpubFile(
       phase: 'organizing',
     });
 
+    // 設定からファイル名オプションを取得
+    const settings = settingsStore.get();
+    const filenamingOptions: FilenamingOptions = {
+      includeOriginalFilename: settings.includeOriginalFilename,
+      includePageSpread: settings.includePageSpread,
+    };
+
     // 章ごとに整理して保存
     const chapterCount = await organizeByChapters(
       images,
       epubData.navigation,
       fileOutputDir,
       epubData.basePath,
+      filenamingOptions,
     );
 
     // 進捗通知：完了
