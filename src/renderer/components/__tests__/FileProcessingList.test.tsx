@@ -84,6 +84,8 @@ describe('FileProcessingList', () => {
         fileId: 'file-4-4000',
         fileName: 'error.epub',
         status: 'error',
+        totalImages: 0,
+        processedImages: 0,
         error: 'エラーが発生しました',
       },
     };
@@ -174,6 +176,8 @@ describe('FileProcessingList', () => {
         fileId: 'file-1-1000',
         fileName: 'error.epub',
         status: 'error',
+        totalImages: 0,
+        processedImages: 0,
         error: 'ファイルが破損しています',
       },
     };
