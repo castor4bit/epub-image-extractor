@@ -53,6 +53,7 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
         id: id,
         href: item.$.href,
         'media-type': item.$['media-type'],
+        properties: item.$.properties,
       };
     });
 
@@ -61,10 +62,20 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     const spineItems = opfData.package.spine[0].itemref || [];
 
     spineItems.forEach((item: any) => {
-      spine.push({
+      const spineItem: any = {
         idref: item.$.idref,
         linear: item.$.linear || 'yes',
-      });
+      };
+      
+      // propertiesから page-spread 情報を抽出
+      const properties = item.$.properties || '';
+      if (properties.includes('page-spread-left')) {
+        spineItem.pageSpread = 'left';
+      } else if (properties.includes('page-spread-right')) {
+        spineItem.pageSpread = 'right';
+      }
+      
+      spine.push(spineItem);
     });
 
     console.log('パーサー実行完了。取得した情報:', {

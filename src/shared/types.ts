@@ -26,6 +26,7 @@ export interface ImageInfo {
   src: string;
   chapterOrder: number;
   pageOrder: number;
+  pageSpread?: 'left' | 'right'; // ページの左右配置情報
 }
 
 export interface ExtractionResult {

@@ -93,8 +93,11 @@ export async function organizeByChapters(
         const originalBaseName = path.basename(image.src, path.extname(image.src));
         const sanitizedOriginalName = secureSanitizeFileName(originalBaseName);
 
-        // ファイル名を生成（4桁でパディング + 元のファイル名）
-        const fileName = `${String(imageIndex).padStart(4, '0')}_${sanitizedOriginalName}${ext}`;
+        // pageSpreadサフィックスを追加
+        const pageSpreadSuffix = image.pageSpread ? `-${image.pageSpread}` : '';
+
+        // ファイル名を生成（4桁でパディング + 元のファイル名 + pageSpreadサフィックス）
+        const fileName = `${String(imageIndex).padStart(4, '0')}_${sanitizedOriginalName}${pageSpreadSuffix}${ext}`;
         const filePath = path.join(chapterDir, fileName);
 
         // 画像を保存

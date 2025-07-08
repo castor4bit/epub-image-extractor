@@ -60,6 +60,7 @@ export async function extractImages(
           contentPath,
           chapterOrder,
           epubData.contentPath,
+          spineItem.pageSpread, // page-spread情報を渡す
         );
 
         // リソース制限チェック
@@ -115,6 +116,7 @@ async function extractImagesFromHTML(
   htmlPath: string,
   chapterOrder: number,
   contentBasePath: string,
+  pageSpread?: 'left' | 'right',
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
   let pageOrder = 0;
@@ -133,6 +135,7 @@ async function extractImagesFromHTML(
             src: absoluteSrc,
             chapterOrder: chapterOrder,
             pageOrder: pageOrder++,
+            pageSpread: pageSpread,
           });
         }
       }
@@ -150,6 +153,7 @@ async function extractImagesFromHTML(
             src: absoluteSrc,
             chapterOrder: chapterOrder,
             pageOrder: pageOrder++,
+            pageSpread: pageSpread,
           });
         }
       }
@@ -167,6 +171,7 @@ async function extractImagesFromHTML(
             src: absoluteSrc,
             chapterOrder: chapterOrder,
             pageOrder: pageOrder++,
+            pageSpread: pageSpread,
           });
         }
       }
