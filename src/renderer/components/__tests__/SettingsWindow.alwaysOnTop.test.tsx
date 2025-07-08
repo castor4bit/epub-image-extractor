@@ -8,6 +8,8 @@ const mockElectronAPI = {
     outputDirectory: '/test/path',
     language: 'ja',
     alwaysOnTop: true,
+    includeOriginalFilename: true,
+    includePageSpread: true,
   }),
   saveSettings: jest.fn().mockResolvedValue({ success: true }),
   selectOutputDirectory: jest.fn(),
@@ -15,6 +17,8 @@ const mockElectronAPI = {
     outputDirectory: '/default/path',
     language: 'ja',
     alwaysOnTop: true,
+    includeOriginalFilename: true,
+    includePageSpread: true,
   }),
 };
 
@@ -46,6 +50,8 @@ describe('SettingsWindow - 最前面表示オプション', () => {
       outputDirectory: '/test/path',
       language: 'ja',
       alwaysOnTop: false,
+      includeOriginalFilename: true,
+      includePageSpread: true,
     });
 
     render(<SettingsWindow isOpen={true} onClose={jest.fn()} />);
@@ -78,6 +84,8 @@ describe('SettingsWindow - 最前面表示オプション', () => {
         outputDirectory: '/test/path',
         language: 'ja',
         alwaysOnTop: false,
+        includeOriginalFilename: true,
+        includePageSpread: true,
       });
       expect(onClose).toHaveBeenCalled();
     });
@@ -88,6 +96,8 @@ describe('SettingsWindow - 最前面表示オプション', () => {
       outputDirectory: '/test/path',
       language: 'ja',
       alwaysOnTop: false,
+      includeOriginalFilename: true,
+      includePageSpread: true,
     });
 
     render(<SettingsWindow isOpen={true} onClose={jest.fn()} />);

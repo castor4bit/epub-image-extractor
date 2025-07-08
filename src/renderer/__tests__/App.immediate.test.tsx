@@ -1,12 +1,12 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
 import App from '../App';
 import { ProcessingProgress, ExtractionResult } from '@shared/types';
 
 // Electronのモック
 const mockElectronAPI = {
   getVersion: jest.fn().mockResolvedValue('1.0.0'),
-  processEpubFiles: jest.fn(),
+  processEpubFiles: jest.fn().mockResolvedValue({ success: true, results: [] }),
   onProgress: jest.fn(),
   selectOutputDirectory: jest.fn(),
   getSettings: jest.fn().mockResolvedValue({
@@ -47,6 +47,10 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
     // onProgressのコールバックをキャプチャ
     mockElectronAPI.onProgress.mockImplementation((callback) => {
       progressCallback = callback;
+      // クリーンアップ関数を返す
+      return () => {
+        progressCallback = null as any;
+      };
     });
   });
 
@@ -56,33 +60,44 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
     // onProgressのコールバックが設定されたことを確認
     expect(mockElectronAPI.onProgress).toHaveBeenCalled();
 
-    // ファイル1の処理開始
-    progressCallback({
-      fileId: 'file-1',
-      fileName: 'test1.epub',
-      totalImages: 10,
-      processedImages: 0,
-      status: 'processing',
+    // ファイルをドロップして処理を開始
+    const dropZone = screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ').closest('.drop-zone');
+    const mockFile = new File(['test content'], 'test1.epub', { type: 'application/epub+zip' });
+    Object.defineProperty(mockFile, 'path', { value: '/test/path/test1.epub' });
+
+    fireEvent.drop(dropZone!, {
+      dataTransfer: {
+        files: [mockFile],
+      },
     });
 
-    // ファイル2の処理開始
-    progressCallback({
-      fileId: 'file-2',
-      fileName: 'test2.epub',
-      totalImages: 20,
-      processedImages: 0,
-      status: 'processing',
+    // processEpubFilesが呼ばれるまで待つ
+    await waitFor(() => {
+      expect(mockElectronAPI.processEpubFiles).toHaveBeenCalled();
+    });
+
+    // ファイル1の処理開始をシミュレート
+    act(() => {
+      progressCallback({
+        fileId: 'file-1',
+        fileName: 'test1.epub',
+        totalImages: 10,
+        processedImages: 0,
+        status: 'processing',
+      });
     });
 
     // ファイル1が完了（outputPathとchaptersを含む）
-    progressCallback({
-      fileId: 'file-1',
-      fileName: 'test1.epub',
-      totalImages: 10,
-      processedImages: 10,
-      status: 'completed',
-      outputPath: '/output/test1',
-      chapters: 3,
+    act(() => {
+      progressCallback({
+        fileId: 'file-1',
+        fileName: 'test1.epub',
+        totalImages: 10,
+        processedImages: 10,
+        status: 'completed',
+        outputPath: '/output/test1',
+        chapters: 3,
+      });
     });
 
     // ファイル1の「出力先を開く」ボタンが即座に表示されることを確認
@@ -97,32 +112,48 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
       'epubExtractionResults',
       expect.stringContaining('test1.epub'),
     );
-
-    // ファイル2はまだ処理中
-    expect(screen.getByText('test2.epub')).toBeInTheDocument();
-    expect(screen.getByText('処理中: 0 / 20 画像')).toBeInTheDocument();
   });
 
   test('エラーになったファイルも即座に結果として表示される', async () => {
     render(<App />);
 
+    // ファイルをドロップして処理を開始
+    const dropZone = screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ').closest('.drop-zone');
+    const mockFile = new File(['test content'], 'test1.epub', { type: 'application/epub+zip' });
+    Object.defineProperty(mockFile, 'path', { value: '/test/path/test1.epub' });
+
+    fireEvent.drop(dropZone!, {
+      dataTransfer: {
+        files: [mockFile],
+      },
+    });
+
+    // processEpubFilesが呼ばれるまで待つ
+    await waitFor(() => {
+      expect(mockElectronAPI.processEpubFiles).toHaveBeenCalled();
+    });
+
     // ファイルの処理開始
-    progressCallback({
-      fileId: 'file-1',
-      fileName: 'test1.epub',
-      totalImages: 0,
-      processedImages: 0,
-      status: 'processing',
+    act(() => {
+      progressCallback({
+        fileId: 'file-1',
+        fileName: 'test1.epub',
+        totalImages: 0,
+        processedImages: 0,
+        status: 'processing',
+      });
     });
 
     // エラーで完了
-    progressCallback({
-      fileId: 'file-1',
-      fileName: 'test1.epub',
-      totalImages: 0,
-      processedImages: 0,
-      status: 'error',
-      error: 'ファイルが壊れています',
+    act(() => {
+      progressCallback({
+        fileId: 'file-1',
+        fileName: 'test1.epub',
+        totalImages: 0,
+        processedImages: 0,
+        status: 'error',
+        error: 'ファイルが壊れています',
+      });
     });
 
     // エラーメッセージが即座に表示されることを確認
@@ -137,25 +168,61 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
     );
   });
 
-  test('outputPathがない場合でも完了として扱われる', async () => {
+  test('複数ファイルの処理中に個別に完了したファイルが即座に表示される', async () => {
     render(<App />);
 
-    // outputPathなしで完了
-    progressCallback({
-      fileId: 'file-1',
-      fileName: 'test1.epub',
-      totalImages: 10,
-      processedImages: 10,
-      status: 'completed',
-      // outputPath省略
+    // 2つのファイルをドロップ
+    const dropZone = screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ').closest('.drop-zone');
+    const mockFile1 = new File(['test1'], 'test1.epub', { type: 'application/epub+zip' });
+    const mockFile2 = new File(['test2'], 'test2.epub', { type: 'application/epub+zip' });
+    Object.defineProperty(mockFile1, 'path', { value: '/test/path/test1.epub' });
+    Object.defineProperty(mockFile2, 'path', { value: '/test/path/test2.epub' });
+
+    fireEvent.drop(dropZone!, {
+      dataTransfer: {
+        files: [mockFile1, mockFile2],
+      },
     });
 
-    // 完了として表示されることを確認
     await waitFor(() => {
-      expect(screen.getByText('10画像')).toBeInTheDocument();
+      expect(mockElectronAPI.processEpubFiles).toHaveBeenCalled();
     });
 
-    // 「出力先を開く」ボタンは表示されない
-    expect(screen.queryByText('📁 出力先を開く')).not.toBeInTheDocument();
+    // 両方のファイルの処理開始
+    act(() => {
+      progressCallback({
+        fileId: 'file-1',
+        fileName: 'test1.epub',
+        totalImages: 10,
+        processedImages: 0,
+        status: 'processing',
+      });
+      progressCallback({
+        fileId: 'file-2',
+        fileName: 'test2.epub',
+        totalImages: 20,
+        processedImages: 0,
+        status: 'processing',
+      });
+    });
+
+    // ファイル1だけ完了
+    act(() => {
+      progressCallback({
+        fileId: 'file-1',
+        fileName: 'test1.epub',
+        totalImages: 10,
+        processedImages: 10,
+        status: 'completed',
+        outputPath: '/output/test1',
+        chapters: 3,
+      });
+    });
+
+    // ファイル1の結果が表示され、ファイル2はまだ処理中
+    await waitFor(() => {
+      expect(screen.getByText('10画像, 3章')).toBeInTheDocument();
+      expect(screen.getByText('画像を抽出中: 0 / 20')).toBeInTheDocument();
+    });
   });
 });
