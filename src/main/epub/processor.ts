@@ -132,6 +132,8 @@ async function processEpubFile(
       totalImages: images.length,
       processedImages: images.length,
       status: 'completed',
+      outputPath: fileOutputDir,
+      chapters: chapterCount,
     });
 
     return {

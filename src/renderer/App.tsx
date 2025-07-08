@@ -41,12 +41,20 @@ function App() {
         const result = await window.electronAPI.processEpubFiles(filePaths);
 
         if (result.success) {
-          // 結果を保存
+          // 結果を保存（進捗リスナーですでに追加されている可能性があるため重複チェック）
           if (result.results) {
-            const newResults = [...completedResults, ...result.results];
-            setCompletedResults(newResults);
-            // localStorageに保存
-            localStorage.setItem('epubExtractionResults', JSON.stringify(newResults));
+            setCompletedResults((prevResults) => {
+              const existingIds = new Set(prevResults.map((r) => r.fileId));
+              const newUniqueResults =
+                result.results?.filter((r) => !existingIds.has(r.fileId)) || [];
+
+              if (newUniqueResults.length > 0) {
+                const updatedResults = [...prevResults, ...newUniqueResults];
+                localStorage.setItem('epubExtractionResults', JSON.stringify(updatedResults));
+                return updatedResults;
+              }
+              return prevResults;
+            });
           }
 
           // 処理完了したアイテムをprogressから削除
@@ -185,6 +193,31 @@ function App() {
         ...prev,
         [progressData.fileId]: progressData,
       }));
+
+      // 個別のファイルが完了またはエラーになった場合、即座に結果として扱う
+      if (progressData.status === 'completed' || progressData.status === 'error') {
+        setCompletedResults((prevResults) => {
+          // すでに結果に含まれている場合はスキップ
+          if (prevResults.some((r) => r.fileId === progressData.fileId)) {
+            return prevResults;
+          }
+
+          // 進捗データから結果データを作成
+          const newResult: ExtractionResult = {
+            fileId: progressData.fileId,
+            fileName: progressData.fileName,
+            outputPath: progressData.outputPath || '',
+            totalImages: progressData.totalImages,
+            chapters: progressData.chapters || 0,
+            errors: progressData.error ? [progressData.error] : [],
+          };
+
+          const newResults = [...prevResults, newResult];
+          // localStorageに保存
+          localStorage.setItem('epubExtractionResults', JSON.stringify(newResults));
+          return newResults;
+        });
+      }
     });
   }, []);
 

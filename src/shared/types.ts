@@ -11,6 +11,8 @@ export interface ProcessingProgress {
   processedImages: number;
   status: 'pending' | 'processing' | 'completed' | 'error';
   error?: string;
+  outputPath?: string;
+  chapters?: number;
 }
 
 export interface ChapterInfo {
