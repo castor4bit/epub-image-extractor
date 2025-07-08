@@ -2,6 +2,7 @@
 import { ChapterInfo } from '@shared/types';
 import { ManifestItem, SpineItem, ContainerXml, OpfXml, NcxXml, NavPoint } from '@shared/epub-types';
 import { AppError, ErrorCode } from '../../shared/error-types';
+import { getLogger } from '../utils/errorHandler';
 import path from 'path';
 import { parseStringPromise } from 'xml2js';
 import AdmZip from 'adm-zip';
@@ -17,7 +18,7 @@ export interface EpubData {
 
 export async function parseEpub(epubPath: string): Promise<EpubData> {
   try {
-    console.log('EPUB解析開始:', epubPath);
+    getLogger().debug('EPUB解析開始', { epubPath });
 
     // 手動でEPUBを解析
     const zip = new AdmZip(epubPath);
@@ -90,7 +91,8 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
       spine.push(spineItem);
     });
 
-    console.log('パーサー実行完了。取得した情報:', {
+    // デバッグ情報をログに記録
+    getLogger().debug('パーサー実行完了', {
       hasManifest: !!manifest,
       hasSpine: !!spine,
       manifestKeys: Object.keys(manifest).length,
@@ -149,7 +151,7 @@ async function extractNavigationFromZip(
 
       if (tocEntry) {
         const tocContent = zip.readAsText(tocEntry);
-        console.log(`ナビゲーションファイル発見: ${tocPath}`);
+        getLogger().debug(`ナビゲーションファイル発見: ${tocPath}`);
 
         if (tocItem['media-type'] === 'application/x-dtbncx+xml') {
           // NCX形式の目次
@@ -164,10 +166,10 @@ async function extractNavigationFromZip(
       }
     }
 
-    console.log('ナビゲーション情報が見つかりません');
+    getLogger().debug('ナビゲーション情報が見つかりません');
     return chapters;
   } catch (error) {
-    console.warn('ナビゲーション抽出エラー:', error);
+    getLogger().warn('ナビゲーション抽出エラー', error);
     return chapters;
   }
 }
@@ -228,7 +230,7 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
       navMap.navPoint.forEach(processNavPoint);
     }
   } catch (error) {
-    console.warn('NCX解析エラー:', error);
+    getLogger().warn('NCX解析エラー', error);
   }
 
   return chapters;
@@ -242,7 +244,7 @@ async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo
     // nav要素のtocを探す
     const navMatch = htmlContent.match(/<nav[^>]*epub:type=["']toc["'][^>]*>([\s\S]*?)<\/nav>/i);
     if (!navMatch) {
-      console.warn('Navigation Documentにtocが見つかりません');
+      getLogger().warn('Navigation Documentにtocが見つかりません');
       return chapters;
     }
 
@@ -274,9 +276,9 @@ async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo
       }
     }
 
-    console.log(`Navigation Documentから${chapters.length}個の章を抽出しました`);
+    getLogger().debug(`Navigation Documentから${chapters.length}個の章を抽出しました`);
   } catch (error) {
-    console.warn('Navigation Document解析エラー:', error);
+    getLogger().warn('Navigation Document解析エラー', error);
   }
 
   return chapters;

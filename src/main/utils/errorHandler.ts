@@ -36,8 +36,11 @@ function getLogger(): winston.Logger {
       logPath = getLogPath();
     }
 
+    // デバッグレベルの設定（環境変数またはテスト環境で制御）
+    const logLevel = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'test' ? 'error' : 'info');
+
     logger = winston.createLogger({
-      level: 'info',
+      level: logLevel,
       format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.errors({ stack: true }),
@@ -51,17 +54,24 @@ function getLogger(): winston.Logger {
           maxsize: 5242880, // 5MB
           maxFiles: 5,
         }),
-        // すべてのログをファイルに記録
+        // すべてのログをファイルに記録（デバッグ含む）
         new winston.transports.File({
           filename: path.join(logPath, 'combined.log'),
+          maxsize: 5242880, // 5MB
+          maxFiles: 5,
+        }),
+        // デバッグログを専用ファイルに記録
+        new winston.transports.File({
+          filename: path.join(logPath, 'debug.log'),
+          level: 'debug',
           maxsize: 5242880, // 5MB
           maxFiles: 5,
         }),
       ],
     });
 
-    // 開発環境ではコンソールにも出力
-    if (process.env.NODE_ENV !== 'production') {
+    // 開発環境かつテスト環境でない場合はコンソールにも出力
+    if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
       logger.add(
         new winston.transports.Console({
           format: winston.format.combine(winston.format.colorize(), winston.format.simple()),

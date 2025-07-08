@@ -33,6 +33,11 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/dist-electron/'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  testEnvironmentOptions: {
+    env: {
+      NODE_ENV: 'test'
+    }
+  },
   projects: [
     {
       displayName: 'main',

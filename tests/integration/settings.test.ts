@@ -32,7 +32,10 @@ describe('設定ストア統合テスト', () => {
         get: jest.fn((key: string) => {
           const defaults = {
             outputDirectory: path.join('/mock/desktop', 'EPUB_Images'),
-            language: 'ja'
+            language: 'ja',
+            alwaysOnTop: true,
+            includeOriginalFilename: true,
+            includePageSpread: true
           };
           return (defaults as any)[key];
         }),
@@ -47,7 +50,10 @@ describe('設定ストア統合テスト', () => {
       
       expect(settings).toEqual({
         outputDirectory: path.join('/mock/desktop', 'EPUB_Images'),
-        language: 'ja'
+        language: 'ja',
+        alwaysOnTop: true,
+        includeOriginalFilename: true,
+        includePageSpread: true
       });
     });
 

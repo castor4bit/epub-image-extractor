@@ -1,9 +1,14 @@
-import { settingsStore } from '../settings';
-import Store from 'electron-store';
+// settingsStore型の定義
+type SettingsStore = {
+  get: () => any;
+  set: (settings: any) => void;
+  getOutputDirectory: () => string;
+  setOutputDirectory: (dir: string) => void;
+  resetToDefaults: () => void;
+};
 
 // electron-storeのモック
 jest.mock('electron-store');
-const MockedStore = Store as jest.MockedClass<typeof Store>;
 
 // electronのモック
 jest.mock('electron', () => ({
@@ -14,28 +19,45 @@ jest.mock('electron', () => ({
 
 describe('settingsStore - 最前面表示設定', () => {
   let mockStoreInstance: any;
+  let settingsStore: SettingsStore;
 
   beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+    
+    // モックインスタンスの作成
     mockStoreInstance = {
       get: jest.fn(),
       set: jest.fn(),
       clear: jest.fn(),
     };
-    MockedStore.mockImplementation(() => mockStoreInstance);
+    
+    // electron-storeモックの設定
+    jest.doMock('electron-store', () => {
+      return jest.fn().mockImplementation(() => mockStoreInstance);
+    });
+    
+    // settingsStoreを動的にインポート
+    const { settingsStore: store } = require('../settings');
+    settingsStore = store;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetModules();
   });
 
   test('デフォルトでalwaysOnTopはtrue', () => {
+    // get()メソッドがキーごとに値を返すようにモック
     mockStoreInstance.get.mockImplementation((key: string) => {
-      const defaults = {
+      const defaults: Record<string, any> = {
         outputDirectory: '/mock/desktop/EPUB_Images',
         language: 'ja',
         alwaysOnTop: true,
+        includeOriginalFilename: true,
+        includePageSpread: true,
       };
-      return defaults[key as keyof typeof defaults];
+      return defaults[key];
     });
 
     const settings = settingsStore.get();
@@ -43,9 +65,9 @@ describe('settingsStore - 最前面表示設定', () => {
   });
 
   test('alwaysOnTopの設定が保存される', () => {
-    settingsStore.set({ alwaysOnTop: true });
+    settingsStore.set({ alwaysOnTop: false });
 
-    expect(mockStoreInstance.set).toHaveBeenCalledWith('alwaysOnTop', true);
+    expect(mockStoreInstance.set).toHaveBeenCalledWith('alwaysOnTop', false);
   });
 
   test('複数の設定を同時に保存できる', () => {

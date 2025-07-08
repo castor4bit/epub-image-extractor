@@ -15,7 +15,7 @@ export async function extractImages(
   let totalImageCount = 0;
 
   try {
-    console.log('画像抽出開始:', {
+    getLogger().debug('画像抽出開始', {
       spineLength: epubData.spine.length,
       manifestSize: Object.keys(epubData.manifest).length,
       hasParser: !!epubData.parser,
@@ -30,7 +30,7 @@ export async function extractImages(
 
     for (let pageIndex = 0; pageIndex < epubData.spine.length; pageIndex++) {
       const spineItem = epubData.spine[pageIndex];
-      console.log(`ページ ${pageIndex + 1}/${totalPages} 処理中:`, spineItem);
+      getLogger().debug(`ページ ${pageIndex + 1}/${totalPages} 処理中`, spineItem);
 
       const manifestItem = epubData.manifest[spineItem.idref];
 
@@ -44,7 +44,7 @@ export async function extractImages(
 
       // HTMLコンテンツを取得
       const contentPath = path.join(epubData.contentPath, manifestItem.href).replace(/\\/g, '/');
-      console.log(`コンテンツ取得: ${contentPath}`);
+      getLogger().debug(`コンテンツ取得: ${contentPath}`);
 
       try {
         const contentEntry = zip.getEntry(contentPath);
@@ -54,7 +54,7 @@ export async function extractImages(
         }
 
         const contentString = zip.readAsText(contentEntry);
-        console.log(`コンテンツサイズ: ${contentString.length} 文字`);
+        getLogger().debug(`コンテンツサイズ: ${contentString.length} 文字`);
 
         // HTMLを解析して画像を抽出
         const pageImages = await extractImagesFromHTML(
@@ -87,7 +87,7 @@ export async function extractImages(
           onProgress(processedCount, totalPages);
         }
       } catch (contentError) {
-        console.error(`コンテンツ取得エラー (${contentPath}):`, contentError);
+        getLogger().error(`コンテンツ取得エラー (${contentPath})`, contentError instanceof Error ? contentError : new Error(String(contentError)));
         continue;
       }
     }
@@ -136,7 +136,7 @@ async function extractImagesFromHTML(
 
     while ((match = imgRegex.exec(htmlContent)) !== null) {
       const src = match[1];
-      if (src) {
+      if (src && !src.startsWith('data:')) {
         const absoluteSrc = resolveImagePath(src, htmlPath, contentBasePath);
         if (absoluteSrc) {
           images.push({
@@ -154,7 +154,7 @@ async function extractImagesFromHTML(
 
     while ((match = svgImageRegex.exec(htmlContent)) !== null) {
       const href = match[2];
-      if (href) {
+      if (href && !href.startsWith('data:')) {
         const absoluteSrc = resolveImagePath(href, htmlPath, contentBasePath);
         if (absoluteSrc) {
           images.push({
@@ -192,9 +192,9 @@ async function extractImagesFromHTML(
 }
 
 function resolveImagePath(imageSrc: string, htmlPath: string, contentBasePath: string): string {
-  // dataURLの場合はそのまま返す
+  // dataURLの場合は空文字を返す（スキップ）
   if (imageSrc.startsWith('data:')) {
-    return imageSrc;
+    return '';
   }
 
   // 絶対パスの場合
@@ -283,7 +283,7 @@ function createChapterPageMapping(epubData: EpubData): Map<number, number> {
   }
 
   // デバッグ情報を出力
-  console.log('チャプターページマッピング:', {
+  getLogger().debug('チャプターページマッピング', {
     ナビゲーション数: epubData.navigation.length,
     spine数: epubData.spine.length,
     チャプター開始位置: chapterStartIndices.slice(0, 10),
@@ -297,12 +297,12 @@ function createChapterPageMapping(epubData: EpubData): Map<number, number> {
   const chapter7Info = chapterStartIndices.find((c) => c.chapterOrder === 7);
 
   if (chapter3Info && chapter4Info) {
-    console.log(
+    getLogger().debug(
       `チャプター3（巻頭特集）: spine ${chapter3Info.spineIndex} から ${chapter4Info.spineIndex - 1} まで（${chapter4Info.spineIndex - chapter3Info.spineIndex}ページ）`,
     );
   }
   if (chapter6Info && chapter7Info) {
-    console.log(
+    getLogger().debug(
       `チャプター6（勇者は魔王が好きらしい）: spine ${chapter6Info.spineIndex} から ${chapter7Info.spineIndex - 1} まで（${chapter7Info.spineIndex - chapter6Info.spineIndex}ページ）`,
     );
   }

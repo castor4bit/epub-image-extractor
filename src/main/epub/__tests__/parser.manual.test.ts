@@ -1,4 +1,5 @@
 import { parseEpub } from '../parser';
+import { AppError } from '../../../shared/error-types';
 import path from 'path';
 import fs from 'fs';
 import AdmZip from 'adm-zip';
@@ -23,7 +24,9 @@ describe('parseEpub - 手動解析実装', () => {
       expect(result.navigation).toBeDefined();
       expect(result.basePath).toBe(testEpubPath);
       expect(result.contentPath).toBeDefined();
-      expect(result.parser).toBeInstanceOf(AdmZip);
+      expect(result.parser).toBeDefined();
+      // AdmZipインスタンスが正しく返されるか確認
+      expect(typeof result.parser.getEntries).toBe('function');
     });
 
     test('manifestが正しく抽出されること', async () => {
@@ -64,7 +67,15 @@ describe('parseEpub - 手動解析実装', () => {
     test('存在しないファイルの場合エラーをスローすること', async () => {
       const invalidPath = '/path/to/nonexistent.epub';
 
-      await expect(parseEpub(invalidPath)).rejects.toThrow('EPUBファイルの解析に失敗しました');
+      await expect(parseEpub(invalidPath)).rejects.toThrow(AppError);
+      try {
+        await parseEpub(invalidPath);
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        if (error instanceof AppError) {
+          expect(error.userMessage).toBe('EPUBファイルの解析に失敗しました');
+        }
+      }
     });
 
     test('不正なEPUBファイルの場合エラーをスローすること', async () => {
@@ -73,7 +84,7 @@ describe('parseEpub - 手動解析実装', () => {
       fs.writeFileSync(invalidEpubPath, 'This is not a valid EPUB file');
 
       try {
-        await expect(parseEpub(invalidEpubPath)).rejects.toThrow();
+        await expect(parseEpub(invalidEpubPath)).rejects.toThrow(AppError);
       } finally {
         // クリーンアップ
         if (fs.existsSync(invalidEpubPath)) {

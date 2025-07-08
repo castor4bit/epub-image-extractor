@@ -41,10 +41,12 @@ describe('extractImages - 手動解析実装', () => {
         </html>
       `;
 
-      mockZip.addFile('OEBPS/page1.xhtml', Buffer.from(htmlContent));
+      // OEBPS/content/page1.xhtml から ../images/cover.jpg を参照
+      mockZip.addFile('OEBPS/content/page1.xhtml', Buffer.from(htmlContent));
       mockZip.addFile('OEBPS/images/cover.jpg', Buffer.from('fake image data'));
 
       const epubData = createMockEpubData(mockZip);
+      epubData.manifest.page1.href = 'content/page1.xhtml'; // hrefを修正
 
       // extractImagesをテスト
       return extractImages(epubData).then((images) => {

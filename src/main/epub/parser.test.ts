@@ -1,4 +1,5 @@
 import { parseEpub } from './parser';
+import { AppError } from '../../shared/error-types';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -36,6 +37,14 @@ describe('EPUB Parser', () => {
   it('存在しないファイルでエラーを投げる', async () => {
     const invalidPath = '/path/to/nonexistent.epub';
 
-    await expect(parseEpub(invalidPath)).rejects.toThrow('EPUBファイルの解析に失敗しました');
+    await expect(parseEpub(invalidPath)).rejects.toThrow(AppError);
+    try {
+      await parseEpub(invalidPath);
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      if (error instanceof AppError) {
+        expect(error.userMessage).toBe('EPUBファイルの解析に失敗しました');
+      }
+    }
   });
 });

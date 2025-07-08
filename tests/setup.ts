@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
 
+// テスト環境の設定
+process.env.NODE_ENV = 'test';
+
 // Electronモジュールのモック
 jest.mock('electron', () => ({
   app: {

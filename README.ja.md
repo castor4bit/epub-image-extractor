@@ -147,6 +147,25 @@ npm run typecheck
 
 ## トラブルシューティング
 
+### デバッグログの確認
+
+アプリケーションはデバッグ情報をファイルに記録しています。問題が発生した場合は、以下の場所でログファイルを確認できます：
+
+- **Windows**: `%APPDATA%\epub-image-extractor\logs\`
+- **macOS**: `~/Library/Application Support/epub-image-extractor/logs/`
+- **Linux**: `~/.config/epub-image-extractor/logs/`
+
+ログファイル：
+- `error.log` - エラー情報のみ
+- `combined.log` - すべてのログ（情報、警告、エラー）
+- `debug.log` - 詳細なデバッグ情報
+
+開発時にコンソールにデバッグログを表示するには：
+```bash
+# 環境変数を設定して実行
+LOG_LEVEL=debug npm run dev
+```
+
 ### よくある問題
 
 1. **「Cannot find module」エラー**: `npm install`を実行してすべての依存関係がインストールされているか確認

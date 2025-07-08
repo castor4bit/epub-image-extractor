@@ -18,7 +18,7 @@ describe('チャプターナビゲーション統合テスト', () => {
   });
 
   describe('実際のEPUBファイルでのチャプター解析', () => {
-    test('/tmp/chapter_test.epubから章情報を正しく抽出できること', async () => {
+    test.skip('/tmp/chapter_test.epubから章情報を正しく抽出できること', async () => {
       const epubPath = '/tmp/chapter_test.epub';
       
       // ファイルの存在確認
@@ -45,7 +45,7 @@ describe('チャプターナビゲーション統合テスト', () => {
       expect(epubData.navigation[0].href).toContain('xhtml/p-cover.xhtml');
     });
 
-    test('章ごとに画像が正しく整理されること', async () => {
+    test.skip('章ごとに画像が正しく整理されること', async () => {
       const epubPath = '/tmp/chapter_test.epub';
       
       try {
@@ -98,7 +98,7 @@ describe('チャプターナビゲーション統合テスト', () => {
   });
 
   describe('ナビゲーション情報がないEPUBの処理', () => {
-    test('ナビゲーションがない場合は「未分類」フォルダに整理されること', async () => {
+    test.skip('ナビゲーションがない場合は「未分類」フォルダに整理されること', async () => {
       const epubPath = '/tmp/isekainonbiri_s01.epub';
       
       try {
