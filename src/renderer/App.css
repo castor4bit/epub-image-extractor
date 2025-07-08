@@ -367,6 +367,10 @@
   color: #3498db;
 }
 
+.summary-pending {
+  color: #95a5a6;
+}
+
 .summary-error {
   color: #e74c3c;
 }

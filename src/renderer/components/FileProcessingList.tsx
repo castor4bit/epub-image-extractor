@@ -79,6 +79,7 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
   });
 
   const processingCount = items.filter((item) => item.status === 'processing').length;
+  const pendingCount = items.filter((item) => item.status === 'pending').length;
   const completedCount = items.filter((item) => item.status === 'completed').length;
   const errorCount = items.filter((item) => item.status === 'error').length;
 
@@ -103,6 +104,7 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
         <span>処理状況: </span>
         {completedCount > 0 && <span className="summary-completed">{completedCount}完了</span>}
         {processingCount > 0 && <span className="summary-processing">{processingCount}処理中</span>}
+        {pendingCount > 0 && <span className="summary-pending">{pendingCount}待機中</span>}
         {errorCount > 0 && <span className="summary-error">{errorCount}エラー</span>}
       </div>
 
