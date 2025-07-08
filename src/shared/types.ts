@@ -37,3 +37,11 @@ export interface ExtractionResult {
   chapters: number;
   errors: string[];
 }
+
+export interface Settings {
+  outputDirectory: string;
+  language: string;
+  alwaysOnTop: boolean;
+  includeOriginalFilename: boolean;
+  includePageSpread: boolean;
+}

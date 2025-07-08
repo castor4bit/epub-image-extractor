@@ -1,16 +1,17 @@
 // @gxl/epub-parserは使用しない（APIが異なるため）
 import { ChapterInfo } from '@shared/types';
+import { ManifestItem, SpineItem, ContainerXml, OpfXml, NcxXml, NavPoint } from '@shared/epub-types';
 import path from 'path';
 import { parseStringPromise } from 'xml2js';
 import AdmZip from 'adm-zip';
 
 export interface EpubData {
-  manifest: any;
-  spine: any[];
+  manifest: Record<string, ManifestItem>;
+  spine: SpineItem[];
   navigation: ChapterInfo[];
   basePath: string;
   contentPath: string;
-  parser?: any; // パーサーインスタンスを保持
+  parser?: AdmZip; // パーサーインスタンスを保持
 }
 
 export async function parseEpub(epubPath: string): Promise<EpubData> {
@@ -27,7 +28,7 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     }
 
     const containerXml = zip.readAsText(containerEntry);
-    const containerData = await parseStringPromise(containerXml);
+    const containerData = await parseStringPromise(containerXml) as ContainerXml;
 
     // OPFファイルのパスを取得
     const rootfiles = containerData.container.rootfiles[0].rootfile;
@@ -41,13 +42,13 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     }
 
     const opfXml = zip.readAsText(opfEntry);
-    const opfData = await parseStringPromise(opfXml);
+    const opfData = await parseStringPromise(opfXml) as OpfXml;
 
     // manifestとspineを取得
-    const manifest: any = {};
+    const manifest: Record<string, ManifestItem> = {};
     const manifestItems = opfData.package.manifest[0].item || [];
 
-    manifestItems.forEach((item: any) => {
+    manifestItems.forEach((item) => {
       const id = item.$.id;
       manifest[id] = {
         id: id,
@@ -58,11 +59,11 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     });
 
     // spine情報を取得
-    const spine: any[] = [];
+    const spine: SpineItem[] = [];
     const spineItems = opfData.package.spine[0].itemref || [];
 
-    spineItems.forEach((item: any) => {
-      const spineItem: any = {
+    spineItems.forEach((item) => {
+      const spineItem: SpineItem = {
         idref: item.$.idref,
         linear: item.$.linear || 'yes',
       };
@@ -112,24 +113,24 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
 async function extractNavigationFromZip(
   zip: AdmZip,
   opfPath: string,
-  manifest: any,
+  manifest: Record<string, ManifestItem>,
 ): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
 
   try {
     // EPUB3のNavigation Documentを探す（properties="nav"）
     let tocItem = Object.values(manifest).find(
-      (item: any) => item.properties && item.properties.includes('nav'),
-    ) as any;
+      (item) => item.properties && item.properties.includes('nav'),
+    );
 
     // EPUB3のnavigation documentが見つからない場合は、EPUB2のNCXを探す
     if (!tocItem) {
       tocItem = Object.values(manifest).find(
-        (item: any) =>
+        (item) =>
           item['media-type'] === 'application/x-dtbncx+xml' ||
           item.id === 'ncx' ||
           item.id === 'toc',
-      ) as any;
+      );
     }
 
     if (tocItem) {
@@ -162,46 +163,6 @@ async function extractNavigationFromZip(
   }
 }
 
-async function extractNavigation(parser: any, epubInfo: any): Promise<ChapterInfo[]> {
-  const chapters: ChapterInfo[] = [];
-
-  try {
-    // navigationプロパティが存在する場合
-    if (epubInfo.navigation) {
-      return parseNavigationData(epubInfo.navigation);
-    }
-
-    // navigationプロパティがない場合の回避策
-    // NCXファイルまたはNav Documentから直接取得を試みる
-    const tocItem = Object.values(epubInfo.manifest || {}).find(
-      (item: any) => item.properties?.includes('nav') || item.id === 'ncx',
-    ) as any;
-
-    if (tocItem) {
-      const tocContent = await parser.getFile(tocItem.href);
-      const tocString = tocContent.toString('utf-8');
-
-      if (tocItem.mediaType === 'application/x-dtbncx+xml') {
-        // NCX形式の目次
-        return await parseNCX(tocString);
-      } else {
-        // HTML形式のナビゲーション
-        return parseHTMLNavigation(tocString);
-      }
-    }
-
-    // 目次が見つからない場合は、spineの順序で章を作成
-    return epubInfo.spine.map((item: any, index: number) => ({
-      order: index + 1,
-      title: `ページ ${index + 1}`,
-      href: item.href || '',
-    }));
-  } catch (error) {
-    console.warn('ナビゲーション抽出エラー:', error);
-    // エラーの場合も空配列を返す
-    return chapters;
-  }
-}
 
 function parseNavigationData(navigation: any): ChapterInfo[] {
   const chapters: ChapterInfo[] = [];
@@ -235,13 +196,13 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
 
   try {
-    const parsed = await parseStringPromise(ncxContent);
+    const parsed = await parseStringPromise(ncxContent) as NcxXml;
     const navMap = parsed.ncx?.navMap?.[0];
 
     if (navMap?.navPoint) {
       let order = 1;
 
-      const processNavPoint = (navPoint: any) => {
+      const processNavPoint = (navPoint: NavPoint) => {
         const title = navPoint.navLabel?.[0]?.text?.[0];
         const href = navPoint.content?.[0]?.$?.src;
 

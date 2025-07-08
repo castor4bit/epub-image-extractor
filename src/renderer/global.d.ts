@@ -3,32 +3,14 @@ interface ElectronAPI {
   getVersion: () => Promise<string>;
   processEpubFiles: (filePaths: string[]) => Promise<{
     success: boolean;
-    results?: any[];
+    results?: import('@shared/types').ExtractionResult[];
     error?: string;
   }>;
-  onProgress: (callback: (progress: any) => void) => () => void;
+  onProgress: (callback: (progress: import('@shared/types').ProcessingProgress) => void) => () => void;
   selectOutputDirectory: () => Promise<string | null>;
-  getSettings: () => Promise<{
-    outputDirectory: string;
-    language: string;
-    alwaysOnTop: boolean;
-    includeOriginalFilename: boolean;
-    includePageSpread: boolean;
-  }>;
-  saveSettings: (settings: {
-    outputDirectory: string;
-    language: string;
-    alwaysOnTop: boolean;
-    includeOriginalFilename: boolean;
-    includePageSpread: boolean;
-  }) => Promise<{ success: boolean }>;
-  resetSettings: () => Promise<{
-    outputDirectory: string;
-    language: string;
-    alwaysOnTop: boolean;
-    includeOriginalFilename: boolean;
-    includePageSpread: boolean;
-  }>;
+  getSettings: () => Promise<import('@shared/types').Settings>;
+  saveSettings: (settings: import('@shared/types').Settings) => Promise<{ success: boolean }>;
+  resetSettings: () => Promise<import('@shared/types').Settings>;
   openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
 }
 
