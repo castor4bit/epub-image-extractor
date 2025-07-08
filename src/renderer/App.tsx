@@ -49,11 +49,20 @@ function App() {
             localStorage.setItem('epubExtractionResults', JSON.stringify(newResults));
           }
 
-          // pendingステータスのアイテムをprogressから削除
+          // 処理完了したアイテムをprogressから削除
           setProgress((prev) => {
             const newProgress = { ...prev };
+            // 完了した結果のfileIdを取得
+            const completedFileIds = new Set(result.results?.map((r) => r.fileId) || []);
+
             Object.keys(newProgress).forEach((key) => {
-              if (newProgress[key].status === 'pending') {
+              // pendingまたは完了済みのアイテムを削除
+              if (
+                newProgress[key].status === 'pending' ||
+                newProgress[key].status === 'completed' ||
+                newProgress[key].status === 'error' ||
+                completedFileIds.has(key)
+              ) {
                 delete newProgress[key];
               }
             });

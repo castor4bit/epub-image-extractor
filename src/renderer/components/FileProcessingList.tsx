@@ -28,34 +28,36 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
 }) => {
   // 進捗データと結果データを統合
   const items: ProcessingItem[] = [];
+  const processedFileIds = new Set<string>();
 
-  // 進捗データを追加
-  Object.entries(progress).forEach(([fileId, prog]) => {
+  // まず結果データを処理（優先）
+  results.forEach((result) => {
     items.push({
-      fileId,
-      fileName: prog.fileName,
-      status: prog.status,
-      totalImages: prog.totalImages,
-      processedImages: prog.processedImages,
-      error: prog.error,
-      // fileIdから��イムスタンプを抽出（形式: file-{index}-{timestamp}）
-      timestamp: parseInt(prog.fileId.split('-').pop() || '0') || Date.now(),
+      fileId: result.fileId,
+      fileName: result.fileName,
+      status: result.errors && result.errors.length > 0 ? 'error' : 'completed',
+      totalImages: result.totalImages,
+      chapters: result.chapters,
+      outputPath: result.outputPath,
+      error: result.errors?.[0],
+      // fileIdからタイムスタンプを抽出
+      timestamp: parseInt(result.fileId.split('-').pop() || '0') || Date.now() - 1000000,
     });
+    processedFileIds.add(result.fileId);
   });
 
-  // 結果データを追加（進捗にない完了済みのもの）
-  results.forEach((result) => {
-    if (!progress[result.fileId]) {
+  // 進捗データを追加（結果にないもののみ）
+  Object.entries(progress).forEach(([fileId, prog]) => {
+    if (!processedFileIds.has(fileId)) {
       items.push({
-        fileId: result.fileId,
-        fileName: result.fileName,
-        status: result.errors && result.errors.length > 0 ? 'error' : 'completed',
-        totalImages: result.totalImages,
-        chapters: result.chapters,
-        outputPath: result.outputPath,
-        error: result.errors?.[0],
-        // fileIdからタイムスタンプを抽出
-        timestamp: parseInt(result.fileId.split('-').pop() || '0') || Date.now() - 1000000,
+        fileId,
+        fileName: prog.fileName,
+        status: prog.status,
+        totalImages: prog.totalImages,
+        processedImages: prog.processedImages,
+        error: prog.error,
+        // fileIdから��イムスタンプを抽出（形式: file-{index}-{timestamp}）
+        timestamp: parseInt(prog.fileId.split('-').pop() || '0') || Date.now(),
       });
     }
   });
