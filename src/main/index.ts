@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
+import { settingsStore } from './store/settings';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -9,9 +10,13 @@ function createWindow() {
   const windowWidth = 600; // 1200 * 0.5
   const windowHeight = 560; // 800 * 0.7
 
+  // 設定から最前面表示を取得
+  const settings = settingsStore.get();
+
   mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
+    alwaysOnTop: settings.alwaysOnTop,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

@@ -11,14 +11,17 @@ interface ElectronAPI {
   getSettings: () => Promise<{
     outputDirectory: string;
     language: string;
+    alwaysOnTop: boolean;
   }>;
   saveSettings: (settings: {
     outputDirectory: string;
     language: string;
+    alwaysOnTop: boolean;
   }) => Promise<{ success: boolean }>;
   resetSettings: () => Promise<{
     outputDirectory: string;
     language: string;
+    alwaysOnTop: boolean;
   }>;
   openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
 }

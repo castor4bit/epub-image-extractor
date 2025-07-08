@@ -5,11 +5,13 @@ import path from 'path';
 interface Settings {
   outputDirectory: string;
   language: string;
+  alwaysOnTop: boolean;
 }
 
 const defaults: Settings = {
   outputDirectory: path.join(app.getPath('desktop'), 'EPUB_Images'),
   language: 'ja',
+  alwaysOnTop: false,
 };
 
 // electron-storeインスタンスを作成
@@ -27,6 +29,7 @@ export const settingsStore = {
     return {
       outputDirectory: store.get('outputDirectory'),
       language: store.get('language'),
+      alwaysOnTop: store.get('alwaysOnTop'),
     };
   },
 

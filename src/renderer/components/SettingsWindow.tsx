@@ -4,6 +4,7 @@ import './SettingsWindow.css';
 interface Settings {
   outputDirectory: string;
   language: string;
+  alwaysOnTop: boolean;
 }
 
 interface SettingsWindowProps {
@@ -15,6 +16,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
   const [settings, setSettings] = useState<Settings>({
     outputDirectory: '',
     language: 'ja',
+    alwaysOnTop: false,
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -86,6 +88,20 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
                 English (今後対応予定)
               </option>
             </select>
+          </div>
+
+          <div className="setting-group">
+            <label htmlFor="always-on-top">
+              <input
+                id="always-on-top"
+                type="checkbox"
+                checked={settings.alwaysOnTop}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, alwaysOnTop: e.target.checked }))
+                }
+              />
+              ウィンドウを最前面に表示
+            </label>
           </div>
         </div>
 

@@ -67,7 +67,7 @@
   font-weight: 500;
 }
 
-.setting-group input,
+.setting-group input[type='text'],
 .setting-group select {
   width: 100%;
   padding: 0.5rem;
@@ -75,6 +75,12 @@
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.2s ease;
+}
+
+.setting-group input[type='checkbox'] {
+  width: auto;
+  margin-right: 0.5rem;
+  vertical-align: middle;
 }
 
 .setting-group input:focus,
