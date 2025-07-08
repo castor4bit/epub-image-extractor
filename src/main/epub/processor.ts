@@ -18,10 +18,19 @@ export async function processEpubFiles(
   const limit = pLimit(parallelLimit);
   const results: ExtractionResult[] = [];
 
-  // すべてのファイルの進捗を初期化（pending状態）
+  // 各ファイルのfileIdを事前に生成
+  const fileIdMap = new Map<string, string>();
+  const timestamp = Date.now();
+
   filePaths.forEach((filePath, index) => {
+    const fileId = `file-${index}-${timestamp}`;
+    fileIdMap.set(filePath, fileId);
+  });
+
+  // すべてのファイルの進捗を初期化（pending状態）
+  filePaths.forEach((filePath) => {
     const fileName = path.basename(filePath);
-    const fileId = `file-${index}-${Date.now()}`;
+    const fileId = fileIdMap.get(filePath)!;
     onProgress({
       fileId,
       fileName,
@@ -32,8 +41,8 @@ export async function processEpubFiles(
   });
 
   // 各EPUBファイルを並列処理
-  const promises = filePaths.map((filePath, index) =>
-    limit(() => processEpubFile(filePath, outputDir, onProgress, `file-${index}-${Date.now()}`)),
+  const promises = filePaths.map((filePath) =>
+    limit(() => processEpubFile(filePath, outputDir, onProgress, fileIdMap.get(filePath)!)),
   );
 
   const processResults = await Promise.allSettled(promises);
