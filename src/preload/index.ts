@@ -6,7 +6,12 @@ const electronAPI = {
   // EPUB処理関連のAPIは後で追加
   processEpubFiles: (filePaths: string[]) => ipcRenderer.invoke('epub:process', filePaths),
   onProgress: (callback: (progress: any) => void) => {
-    ipcRenderer.on('epub:progress', (_event, progress) => callback(progress));
+    const listener = (_event: any, progress: any) => callback(progress);
+    ipcRenderer.on('epub:progress', listener);
+    // クリーンアップ関数を返す
+    return () => {
+      ipcRenderer.removeListener('epub:progress', listener);
+    };
   },
   selectOutputDirectory: () => ipcRenderer.invoke('dialog:selectDirectory'),
   getSettings: () => ipcRenderer.invoke('settings:get'),

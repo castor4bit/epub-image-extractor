@@ -30,7 +30,6 @@
     "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
   },
   "dependencies": {
-    "@gxl/epub-parser": "^2.0.4",
     "adm-zip": "^0.5.16",
     "async-mutex": "^0.5.0",
     "electron-store": "^8.2.0",

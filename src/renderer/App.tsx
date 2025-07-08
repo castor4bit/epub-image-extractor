@@ -188,7 +188,7 @@ function App() {
 
   // 進捗リスナーを設定
   useEffect(() => {
-    window.electronAPI.onProgress((progressData: ProcessingProgress) => {
+    const cleanup = window.electronAPI.onProgress((progressData: ProcessingProgress) => {
       setProgress((prev) => ({
         ...prev,
         [progressData.fileId]: progressData,
@@ -219,6 +219,9 @@ function App() {
         });
       }
     });
+
+    // クリーンアップ関数を返す
+    return cleanup;
   }, []);
 
   return (

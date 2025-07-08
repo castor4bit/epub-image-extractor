@@ -6,7 +6,7 @@ interface ElectronAPI {
     results?: any[];
     error?: string;
   }>;
-  onProgress: (callback: (progress: any) => void) => void;
+  onProgress: (callback: (progress: any) => void) => () => void;
   selectOutputDirectory: () => Promise<string | null>;
   getSettings: () => Promise<{
     outputDirectory: string;
