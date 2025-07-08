@@ -28,18 +28,18 @@ describe('settingsStore - 最前面表示設定', () => {
     jest.clearAllMocks();
   });
 
-  test('デフォルトでalwaysOnTopはfalse', () => {
+  test('デフォルトでalwaysOnTopはtrue', () => {
     mockStoreInstance.get.mockImplementation((key: string) => {
       const defaults = {
         outputDirectory: '/mock/desktop/EPUB_Images',
         language: 'ja',
-        alwaysOnTop: false,
+        alwaysOnTop: true,
       };
       return defaults[key as keyof typeof defaults];
     });
 
     const settings = settingsStore.get();
-    expect(settings.alwaysOnTop).toBe(false);
+    expect(settings.alwaysOnTop).toBe(true);
   });
 
   test('alwaysOnTopの設定が保存される', () => {

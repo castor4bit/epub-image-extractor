@@ -16,7 +16,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
   const [settings, setSettings] = useState<Settings>({
     outputDirectory: '',
     language: 'ja',
-    alwaysOnTop: false,
+    alwaysOnTop: true,
   });
   const [isSaving, setIsSaving] = useState(false);
 

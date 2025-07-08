@@ -7,14 +7,14 @@ const mockElectronAPI = {
   getSettings: jest.fn().mockResolvedValue({
     outputDirectory: '/test/path',
     language: 'ja',
-    alwaysOnTop: false,
+    alwaysOnTop: true,
   }),
   saveSettings: jest.fn().mockResolvedValue({ success: true }),
   selectOutputDirectory: jest.fn(),
   resetSettings: jest.fn().mockResolvedValue({
     outputDirectory: '/default/path',
     language: 'ja',
-    alwaysOnTop: false,
+    alwaysOnTop: true,
   }),
 };
 
@@ -38,21 +38,21 @@ describe('SettingsWindow - 最前面表示オプション', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: /ウィンドウを最前面に表示/ });
     expect(checkbox).toBeInTheDocument();
-    expect(checkbox).not.toBeChecked();
+    expect(checkbox).toBeChecked();
   });
 
-  test('最前面表示オプションが正しく読み込まれる', async () => {
+  test('最前面表示オプションを無効にできる', async () => {
     mockElectronAPI.getSettings.mockResolvedValueOnce({
       outputDirectory: '/test/path',
       language: 'ja',
-      alwaysOnTop: true,
+      alwaysOnTop: false,
     });
 
     render(<SettingsWindow isOpen={true} onClose={jest.fn()} />);
 
     await waitFor(() => {
       const checkbox = screen.getByRole('checkbox', { name: /ウィンドウを最前面に表示/ });
-      expect(checkbox).toBeChecked();
+      expect(checkbox).not.toBeChecked();
     });
   });
 
@@ -64,10 +64,10 @@ describe('SettingsWindow - 最前面表示オプション', () => {
       expect(screen.getByText('ウィンドウを最前面に表示')).toBeInTheDocument();
     });
 
-    // チェックボックスをクリック
+    // チェックボックスをクリック（デフォルトでtrueなのでfalseにする）
     const checkbox = screen.getByRole('checkbox', { name: /ウィンドウを最前面に表示/ });
     fireEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
+    expect(checkbox).not.toBeChecked();
 
     // 保存ボタンをクリック
     const saveButton = screen.getByText('保存');
@@ -77,7 +77,7 @@ describe('SettingsWindow - 最前面表示オプション', () => {
       expect(mockElectronAPI.saveSettings).toHaveBeenCalledWith({
         outputDirectory: '/test/path',
         language: 'ja',
-        alwaysOnTop: true,
+        alwaysOnTop: false,
       });
       expect(onClose).toHaveBeenCalled();
     });
@@ -87,14 +87,14 @@ describe('SettingsWindow - 最前面表示オプション', () => {
     mockElectronAPI.getSettings.mockResolvedValueOnce({
       outputDirectory: '/test/path',
       language: 'ja',
-      alwaysOnTop: true,
+      alwaysOnTop: false,
     });
 
     render(<SettingsWindow isOpen={true} onClose={jest.fn()} />);
 
     await waitFor(() => {
       const checkbox = screen.getByRole('checkbox', { name: /ウィンドウを最前面に表示/ });
-      expect(checkbox).toBeChecked();
+      expect(checkbox).not.toBeChecked();
     });
 
     // デフォルトに戻すボタンをクリック
@@ -103,7 +103,7 @@ describe('SettingsWindow - 最前面表示オプション', () => {
 
     await waitFor(() => {
       const checkbox = screen.getByRole('checkbox', { name: /ウィンドウを最前面に表示/ });
-      expect(checkbox).not.toBeChecked();
+      expect(checkbox).toBeChecked(); // デフォルトはtrue
     });
   });
 });

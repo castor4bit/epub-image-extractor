@@ -11,7 +11,7 @@ interface Settings {
 const defaults: Settings = {
   outputDirectory: path.join(app.getPath('desktop'), 'EPUB_Images'),
   language: 'ja',
-  alwaysOnTop: false,
+  alwaysOnTop: true,
 };
 
 // electron-storeインスタンスを作成
