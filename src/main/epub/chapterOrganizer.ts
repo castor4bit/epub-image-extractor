@@ -1,4 +1,6 @@
 import { ImageInfo, ChapterInfo } from '@shared/types';
+import { AppError, ErrorCode } from '../../shared/error-types';
+import { getLogger } from '../utils/errorHandler';
 import path from 'path';
 import fs from 'fs/promises';
 import AdmZip from 'adm-zip';
@@ -63,7 +65,17 @@ export async function organizeByChapters(
     const chapterDir = path.join(outputDir, dirName);
 
     // ディレクトリ作成
-    await fs.mkdir(chapterDir, { recursive: true });
+    try {
+      await fs.mkdir(chapterDir, { recursive: true });
+    } catch (error) {
+      throw new AppError(
+        ErrorCode.DIRECTORY_CREATE_ERROR,
+        error instanceof Error ? error.message : 'ディレクトリ作成エラー',
+        `章ディレクトリの作成に失敗しました: ${dirName}`,
+        { chapterDir, chapterTitle: chapter.title, operation: 'createChapterDirectory' },
+        error instanceof Error ? error : undefined
+      );
+    }
 
     // 画像を保存
     let imageIndex = 1;
@@ -72,12 +84,12 @@ export async function organizeByChapters(
         // EPUBから画像データを取得
         const imageEntry = zip.getEntry(image.src);
         if (!imageEntry) {
-          console.warn(`画像エントリーが見つかりません: ${image.src}`);
+          getLogger().warn(`画像エントリーが見つかりません: ${image.src}`);
           continue;
         }
         const imageBuffer = zip.readFile(imageEntry);
         if (!imageBuffer) {
-          console.warn(`画像データが読み取れません: ${image.src}`);
+          getLogger().warn(`画像データが読み取れません: ${image.src}`);
           continue;
         }
 
@@ -88,7 +100,7 @@ export async function organizeByChapters(
           process.memoryUsage().heapUsed,
         );
         if (!sizeCheck.allowed) {
-          console.warn(`画像サイズ制限超過 (${image.src}): ${sizeCheck.reason}`);
+          getLogger().warn(`画像サイズ制限超過 (${image.src}): ${sizeCheck.reason}`);
           continue;
         }
 
@@ -118,7 +130,7 @@ export async function organizeByChapters(
 
         imageIndex++;
       } catch (error) {
-        console.error(`画像保存エラー (${image.src}):`, error);
+        getLogger().error(`画像保存エラー (${image.src})`, error instanceof Error ? error : new Error(String(error)));
       }
     }
 

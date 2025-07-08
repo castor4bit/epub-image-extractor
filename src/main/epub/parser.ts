@@ -1,6 +1,7 @@
 // @gxl/epub-parserは使用しない（APIが異なるため）
 import { ChapterInfo } from '@shared/types';
 import { ManifestItem, SpineItem, ContainerXml, OpfXml, NcxXml, NavPoint } from '@shared/epub-types';
+import { AppError, ErrorCode } from '../../shared/error-types';
 import path from 'path';
 import { parseStringPromise } from 'xml2js';
 import AdmZip from 'adm-zip';
@@ -24,7 +25,12 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     // container.xmlを読む
     const containerEntry = zip.getEntry('META-INF/container.xml');
     if (!containerEntry) {
-      throw new Error('container.xml not found');
+      throw new AppError(
+        ErrorCode.EPUB_INVALID_FORMAT,
+        'container.xml not found',
+        'EPUBファイルの形式が無効です（container.xmlが見つかりません）',
+        { filePath: epubPath }
+      );
     }
 
     const containerXml = zip.readAsText(containerEntry);
@@ -38,7 +44,12 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     // OPFファイルを読む
     const opfEntry = zip.getEntry(opfPath);
     if (!opfEntry) {
-      throw new Error('OPF file not found');
+      throw new AppError(
+        ErrorCode.EPUB_INVALID_FORMAT,
+        'OPF file not found',
+        'EPUBファイルの形式が無効です（OPFファイルが見つかりません）',
+        { filePath: epubPath, opfPath }
+      );
     }
 
     const opfXml = zip.readAsText(opfEntry);
@@ -98,14 +109,12 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
       parser: zip, // zipインスタンスを保持
     };
   } catch (error) {
-    console.error('EPUB解析エラー詳細:', {
-      error,
-      message: error instanceof Error ? error.message : '不明なエラー',
-      stack: error instanceof Error ? error.stack : undefined,
-      epubPath,
-    });
-    throw new Error(
-      `EPUBファイルの解析に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    throw new AppError(
+      ErrorCode.EPUB_PARSE_ERROR,
+      error instanceof Error ? error.message : '不明なエラー',
+      'EPUBファイルの解析に失敗しました',
+      { filePath: epubPath },
+      error instanceof Error ? error : undefined
     );
   }
 }

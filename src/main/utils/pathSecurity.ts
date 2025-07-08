@@ -1,4 +1,5 @@
 import path from 'path';
+import { AppError, ErrorCode } from '../../shared/error-types';
 
 /**
  * パストラバーサル攻撃を防ぐための安全なパス解決
@@ -12,8 +13,12 @@ export function resolveSecurePath(basePath: string, relativePath: string): strin
 
   // 解決されたパスがベースパスから始まることを確認
   if (!resolvedPath.startsWith(normalizedBase)) {
-    console.warn(`パストラバーサル攻撃の可能性を検出: ${relativePath}`);
-    return null;
+    throw new AppError(
+      ErrorCode.PATH_TRAVERSAL_DETECTED,
+      `Path traversal detected: ${relativePath}`,
+      'セキュリティエラー: 不正なパスが検出されました',
+      { basePath, relativePath, resolvedPath }
+    );
   }
 
   return resolvedPath;

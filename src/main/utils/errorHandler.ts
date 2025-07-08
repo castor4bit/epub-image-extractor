@@ -73,33 +73,28 @@ function getLogger(): winston.Logger {
   return logger;
 }
 
+import { AppError, ErrorCode, wrapError } from '../../shared/error-types';
+
 // エラーハンドリング関数
 export function handleError(error: Error | unknown, context: string): string {
-  const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました';
-  const stack = error instanceof Error ? error.stack : '';
+  // AppErrorでない場合はラップする
+  const appError = error instanceof AppError 
+    ? error 
+    : wrapError(error, ErrorCode.UNKNOWN_ERROR, { operation: context });
 
+  // ログに記録
   getLogger().error({
-    context,
-    message: errorMessage,
-    stack,
+    code: appError.code,
+    context: appError.context,
+    message: appError.message,
+    userMessage: appError.userMessage,
+    stack: appError.stack,
+    originalError: appError.originalError?.stack,
     timestamp: new Date().toISOString(),
   });
 
   // ユーザー向けのエラーメッセージを返す
-  if (error instanceof Error) {
-    // 特定のエラータイプに基づいてユーザーフレンドリーなメッセージを返す
-    if (error.message.includes('ENOENT')) {
-      return 'ファイルが見つかりません';
-    } else if (error.message.includes('EACCES')) {
-      return 'ファイルへのアクセス権限がありません';
-    } else if (error.message.includes('ENOSPC')) {
-      return 'ディスク容量が不足しています';
-    } else if (error.message.includes('EPUB')) {
-      return `EPUB処理エラー: ${errorMessage}`;
-    }
-  }
-
-  return errorMessage;
+  return appError.userMessage;
 }
 
 // エクスポート（互換性のため）

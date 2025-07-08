@@ -1,5 +1,7 @@
 import { ImageInfo } from '@shared/types';
 import { EpubData } from './parser';
+import { AppError, ErrorCode } from '../../shared/error-types';
+import { getLogger } from '../utils/errorHandler';
 import path from 'path';
 import AdmZip from 'adm-zip';
 import { resolveSecurePath, checkResourceLimits, RESOURCE_LIMITS } from '../utils/pathSecurity';
@@ -33,7 +35,7 @@ export async function extractImages(
       const manifestItem = epubData.manifest[spineItem.idref];
 
       if (!manifestItem) {
-        console.warn(`Manifest item not found for spine idref: ${spineItem.idref}`);
+        getLogger().warn(`Manifest item not found for spine idref: ${spineItem.idref}`);
         continue;
       }
 
@@ -47,7 +49,7 @@ export async function extractImages(
       try {
         const contentEntry = zip.getEntry(contentPath);
         if (!contentEntry) {
-          console.warn(`エントリーが見つかりません: ${contentPath}`);
+          getLogger().warn(`エントリーが見つかりません: ${contentPath}`);
           continue;
         }
 
@@ -72,7 +74,7 @@ export async function extractImages(
         );
 
         if (!limitCheck.allowed) {
-          console.warn(`リソース制限: ${limitCheck.reason}`);
+          getLogger().warn(`リソース制限: ${limitCheck.reason}`);
           // 制限に達した場合は警告を出して処理を継続（これまでの画像は保持）
           break;
         }
@@ -100,14 +102,20 @@ export async function extractImages(
 
     return images;
   } catch (error) {
-    console.error('画像抽出エラー詳細:', {
-      error,
-      message: error instanceof Error ? error.message : '不明なエラー',
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-    throw new Error(
-      `画像の抽出に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    const appError = error instanceof AppError ? error : new AppError(
+      ErrorCode.UNKNOWN_ERROR,
+      error instanceof Error ? error.message : '不明なエラー',
+      '画像の抽出に失敗しました',
+      {
+        filePath: epubData.basePath,
+        totalImages: images.length,
+        operation: 'extractImages'
+      },
+      error instanceof Error ? error : undefined
     );
+    
+    getLogger().error('画像抽出エラー', appError);
+    throw appError;
   }
 }
 
@@ -177,7 +185,7 @@ async function extractImagesFromHTML(
       }
     }
   } catch (error) {
-    console.error('HTML解析エラー:', error);
+    getLogger().error('HTML解析エラー', error instanceof Error ? error : new Error(String(error)));
   }
 
   return images;

@@ -20,7 +20,6 @@ export default defineConfig({
                 'canvas',
                 'ws',
                 'xml2js',
-                '@gxl/epub-parser',
                 'adm-zip',
                 'winston',
                 'p-limit'
