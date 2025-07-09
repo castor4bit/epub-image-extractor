@@ -14,6 +14,7 @@ jest.mock('../../utils/errorHandler', () => ({
 }));
 
 import { processEpubFiles } from '../processor';
+import { ProcessingProgress } from '@shared/types';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
@@ -30,8 +31,8 @@ describe('processEpubFiles - fileIdの一貫性', () => {
   });
 
   test('同じファイルに対して一貫したfileIdが使用される', async () => {
-    const progressUpdates: any[] = [];
-    const onProgress = (progress: any) => {
+    const progressUpdates: ProcessingProgress[] = [];
+    const onProgress = (progress: ProcessingProgress) => {
       progressUpdates.push({ ...progress });
     };
 
@@ -57,7 +58,7 @@ describe('processEpubFiles - fileIdの一貫性', () => {
         acc[update.fileId].push(update);
         return acc;
       },
-      {} as Record<string, any[]>,
+      {} as Record<string, ProcessingProgress[]>,
     );
 
     // 各ファイルに対して1つのfileIdのみが使用されていることを確認
@@ -77,8 +78,8 @@ describe('processEpubFiles - fileIdの一貫性', () => {
   });
 
   test('複数ファイルでもfileIdの重複がない', async () => {
-    const progressUpdates: any[] = [];
-    const onProgress = (progress: any) => {
+    const progressUpdates: ProcessingProgress[] = [];
+    const onProgress = (progress: ProcessingProgress) => {
       progressUpdates.push({ ...progress });
     };
 

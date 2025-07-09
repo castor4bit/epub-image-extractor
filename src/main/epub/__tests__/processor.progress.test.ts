@@ -14,6 +14,7 @@ jest.mock('../../utils/errorHandler', () => ({
 }));
 
 import { processEpubFiles } from '../processor';
+import type { ProcessingProgress } from '@shared/types';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
@@ -30,8 +31,8 @@ describe('processEpubFiles - 進捗表示', () => {
   });
 
   test('すべてのファイルが初期化時にpendingステータスで登録される', async () => {
-    const progressUpdates: any[] = [];
-    const onProgress = (progress: any) => {
+    const progressUpdates: ProcessingProgress[] = [];
+    const onProgress = (progress: ProcessingProgress) => {
       progressUpdates.push({ ...progress });
     };
 
@@ -50,7 +51,7 @@ describe('processEpubFiles - 進捗表示', () => {
         .catch(() => false);
       if (!exists) {
         // テストファイルが存在しない場合はスキップ
-        console.log(`Test file not found: ${file}`);
+        // console.log(`Test file not found: ${file}`);
         return;
       }
     }
@@ -67,8 +68,8 @@ describe('processEpubFiles - 進捗表示', () => {
   });
 
   test('並列処理数が3でも4つ以上のファイルが正しく処理される', async () => {
-    const progressByFile: Record<string, any[]> = {};
-    const onProgress = (progress: any) => {
+    const progressByFile: Record<string, ProcessingProgress[]> = {};
+    const onProgress = (progress: ProcessingProgress) => {
       if (!progressByFile[progress.fileId]) {
         progressByFile[progress.fileId] = [];
       }
@@ -95,7 +96,7 @@ describe('processEpubFiles - 進捗表示', () => {
     }
 
     if (existingFiles.length < 4) {
-      console.log('Not enough test files for this test');
+      // console.log('Not enough test files for this test');
       return;
     }
 
@@ -124,8 +125,8 @@ describe('processEpubFiles - 進捗表示', () => {
   });
 
   test('処理完了後にpendingステータスが残らない', async () => {
-    const finalProgress: Record<string, any> = {};
-    const onProgress = (progress: any) => {
+    const finalProgress: Record<string, ProcessingProgress> = {};
+    const onProgress = (progress: ProcessingProgress) => {
       finalProgress[progress.fileId] = { ...progress };
     };
 
@@ -136,14 +137,14 @@ describe('processEpubFiles - 進捗表示', () => {
       .catch(() => false);
 
     if (!exists) {
-      console.log('Test file not found');
+      // console.log('Test file not found');
       return;
     }
 
     await processEpubFiles([testFile], tempDir, onProgress);
 
     // 最終的な進捗状態にpendingが含まれていないことを確認
-    const finalStatuses = Object.values(finalProgress).map((p: any) => p.status);
+    const finalStatuses = Object.values(finalProgress).map((p) => p.status);
     expect(finalStatuses).not.toContain('pending');
   });
 });

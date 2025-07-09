@@ -31,8 +31,13 @@ jest.mock('../../utils/zipHandler');
 jest.mock('fs/promises');
 
 describe('IPC Handlers', () => {
-  let mockMainWindow: any;
-  let handlers: Map<string, (...args: any[]) => any>;
+  let mockMainWindow: {
+    webContents: {
+      send: jest.Mock;
+    };
+    setAlwaysOnTop: jest.Mock;
+  };
+  let handlers: Map<string, (...args: unknown[]) => unknown>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,7 +45,7 @@ describe('IPC Handlers', () => {
 
     // ipcMain.handleのモック実装
     (ipcMain.handle as jest.Mock).mockImplementation(
-      (channel: string, handler: (...args: any[]) => any) => {
+      (channel: string, handler: (...args: unknown[]) => unknown) => {
         handlers.set(channel, handler);
       },
     );

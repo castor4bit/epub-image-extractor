@@ -34,7 +34,7 @@ export interface ProcessingError {
     filePath?: string;
     fileName?: string;
     operation?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   originalError?: Error;
 }

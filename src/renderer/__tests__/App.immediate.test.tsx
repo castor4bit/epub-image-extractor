@@ -49,7 +49,7 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
       progressCallback = callback;
       // クリーンアップ関数を返す
       return () => {
-        progressCallback = null as any;
+        progressCallback = null as unknown as (progress: ProcessingProgress) => void;
       };
     });
   });

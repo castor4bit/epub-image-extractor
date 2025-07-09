@@ -7,6 +7,7 @@ import { extractImages } from '../../src/main/epub/imageExtractor';
 import { organizeByChapters } from '../../src/main/epub/chapterOrganizer';
 import { processEpubFiles } from '../../src/main/epub/processor';
 import { extractEpubsFromZip } from '../../src/main/utils/zipHandler';
+import type { ProcessingProgress } from '../../src/shared/types';
 
 // テスト用の一時ディレクトリ
 const TEST_OUTPUT_DIR = path.join(__dirname, '../temp/output');
@@ -154,8 +155,8 @@ describe('EPUB処理統合テスト', () => {
       const epubPath = path.join(TEST_FILES_DIR, 'test.epub');
       const outputDir = path.join(TEST_OUTPUT_DIR, 'parallel-test');
       
-      const progressUpdates: any[] = [];
-      const onProgress = (progress: any) => {
+      const progressUpdates: ProcessingProgress[] = [];
+      const onProgress = (progress: ProcessingProgress) => {
         progressUpdates.push(progress);
       };
       

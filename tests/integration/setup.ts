@@ -34,10 +34,10 @@ jest.mock('electron', () => ({
 const store = new Map();
 jest.mock('electron-store', () => {
   return jest.fn().mockImplementation(() => ({
-    get: jest.fn((key: string, defaultValue?: any) => {
+    get: jest.fn((key: string, defaultValue?: unknown) => {
       return store.has(key) ? store.get(key) : defaultValue;
     }),
-    set: jest.fn((key: string, value: any) => {
+    set: jest.fn((key: string, value: unknown) => {
       store.set(key, value);
     }),
     delete: jest.fn((key: string) => {

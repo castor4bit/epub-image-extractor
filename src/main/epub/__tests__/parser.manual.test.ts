@@ -34,7 +34,11 @@ describe('parseEpub - 手動解析実装', () => {
       expect(Object.keys(result.manifest).length).toBeGreaterThan(0);
 
       // manifest項目の構造を確認
-      const firstItem = Object.values(result.manifest)[0] as any;
+      const firstItem = Object.values(result.manifest)[0] as {
+        id: string;
+        href: string;
+        'media-type': string;
+      };
       expect(firstItem).toHaveProperty('id');
       expect(firstItem).toHaveProperty('href');
       expect(firstItem).toHaveProperty('media-type');
@@ -54,7 +58,7 @@ describe('parseEpub - 手動解析実装', () => {
     test('画像アイテムが正しく識別されること', async () => {
       const result = await parseEpub(testEpubPath);
 
-      const imageItems = Object.values(result.manifest).filter((item: any) =>
+      const imageItems = Object.values(result.manifest).filter((item) =>
         item['media-type']?.startsWith('image/'),
       );
 

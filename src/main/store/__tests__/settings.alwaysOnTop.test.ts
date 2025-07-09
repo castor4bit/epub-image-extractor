@@ -1,7 +1,9 @@
+import type { Settings } from '@shared/types';
+
 // settingsStore型の定義
 type SettingsStore = {
-  get: () => any;
-  set: (settings: any) => void;
+  get: () => Settings;
+  set: (settings: Partial<Settings>) => void;
   getOutputDirectory: () => string;
   setOutputDirectory: (dir: string) => void;
   resetToDefaults: () => void;
@@ -18,7 +20,11 @@ jest.mock('electron', () => ({
 }));
 
 describe('settingsStore - 最前面表示設定', () => {
-  let mockStoreInstance: any;
+  let mockStoreInstance: {
+    get: jest.Mock;
+    set: jest.Mock;
+    clear: jest.Mock;
+  };
   let settingsStore: SettingsStore;
 
   beforeEach(async () => {
@@ -50,7 +56,7 @@ describe('settingsStore - 最前面表示設定', () => {
   test('デフォルトでalwaysOnTopはtrue', () => {
     // get()メソッドがキーごとに値を返すようにモック
     mockStoreInstance.get.mockImplementation((key: string) => {
-      const defaults: Record<string, any> = {
+      const defaults: Record<string, unknown> = {
         outputDirectory: '/mock/desktop/EPUB_Images',
         language: 'ja',
         alwaysOnTop: true,

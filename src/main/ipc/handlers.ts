@@ -1,6 +1,6 @@
 import { ipcMain, dialog, app, BrowserWindow, shell } from 'electron';
 import { processEpubFiles } from '../epub/processor';
-import { ProcessingProgress } from '@shared/types';
+import { ProcessingProgress, Settings } from '@shared/types';
 import path from 'path';
 import fs from 'fs/promises';
 import { settingsStore } from '../store/settings';
@@ -95,7 +95,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   });
 
   // 設定の保存
-  ipcMain.handle('settings:save', async (_event, settings: any) => {
+  ipcMain.handle('settings:save', async (_event, settings: Partial<Settings>) => {
     settingsStore.set(settings);
 
     // alwaysOnTopの設定が変更された場合、ウィンドウに反映

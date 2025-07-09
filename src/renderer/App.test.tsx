@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from './App';
+import type { ProcessingProgress } from '@shared/types';
 
 // ElectronAPIのモック
 const mockElectronAPI = {
@@ -93,10 +94,10 @@ describe('App Component', () => {
   });
 
   it('処理中は進捗を表示する', async () => {
-    let progressCallback: ((data: any) => void) | null = null;
+    let progressCallback: ((data: ProcessingProgress) => void) | null = null;
 
     // onProgressのモックを設定
-    mockElectronAPI.onProgress.mockImplementation((callback: (data: any) => void) => {
+    mockElectronAPI.onProgress.mockImplementation((callback: (data: ProcessingProgress) => void) => {
       progressCallback = callback;
       // クリーンアップ関数を返す
       return () => {
@@ -126,16 +127,15 @@ describe('App Component', () => {
       });
 
       // progressCallback を一時変数に代入してTypeScriptの型推論を助ける
-      const callback = progressCallback;
-      if (callback) {
-        (callback as (data: any) => void)({
+      act(() => {
+        progressCallback?.({
           fileId: 'test-1',
           fileName: 'test.epub',
           totalImages: 10,
           processedImages: 5,
           status: 'processing',
         });
-      }
+      });
 
       await waitFor(() => {
         expect(screen.getByText('test.epub')).toBeInTheDocument();

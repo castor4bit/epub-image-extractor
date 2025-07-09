@@ -40,7 +40,7 @@ describe('設定ストア統合テスト', () => {
             includeOriginalFilename: true,
             includePageSpread: true
           };
-          return (defaults as any)[key];
+          return (defaults as Record<string, unknown>)[key];
         }),
         set: jest.fn(),
         clear: jest.fn()
