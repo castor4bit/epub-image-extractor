@@ -53,11 +53,12 @@ export async function processEpubFiles(
     if (result.status === 'fulfilled') {
       results.push(result.value);
     } else {
-      // エラーの場合も結果に含める
+      // エラーの場合も結果に含める（通常は発生しないが、念のため）
       const filePath = filePaths[index];
       const fileName = path.basename(filePath);
+      const fileId = fileIdMap.get(filePath)!;
       results.push({
-        fileId: `file-${index}`,
+        fileId,
         fileName,
         outputPath: '',
         totalImages: 0,
@@ -178,6 +179,15 @@ async function processEpubFile(
       error: errorMessage,
     });
 
-    throw new Error(errorMessage);
+    // エラーをthrowする代わりに、エラー状態の結果を返す
+    // これにより、onProgressで既に通知されたエラーが重複して処理されることを防ぐ
+    return {
+      fileId: actualFileId,
+      fileName,
+      outputPath: '',
+      totalImages: 0,
+      chapters: 0,
+      errors: [errorMessage],
+    };
   }
 }
