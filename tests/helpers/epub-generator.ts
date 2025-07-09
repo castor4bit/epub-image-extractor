@@ -1,5 +1,4 @@
 import AdmZip from 'adm-zip';
-import path from 'path';
 
 /**
  * テスト用のEPUBファイルを動的に生成するヘルパー
