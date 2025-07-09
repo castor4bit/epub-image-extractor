@@ -1,29 +1,60 @@
+// settingsStoreモック
+jest.mock('../../src/main/store/settings', () => ({
+  settingsStore: {
+    get: jest.fn(() => ({
+      outputDirectory: '/mock/output',
+      language: 'ja',
+      alwaysOnTop: true,
+      includeOriginalFilename: false,  // テスト用にfalseに設定
+      includePageSpread: false,  // テスト用にfalseに設定
+    })),
+    set: jest.fn(),
+    getOutputDirectory: jest.fn(() => '/mock/output'),
+    setOutputDirectory: jest.fn(),
+    resetToDefaults: jest.fn(),
+  },
+}));
+
 import { processEpubFiles } from '../../src/main/epub/processor';
+import { createTestEpubWithChapters, createLargeTestEpub } from '../helpers/epub-generator';
 import path from 'path';
 import fs from 'fs/promises';
+import os from 'os';
 
-describe('実際のEPUBファイルでのチャプター分割テスト', () => {
-  const outputDir = path.join(__dirname, 'test-chapter-output');
-  const testEpub = '/tmp/chapter_test.epub';
+describe('EPUBファイルのチャプター分割テスト', () => {
+  let tempDir: string;
+  let outputDir: string;
   
-  beforeAll(async () => {
-    // テスト用ディレクトリを作成
+  beforeEach(async () => {
+    // テスト用の一時ディレクトリを作成
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'epub-test-'));
+    outputDir = path.join(tempDir, 'output');
     await fs.mkdir(outputDir, { recursive: true });
   });
   
-  afterAll(async () => {
+  afterEach(async () => {
     // クリーンアップ
-    await fs.rm(outputDir, { recursive: true, force: true }).catch(() => {});
+    await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
   });
   
   test('チャプターごとに画像が正しく分類される', async () => {
+    // テスト用EPUBを生成
+    const epubBuffer = createTestEpubWithChapters();
+    const testEpubPath = path.join(tempDir, 'test-chapters.epub');
+    await fs.writeFile(testEpubPath, epubBuffer);
+    
     const onProgress = jest.fn();
     
     // EPUBを処理
-    const results = await processEpubFiles([testEpub], outputDir, onProgress, 1);
+    const results = await processEpubFiles([testEpubPath], outputDir, onProgress, 1);
     
     expect(results).toHaveLength(1);
     const result = results[0];
+    
+    // エラーがある場合は詳細を表示
+    if (result.errors.length > 0) {
+      console.error('処理エラー:', result.errors);
+    }
     
     expect(result.errors).toHaveLength(0);
     expect(result.chapters).toBeGreaterThan(0);
@@ -32,32 +63,115 @@ describe('実際のEPUBファイルでのチャプター分割テスト', () => 
     const bookDir = result.outputPath;
     const chapters = await fs.readdir(bookDir);
     
-    console.log('出力されたチャプター:');
-    for (const chapter of chapters.sort()) {
+    // チャプターが正しく作成されていることを確認
+    expect(chapters).toContain('001_表紙');
+    expect(chapters).toContain('002_目次');
+    expect(chapters).toContain('003_第1章_はじめに');
+    expect(chapters).toContain('004_第2章_基本機能');
+    expect(chapters).toContain('005_第3章_応用編');
+    
+    // 各チャプターの画像数を確認
+    for (const chapter of chapters) {
       const chapterPath = path.join(bookDir, chapter);
       const stat = await fs.stat(chapterPath);
       
       if (stat.isDirectory()) {
         const files = await fs.readdir(chapterPath);
-        console.log(`${chapter}: ${files.length}ファイル`);
         
-        // 特定のチャプターの詳細を確認
-        if (chapter.includes('巻頭特集')) {
-          // 「巻頭特集」は p-003〜p-018 (16ページ) のはず
-          console.log('  巻頭特集の画像数:', files.length);
-          expect(files.length).toBeGreaterThanOrEqual(15); // 最低でも15ページ以上
+        // チャプターごとの期待される画像数を確認
+        if (chapter === '001_表紙') {
+          expect(files.length).toBe(2);
+        } else if (chapter === '002_目次') {
+          expect(files.length).toBe(1);
+        } else if (chapter === '003_第1章_はじめに') {
+          expect(files.length).toBe(5);
+        } else if (chapter === '004_第2章_基本機能') {
+          expect(files.length).toBe(8);
+        } else if (chapter === '005_第3章_応用編') {
+          expect(files.length).toBe(12);
         }
         
-        if (chapter.includes('勇者は魔王が好きらしい')) {
-          // 「勇者は魔王が好きらしい」は p-079〜p-100 (22ページ) のはず
-          console.log('  勇者は魔王が好きらしいの画像数:', files.length);
-          expect(files.length).toBeGreaterThanOrEqual(20); // 最低でも20ページ以上
-        }
+        // すべてのファイルが画像ファイルであることを確認
+        files.forEach(file => {
+          expect(file).toMatch(/^\d{4}\.(png|jpg|jpeg)$/);
+        });
+      }
+    }
+  });
+  
+  test('多数のチャプターを持つEPUBを処理できる', async () => {
+    // 30章以上のテスト用EPUBを生成
+    const epubBuffer = createLargeTestEpub();
+    const testEpubPath = path.join(tempDir, 'test-large.epub');
+    await fs.writeFile(testEpubPath, epubBuffer);
+    
+    const onProgress = jest.fn();
+    
+    // EPUBを処理
+    const results = await processEpubFiles([testEpubPath], outputDir, onProgress, 1);
+    
+    expect(results).toHaveLength(1);
+    const result = results[0];
+    
+    expect(result.errors).toHaveLength(0);
+    expect(result.chapters).toBeGreaterThanOrEqual(30);
+    
+    // 出力ディレクトリの構造を確認
+    const bookDir = result.outputPath;
+    const chapters = await fs.readdir(bookDir);
+    
+    // チャプター数が30以上あることを確認
+    expect(chapters.length).toBeGreaterThanOrEqual(32); // 30章 + 表紙、目次、あとがき、奥付
+    
+    // 各チャプターにファイルが含まれていることを確認
+    let totalImages = 0;
+    for (const chapter of chapters) {
+      const chapterPath = path.join(bookDir, chapter);
+      const stat = await fs.stat(chapterPath);
+      
+      if (stat.isDirectory()) {
+        const files = await fs.readdir(chapterPath);
+        expect(files.length).toBeGreaterThan(0);
+        totalImages += files.length;
       }
     }
     
-    // チャプター数が適切であることを確認（目次から40章あるはず）
-    console.log('総チャプター数:', chapters.length);
-    expect(chapters.length).toBeGreaterThanOrEqual(30); // 最低でも30章以上
+    // 総画像数が適切であることを確認
+    expect(totalImages).toBeGreaterThan(100); // 最低でも100枚以上の画像
+    expect(result.totalImages).toBe(totalImages);
   }, 30000); // タイムアウトを30秒に設定
+  
+  test('チャプター名に特殊文字が含まれる場合も正しく処理される', async () => {
+    // 特殊文字を含むチャプター名のEPUBを生成
+    const { EpubGenerator } = await import('../helpers/epub-generator');
+    const generator = new EpubGenerator();
+    
+    generator.addChapter('special1', 'チャプター/スラッシュ', 2);
+    generator.addChapter('special2', 'チャプター:コロン', 2);
+    generator.addChapter('special3', 'チャプター?疑問符', 2);
+    generator.addChapter('special4', 'チャプター<大なり>小なり', 2);
+    
+    const epubBuffer = generator.generate();
+    const testEpubPath = path.join(tempDir, 'test-special.epub');
+    await fs.writeFile(testEpubPath, epubBuffer);
+    
+    const onProgress = jest.fn();
+    
+    // EPUBを処理
+    const results = await processEpubFiles([testEpubPath], outputDir, onProgress, 1);
+    
+    expect(results).toHaveLength(1);
+    const result = results[0];
+    
+    expect(result.errors).toHaveLength(0);
+    
+    // 出力ディレクトリの構造を確認
+    const bookDir = result.outputPath;
+    const chapters = await fs.readdir(bookDir);
+    
+    // 特殊文字が適切にサニタイズされていることを確認
+    chapters.forEach(chapter => {
+      expect(chapter).not.toMatch(/[<>:"/\\|?*]/); // Windowsで使用できない文字が含まれていない
+    });
+  });
 });

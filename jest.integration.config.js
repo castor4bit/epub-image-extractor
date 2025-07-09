@@ -23,7 +23,7 @@ module.exports = {
       }
     }]
   },
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/tests/integration/setup.ts'],
   testTimeout: 30000, // 統合テストは時間がかかる可能性があるため
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
