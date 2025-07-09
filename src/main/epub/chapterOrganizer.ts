@@ -7,7 +7,6 @@ import AdmZip from 'adm-zip';
 import {
   sanitizeFileName as secureSanitizeFileName,
   checkResourceLimits,
-  RESOURCE_LIMITS,
 } from '../utils/pathSecurity';
 
 export interface FilenamingOptions {
@@ -73,7 +72,7 @@ export async function organizeByChapters(
         error instanceof Error ? error.message : 'ディレクトリ作成エラー',
         `章ディレクトリの作成に失敗しました: ${dirName}`,
         { chapterDir, chapterTitle: chapter.title, operation: 'createChapterDirectory' },
-        error instanceof Error ? error : undefined
+        error instanceof Error ? error : undefined,
       );
     }
 
@@ -109,19 +108,19 @@ export async function organizeByChapters(
 
         // ファイル名を生成
         let fileName = String(imageIndex).padStart(4, '0');
-        
+
         // 元のファイル名を含める設定の場合
         if (options.includeOriginalFilename) {
           const originalBaseName = path.basename(image.src, path.extname(image.src));
           const sanitizedOriginalName = secureSanitizeFileName(originalBaseName);
           fileName += `_${sanitizedOriginalName}`;
         }
-        
+
         // pageSpread情報を含める設定の場合
         if (options.includePageSpread && image.pageSpread) {
           fileName += `-${image.pageSpread}`;
         }
-        
+
         fileName += ext;
         const filePath = path.join(chapterDir, fileName);
 
@@ -130,7 +129,10 @@ export async function organizeByChapters(
 
         imageIndex++;
       } catch (error) {
-        getLogger().error(`画像保存エラー (${image.src})`, error instanceof Error ? error : new Error(String(error)));
+        getLogger().error(
+          `画像保存エラー (${image.src})`,
+          error instanceof Error ? error : new Error(String(error)),
+        );
       }
     }
 
@@ -138,11 +140,6 @@ export async function organizeByChapters(
   }
 
   return processedChapters;
-}
-
-// ファイル名として使用できない文字を置換（互換性のため残す）
-function sanitizeFileName(fileName: string): string {
-  return secureSanitizeFileName(fileName);
 }
 
 // 画像の拡張子を決定

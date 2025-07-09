@@ -5,22 +5,22 @@ export enum ErrorCode {
   EPUB_PARSE_ERROR = 'EPUB_PARSE_ERROR',
   EPUB_INVALID_FORMAT = 'EPUB_INVALID_FORMAT',
   EPUB_NO_IMAGES = 'EPUB_NO_IMAGES',
-  
+
   // ファイルシステムエラー
   FILE_NOT_FOUND = 'FILE_NOT_FOUND',
   FILE_ACCESS_DENIED = 'FILE_ACCESS_DENIED',
   FILE_WRITE_ERROR = 'FILE_WRITE_ERROR',
   DIRECTORY_CREATE_ERROR = 'DIRECTORY_CREATE_ERROR',
-  
+
   // リソース制限エラー
   RESOURCE_LIMIT_EXCEEDED = 'RESOURCE_LIMIT_EXCEEDED',
   MEMORY_LIMIT_EXCEEDED = 'MEMORY_LIMIT_EXCEEDED',
   IMAGE_SIZE_EXCEEDED = 'IMAGE_SIZE_EXCEEDED',
-  
+
   // セキュリティエラー
   PATH_TRAVERSAL_DETECTED = 'PATH_TRAVERSAL_DETECTED',
   INVALID_PATH = 'INVALID_PATH',
-  
+
   // その他のエラー
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
   PROCESSING_TIMEOUT = 'PROCESSING_TIMEOUT',
@@ -50,7 +50,7 @@ export class AppError extends Error implements ProcessingError {
     message: string,
     userMessage: string,
     context?: ProcessingError['context'],
-    originalError?: Error
+    originalError?: Error,
   ) {
     super(message);
     this.name = 'AppError';
@@ -79,7 +79,7 @@ export function getDefaultUserMessage(code: ErrorCode): string {
     [ErrorCode.UNKNOWN_ERROR]: '不明なエラーが発生しました',
     [ErrorCode.PROCESSING_TIMEOUT]: '処理がタイムアウトしました',
   };
-  
+
   return messages[code] || messages[ErrorCode.UNKNOWN_ERROR];
 }
 
@@ -87,7 +87,7 @@ export function getDefaultUserMessage(code: ErrorCode): string {
 export function wrapError(
   error: unknown,
   code: ErrorCode,
-  context?: ProcessingError['context']
+  context?: ProcessingError['context'],
 ): AppError {
   if (error instanceof AppError) {
     return error;
@@ -95,7 +95,7 @@ export function wrapError(
 
   const originalError = error instanceof Error ? error : new Error(String(error));
   const message = originalError.message;
-  
+
   // 特定のエラーパターンを認識
   if (message.includes('ENOENT')) {
     return new AppError(
@@ -103,7 +103,7 @@ export function wrapError(
       message,
       'ファイルが見つかりません',
       context,
-      originalError
+      originalError,
     );
   } else if (message.includes('EACCES')) {
     return new AppError(
@@ -111,15 +111,9 @@ export function wrapError(
       message,
       'ファイルへのアクセス権限がありません',
       context,
-      originalError
+      originalError,
     );
   }
-  
-  return new AppError(
-    code,
-    message,
-    getDefaultUserMessage(code),
-    context,
-    originalError
-  );
+
+  return new AppError(code, message, getDefaultUserMessage(code), context, originalError);
 }

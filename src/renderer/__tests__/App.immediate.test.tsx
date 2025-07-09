@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
 import App from '../App';
-import { ProcessingProgress, ExtractionResult } from '@shared/types';
+import { ProcessingProgress } from '@shared/types';
 
 // Electronのモック
 const mockElectronAPI = {
@@ -61,7 +61,9 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
     expect(mockElectronAPI.onProgress).toHaveBeenCalled();
 
     // ファイルをドロップして処理を開始
-    const dropZone = screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ').closest('.drop-zone');
+    const dropZone = screen
+      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .closest('.drop-zone');
     const mockFile = new File(['test content'], 'test1.epub', { type: 'application/epub+zip' });
     Object.defineProperty(mockFile, 'path', { value: '/test/path/test1.epub' });
 
@@ -118,7 +120,9 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
     render(<App />);
 
     // ファイルをドロップして処理を開始
-    const dropZone = screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ').closest('.drop-zone');
+    const dropZone = screen
+      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .closest('.drop-zone');
     const mockFile = new File(['test content'], 'test1.epub', { type: 'application/epub+zip' });
     Object.defineProperty(mockFile, 'path', { value: '/test/path/test1.epub' });
 
@@ -172,7 +176,9 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
     render(<App />);
 
     // 2つのファイルをドロップ
-    const dropZone = screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ').closest('.drop-zone');
+    const dropZone = screen
+      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .closest('.drop-zone');
     const mockFile1 = new File(['test1'], 'test1.epub', { type: 'application/epub+zip' });
     const mockFile2 = new File(['test2'], 'test2.epub', { type: 'application/epub+zip' });
     Object.defineProperty(mockFile1, 'path', { value: '/test/path/test1.epub' });

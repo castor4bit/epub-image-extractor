@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
+import { ProcessingProgress } from '@shared/types';
 
 // モックの設定
 const mockElectronAPI = {
@@ -91,12 +92,10 @@ describe('App - 結果の永続化', () => {
     });
 
     // onProgressコールバックを保存
-    let progressCallback: any;
-    mockElectronAPI.onProgress.mockImplementation((callback) => {
-      progressCallback = callback;
+    mockElectronAPI.onProgress.mockImplementation((_callback) => {
       // クリーンアップ関数を返す
       return () => {
-        progressCallback = null;
+        // cleanup
       };
     });
 
@@ -151,6 +150,7 @@ describe('App - 結果の永続化', () => {
 
   test('pendingステータスのアイテムは処理完了後に削除される', async () => {
     const user = userEvent.setup();
+    let progressCallback: ((progress: ProcessingProgress) => void) | null = null;
 
     // 処理を遅延させて、pendingステータスが表示される時間を確保
     mockElectronAPI.processEpubFiles.mockImplementation(() => {
@@ -173,7 +173,6 @@ describe('App - 結果の永続化', () => {
       });
     });
 
-    let progressCallback: any;
     mockElectronAPI.onProgress.mockImplementation((callback) => {
       progressCallback = callback;
       // クリーンアップ関数を返す
@@ -201,7 +200,7 @@ describe('App - 結果の永続化', () => {
           totalImages: 0,
           processedImages: 0,
           outputPath: '',
-          chapters: 0
+          chapters: 0,
         });
       }
     });

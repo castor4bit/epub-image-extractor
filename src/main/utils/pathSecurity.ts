@@ -17,7 +17,7 @@ export function resolveSecurePath(basePath: string, relativePath: string): strin
       ErrorCode.PATH_TRAVERSAL_DETECTED,
       `Path traversal detected: ${relativePath}`,
       'セキュリティエラー: 不正なパスが検出されました',
-      { basePath, relativePath, resolvedPath }
+      { basePath, relativePath, resolvedPath },
     );
   }
 
@@ -30,8 +30,8 @@ export function resolveSecurePath(basePath: string, relativePath: string): strin
 export function isPathSafe(filePath: string): boolean {
   // 危険なパターンをチェック
   const dangerousPatterns = [
-    /\.\.[\/\\]/, // 親ディレクトリへの参照
-    /^[\/\\]/, // 絶対パス
+    /\.\.[/\\]/, // 親ディレクトリへの参照
+    /^[/\\]/, // 絶対パス
     /^[a-zA-Z]:/, // Windowsドライブレター
     /[<>:"|?*]/, // 無効な文字（Windows）
     /\0/, // Null文字

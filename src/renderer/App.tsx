@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import './App.css';
 import { ProcessingProgress, ExtractionResult } from '@shared/types';
 import { FileDropZone } from './components/FileDropZone';
-import { ProgressDisplay } from './components/ProgressDisplay';
 import { SettingsWindow } from './components/SettingsWindow';
 import { FileProcessingList } from './components/FileProcessingList';
 import { CompactDropZone } from './components/CompactDropZone';
@@ -88,7 +87,7 @@ function App() {
         setIsProcessing(false);
       }
     },
-    [isProcessing, completedResults],
+    [isProcessing],
   );
 
   // ドラッグイベントハンドラー

@@ -108,7 +108,7 @@ describe('FileProcessingList - 重複表示の防止', () => {
       },
     ];
 
-    const { container } = render(
+    render(
       <FileProcessingList
         progress={progress}
         results={results}

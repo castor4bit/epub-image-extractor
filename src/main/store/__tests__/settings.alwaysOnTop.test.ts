@@ -21,25 +21,25 @@ describe('settingsStore - 最前面表示設定', () => {
   let mockStoreInstance: any;
   let settingsStore: SettingsStore;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetModules();
     jest.clearAllMocks();
-    
+
     // モックインスタンスの作成
     mockStoreInstance = {
       get: jest.fn(),
       set: jest.fn(),
       clear: jest.fn(),
     };
-    
+
     // electron-storeモックの設定
     jest.doMock('electron-store', () => {
       return jest.fn().mockImplementation(() => mockStoreInstance);
     });
-    
+
     // settingsStoreを動的にインポート
-    const { settingsStore: store } = require('../settings');
-    settingsStore = store;
+    const settingsModule = await import('../settings');
+    settingsStore = settingsModule.settingsStore;
   });
 
   afterEach(() => {

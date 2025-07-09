@@ -4,7 +4,7 @@ import { AppError, ErrorCode } from '../../shared/error-types';
 import { getLogger } from '../utils/errorHandler';
 import path from 'path';
 import AdmZip from 'adm-zip';
-import { resolveSecurePath, checkResourceLimits, RESOURCE_LIMITS } from '../utils/pathSecurity';
+import { checkResourceLimits } from '../utils/pathSecurity';
 
 export async function extractImages(
   epubData: EpubData,
@@ -87,7 +87,10 @@ export async function extractImages(
           onProgress(processedCount, totalPages);
         }
       } catch (contentError) {
-        getLogger().error(`コンテンツ取得エラー (${contentPath})`, contentError instanceof Error ? contentError : new Error(String(contentError)));
+        getLogger().error(
+          `コンテンツ取得エラー (${contentPath})`,
+          contentError instanceof Error ? contentError : new Error(String(contentError)),
+        );
         continue;
       }
     }
@@ -102,18 +105,21 @@ export async function extractImages(
 
     return images;
   } catch (error) {
-    const appError = error instanceof AppError ? error : new AppError(
-      ErrorCode.UNKNOWN_ERROR,
-      error instanceof Error ? error.message : '不明なエラー',
-      '画像の抽出に失敗しました',
-      {
-        filePath: epubData.basePath,
-        totalImages: images.length,
-        operation: 'extractImages'
-      },
-      error instanceof Error ? error : undefined
-    );
-    
+    const appError =
+      error instanceof AppError
+        ? error
+        : new AppError(
+            ErrorCode.UNKNOWN_ERROR,
+            error instanceof Error ? error.message : '不明なエラー',
+            '画像の抽出に失敗しました',
+            {
+              filePath: epubData.basePath,
+              totalImages: images.length,
+              operation: 'extractImages',
+            },
+            error instanceof Error ? error : undefined,
+          );
+
     getLogger().error('画像抽出エラー', appError);
     throw appError;
   }
@@ -191,7 +197,7 @@ async function extractImagesFromHTML(
   return images;
 }
 
-function resolveImagePath(imageSrc: string, htmlPath: string, contentBasePath: string): string {
+function resolveImagePath(imageSrc: string, htmlPath: string, _contentBasePath: string): string {
   // dataURLの場合は空文字を返す（スキップ）
   if (imageSrc.startsWith('data:')) {
     return '';

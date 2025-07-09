@@ -1,6 +1,7 @@
 import { parseEpub } from '../parser';
 import AdmZip from 'adm-zip';
 import path from 'path';
+import fs from 'fs';
 
 describe('parseEpub - ナビゲーション抽出', () => {
   describe('EPUB3 Navigation Document', () => {
@@ -74,7 +75,6 @@ describe('parseEpub - ナビゲーション抽出', () => {
         });
       } finally {
         // クリーンアップ
-        const fs = require('fs');
         if (fs.existsSync(tempPath)) {
           fs.unlinkSync(tempPath);
         }
@@ -127,7 +127,6 @@ describe('parseEpub - ナビゲーション抽出', () => {
         expect(result.navigation).toHaveLength(1);
         expect(result.navigation[0].title).toBe('Chapter 1');
       } finally {
-        const fs = require('fs');
         if (fs.existsSync(tempPath)) {
           fs.unlinkSync(tempPath);
         }
@@ -183,7 +182,6 @@ describe('parseEpub - ナビゲーション抽出', () => {
         expect(result.navigation).toHaveLength(1);
         expect(result.navigation[0].title).toBe('Chapter 1');
       } finally {
-        const fs = require('fs');
         if (fs.existsSync(tempPath)) {
           fs.unlinkSync(tempPath);
         }

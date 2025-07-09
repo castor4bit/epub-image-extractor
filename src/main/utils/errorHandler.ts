@@ -1,11 +1,13 @@
 import winston from 'winston';
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
 
 // ログファイルのパスを取得（Electronが利用できない場合は一時ディレクトリを使用）
 function getLogPath(): string {
   try {
     // Electronモジュールの動的インポートを試みる
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const electron = require('electron');
     if (electron && electron.app && electron.app.getPath) {
       return electron.app.getPath('userData');
@@ -16,7 +18,6 @@ function getLogPath(): string {
   const tmpPath = path.join(os.tmpdir(), 'epub-image-extractor-logs');
   // ディレクトリが存在しない場合は作成
   try {
-    const fs = require('fs');
     if (!fs.existsSync(tmpPath)) {
       fs.mkdirSync(tmpPath, { recursive: true });
     }
@@ -88,9 +89,10 @@ import { AppError, ErrorCode, wrapError } from '../../shared/error-types';
 // エラーハンドリング関数
 export function handleError(error: Error | unknown, context: string): string {
   // AppErrorでない場合はラップする
-  const appError = error instanceof AppError 
-    ? error 
-    : wrapError(error, ErrorCode.UNKNOWN_ERROR, { operation: context });
+  const appError =
+    error instanceof AppError
+      ? error
+      : wrapError(error, ErrorCode.UNKNOWN_ERROR, { operation: context });
 
   // ログに記録
   getLogger().error({

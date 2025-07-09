@@ -94,7 +94,7 @@ describe('App Component', () => {
 
   it('処理中は進捗を表示する', async () => {
     let progressCallback: ((data: any) => void) | null = null;
-    
+
     // onProgressのモックを設定
     mockElectronAPI.onProgress.mockImplementation((callback: (data: any) => void) => {
       progressCallback = callback;
@@ -103,7 +103,7 @@ describe('App Component', () => {
         progressCallback = null;
       };
     });
-    
+
     render(<App />);
 
     const dropZone = screen
@@ -119,12 +119,12 @@ describe('App Component', () => {
           files: [mockFile],
         },
       });
-      
+
       // 進捗データを送信
       await waitFor(() => {
         expect(mockElectronAPI.processEpubFiles).toHaveBeenCalled();
       });
-      
+
       // progressCallback を一時変数に代入してTypeScriptの型推論を助ける
       const callback = progressCallback;
       if (callback) {

@@ -1,8 +1,8 @@
 // electronモックを最初に設定
 jest.mock('electron', () => ({
   app: {
-    getPath: jest.fn(() => '/mock/desktop')
-  }
+    getPath: jest.fn(() => '/mock/desktop'),
+  },
 }));
 
 // electron-storeモック

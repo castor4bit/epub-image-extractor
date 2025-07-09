@@ -1,4 +1,3 @@
-import { organizeByChapters } from './chapterOrganizer';
 import { ImageInfo, ChapterInfo } from '@shared/types';
 import fs from 'fs/promises';
 import path from 'path';
@@ -30,7 +29,6 @@ describe('Chapter Organizer', () => {
     ];
 
     // モックのEPUBパスパーサーを作成
-    const mockEpubPath = path.join(tempDir, 'mock.epub');
 
     // organizeByChaptersの実行にはEpubParserのモックが必要
     // ここでは統合テストのみ実装

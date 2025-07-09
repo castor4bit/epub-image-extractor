@@ -2,7 +2,6 @@ import { parseEpub } from '../parser';
 import { AppError } from '../../../shared/error-types';
 import path from 'path';
 import fs from 'fs';
-import AdmZip from 'adm-zip';
 
 describe('parseEpub - 手動解析実装', () => {
   const testEpubPath = path.join(__dirname, '../../../../tests/fixtures/test.epub');

@@ -1,8 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { app } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
-import Store from 'electron-store';
 
 // electron-storeのモック
 jest.mock('electron-store');

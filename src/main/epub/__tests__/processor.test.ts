@@ -1,8 +1,8 @@
 // electronモックを最初に設定
 jest.mock('electron', () => ({
   app: {
-    getPath: jest.fn(() => '/mock/desktop')
-  }
+    getPath: jest.fn(() => '/mock/desktop'),
+  },
 }));
 
 // electron-storeモック
@@ -32,27 +32,27 @@ jest.mock('../../utils/errorHandler');
 describe('processEpubFiles', () => {
   const mockOnProgress = jest.fn();
   const mockOutputDir = '/test/output';
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // デフォルトのモック実装
     (settingsStore.get as jest.Mock).mockReturnValue({
       includeOriginalFilename: true,
-      includePageSpread: true
+      includePageSpread: true,
     });
-    
+
     (generateOutputPath as jest.Mock).mockImplementation((outputDir, filename) => ({
       path: path.join(outputDir, filename),
       isNew: true,
-      warning: null
+      warning: null,
     }));
-    
+
     (fs.access as jest.Mock).mockResolvedValue(undefined);
     (fs.mkdir as jest.Mock).mockResolvedValue(undefined);
-    
+
     // handleErrorのモック
-    (handleError as jest.Mock).mockImplementation((error, context) => {
+    (handleError as jest.Mock).mockImplementation((error, _context) => {
       if (error instanceof AppError) {
         return error.userMessage;
       }
@@ -63,80 +63,76 @@ describe('processEpubFiles', () => {
   describe('正常系', () => {
     test('単一のEPUBファイルを処理できること', async () => {
       const filePaths = ['/test/book1.epub'];
-      
+
       (parseEpub as jest.Mock).mockResolvedValue({
         manifest: {},
         spine: [],
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip()
+        parser: new AdmZip(),
       });
-      
+
       (extractImages as jest.Mock).mockResolvedValue([
-        { src: 'image1.jpg', chapterOrder: 1, pageOrder: 0 }
+        { src: 'image1.jpg', chapterOrder: 1, pageOrder: 0 },
       ]);
-      
+
       (organizeByChapters as jest.Mock).mockResolvedValue(1);
-      
+
       const results = await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       expect(results).toHaveLength(1);
       expect(results[0]).toMatchObject({
         fileName: 'book1.epub',
         totalImages: 1,
         chapters: 1,
-        errors: []
+        errors: [],
       });
-      
+
       // 進捗コールバックの確認
       expect(mockOnProgress).toHaveBeenCalledWith(
         expect.objectContaining({
           fileName: 'book1.epub',
-          status: 'pending'
-        })
+          status: 'pending',
+        }),
       );
       expect(mockOnProgress).toHaveBeenCalledWith(
         expect.objectContaining({
           fileName: 'book1.epub',
-          status: 'processing'
-        })
+          status: 'processing',
+        }),
       );
       expect(mockOnProgress).toHaveBeenCalledWith(
         expect.objectContaining({
           fileName: 'book1.epub',
-          status: 'completed'
-        })
+          status: 'completed',
+        }),
       );
     });
 
     test('複数のEPUBファイルを並列処理できること', async () => {
-      const filePaths = [
-        '/test/book1.epub',
-        '/test/book2.epub',
-        '/test/book3.epub'
-      ];
-      
+      const filePaths = ['/test/book1.epub', '/test/book2.epub', '/test/book3.epub'];
+
       (parseEpub as jest.Mock).mockResolvedValue({
         manifest: {},
         spine: [],
         navigation: [],
         basePath: '',
         contentPath: 'OEBPS',
-        parser: new AdmZip()
+        parser: new AdmZip(),
       });
-      
+
       (extractImages as jest.Mock).mockResolvedValue([
-        { src: 'image1.jpg', chapterOrder: 1, pageOrder: 0 }
+        { src: 'image1.jpg', chapterOrder: 1, pageOrder: 0 },
       ]);
-      
+
       (organizeByChapters as jest.Mock).mockResolvedValue(1);
-      
+
       const results = await processEpubFiles(filePaths, mockOutputDir, mockOnProgress, 2);
-      
+
       expect(results).toHaveLength(3);
-      expect(results.every(r => r.errors.length === 0)).toBe(true);
-      
+      expect(results.every((r) => r.errors.length === 0)).toBe(true);
+
       // 各ファイルの処理が呼ばれたことを確認
       expect(parseEpub).toHaveBeenCalledTimes(3);
       expect(extractImages).toHaveBeenCalledTimes(3);
@@ -145,25 +141,25 @@ describe('processEpubFiles', () => {
 
     test('画像がないEPUBを処理できること', async () => {
       const filePaths = ['/test/no-images.epub'];
-      
+
       (parseEpub as jest.Mock).mockResolvedValue({
         manifest: {},
         spine: [],
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip()
+        parser: new AdmZip(),
       });
-      
+
       (extractImages as jest.Mock).mockResolvedValue([]);
       (organizeByChapters as jest.Mock).mockResolvedValue(0);
-      
+
       const results = await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       expect(results[0]).toMatchObject({
         totalImages: 0,
         chapters: 0,
-        errors: []
+        errors: [],
       });
     });
   });
@@ -171,64 +167,62 @@ describe('processEpubFiles', () => {
   describe('エラーハンドリング', () => {
     test('EPUBパースエラーを適切に処理すること', async () => {
       const filePaths = ['/test/invalid.epub'];
-      
+
       (parseEpub as jest.Mock).mockRejectedValue(
         new AppError(
           ErrorCode.EPUB_PARSE_ERROR,
           'Invalid EPUB format',
-          'EPUBファイルの解析に失敗しました'
-        )
+          'EPUBファイルの解析に失敗しました',
+        ),
       );
-      
+
       const results = await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       expect(results[0]).toMatchObject({
         fileName: 'invalid.epub',
-        errors: expect.arrayContaining([expect.stringContaining('EPUBファイルの解析に失敗しました')])
+        errors: expect.arrayContaining([
+          expect.stringContaining('EPUBファイルの解析に失敗しました'),
+        ]),
       });
-      
+
       expect(mockOnProgress).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'error',
-          error: expect.stringContaining('EPUBファイルの解析に失敗しました')
-        })
+          error: expect.stringContaining('EPUBファイルの解析に失敗しました'),
+        }),
       );
     });
 
     test('画像抽出エラーを適切に処理すること', async () => {
       const filePaths = ['/test/book.epub'];
-      
+
       (parseEpub as jest.Mock).mockResolvedValue({
         manifest: {},
         spine: [],
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip()
+        parser: new AdmZip(),
       });
-      
+
       (extractImages as jest.Mock).mockRejectedValue(
         new AppError(
           ErrorCode.IMAGE_EXTRACTION_ERROR,
           'Failed to extract images',
-          '画像の抽出に失敗しました'
-        )
+          '画像の抽出に失敗しました',
+        ),
       );
-      
+
       const results = await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       expect(results[0]).toMatchObject({
-        errors: expect.arrayContaining([expect.stringContaining('画像の抽出に失敗しました')])
+        errors: expect.arrayContaining([expect.stringContaining('画像の抽出に失敗しました')]),
       });
     });
 
     test('一部のファイルが失敗しても他は処理を継続すること', async () => {
-      const filePaths = [
-        '/test/valid.epub',
-        '/test/invalid.epub',
-        '/test/valid2.epub'
-      ];
-      
+      const filePaths = ['/test/valid.epub', '/test/invalid.epub', '/test/valid2.epub'];
+
       (parseEpub as jest.Mock)
         .mockResolvedValueOnce({
           manifest: {},
@@ -236,14 +230,10 @@ describe('processEpubFiles', () => {
           navigation: [],
           basePath: filePaths[0],
           contentPath: 'OEBPS',
-          parser: new AdmZip()
+          parser: new AdmZip(),
         })
         .mockRejectedValueOnce(
-          new AppError(
-            ErrorCode.EPUB_PARSE_ERROR,
-            'Invalid format',
-            'フォーマットエラー'
-          )
+          new AppError(ErrorCode.EPUB_PARSE_ERROR, 'Invalid format', 'フォーマットエラー'),
         )
         .mockResolvedValueOnce({
           manifest: {},
@@ -251,14 +241,14 @@ describe('processEpubFiles', () => {
           navigation: [],
           basePath: filePaths[2],
           contentPath: 'OEBPS',
-          parser: new AdmZip()
+          parser: new AdmZip(),
         });
-      
+
       (extractImages as jest.Mock).mockResolvedValue([]);
       (organizeByChapters as jest.Mock).mockResolvedValue(0);
-      
+
       const results = await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       expect(results).toHaveLength(3);
       expect(results[0].errors).toEqual([]);
       expect(results[1].errors.length).toBeGreaterThan(0);
@@ -272,21 +262,19 @@ describe('processEpubFiles', () => {
       const images = [
         { src: 'image1.jpg', chapterOrder: 1, pageOrder: 0 },
         { src: 'image2.jpg', chapterOrder: 1, pageOrder: 1 },
-        { src: 'image3.jpg', chapterOrder: 2, pageOrder: 0 }
+        { src: 'image3.jpg', chapterOrder: 2, pageOrder: 0 },
       ];
-      
+
       (parseEpub as jest.Mock).mockResolvedValue({
         manifest: {},
         spine: [],
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip()
+        parser: new AdmZip(),
       });
-      
-      let progressCallback: ((processed: number, total: number) => void) | undefined;
-      (extractImages as jest.Mock).mockImplementation(async (epubData, onProgress) => {
-        progressCallback = onProgress;
+
+      (extractImages as jest.Mock).mockImplementation(async (_epubData, onProgress) => {
         // 進捗を報告
         if (onProgress) {
           onProgress(1, 3);
@@ -295,59 +283,56 @@ describe('processEpubFiles', () => {
         }
         return images;
       });
-      
+
       (organizeByChapters as jest.Mock).mockResolvedValue(2);
-      
+
       await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       // 進捗が報告されたことを確認
       expect(mockOnProgress).toHaveBeenCalledWith(
         expect.objectContaining({
           totalImages: 3,
-          processedImages: 1
-        })
+          processedImages: 1,
+        }),
       );
       expect(mockOnProgress).toHaveBeenCalledWith(
         expect.objectContaining({
           totalImages: 3,
-          processedImages: 2
-        })
+          processedImages: 2,
+        }),
       );
       expect(mockOnProgress).toHaveBeenCalledWith(
         expect.objectContaining({
           totalImages: 3,
-          processedImages: 3
-        })
+          processedImages: 3,
+        }),
       );
     });
 
     test('fileIdが一意であることを確認', async () => {
-      const filePaths = [
-        '/test/book1.epub',
-        '/test/book2.epub'
-      ];
-      
+      const filePaths = ['/test/book1.epub', '/test/book2.epub'];
+
       (parseEpub as jest.Mock).mockResolvedValue({
         manifest: {},
         spine: [],
         navigation: [],
         basePath: '',
         contentPath: 'OEBPS',
-        parser: new AdmZip()
+        parser: new AdmZip(),
       });
-      
+
       (extractImages as jest.Mock).mockResolvedValue([]);
       (organizeByChapters as jest.Mock).mockResolvedValue(0);
-      
+
       const fileIds = new Set<string>();
       mockOnProgress.mockImplementation((progress) => {
         if (progress.fileId) {
           fileIds.add(progress.fileId);
         }
       });
-      
+
       await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       // 2つの異なるfileIdが生成されたことを確認
       expect(fileIds.size).toBe(2);
     });
@@ -356,29 +341,29 @@ describe('processEpubFiles', () => {
   describe('設定の適用', () => {
     test('ファイル名オプションが正しく渡されること', async () => {
       const filePaths = ['/test/book.epub'];
-      
+
       (settingsStore.get as jest.Mock).mockReturnValue({
         includeOriginalFilename: false,
-        includePageSpread: true
+        includePageSpread: true,
       });
-      
+
       (parseEpub as jest.Mock).mockResolvedValue({
         manifest: {},
         spine: [],
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip()
+        parser: new AdmZip(),
       });
-      
+
       (extractImages as jest.Mock).mockResolvedValue([
-        { src: 'image1.jpg', chapterOrder: 1, pageOrder: 0 }
+        { src: 'image1.jpg', chapterOrder: 1, pageOrder: 0 },
       ]);
-      
+
       (organizeByChapters as jest.Mock).mockResolvedValue(1);
-      
+
       await processEpubFiles(filePaths, mockOutputDir, mockOnProgress);
-      
+
       expect(organizeByChapters).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
@@ -386,8 +371,8 @@ describe('processEpubFiles', () => {
         expect.anything(),
         expect.objectContaining({
           includeOriginalFilename: false,
-          includePageSpread: true
-        })
+          includePageSpread: true,
+        }),
       );
     });
   });

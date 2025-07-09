@@ -1,7 +1,6 @@
 import { extractImages } from '../imageExtractor';
 import { EpubData } from '../parser';
 import AdmZip from 'adm-zip';
-import path from 'path';
 
 describe('extractImages - 手動解析実装', () => {
   // モックデータの作成

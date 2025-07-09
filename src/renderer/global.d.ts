@@ -6,7 +6,9 @@ interface ElectronAPI {
     results?: import('@shared/types').ExtractionResult[];
     error?: string;
   }>;
-  onProgress: (callback: (progress: import('@shared/types').ProcessingProgress) => void) => () => void;
+  onProgress: (
+    callback: (progress: import('@shared/types').ProcessingProgress) => void,
+  ) => () => void;
   selectOutputDirectory: () => Promise<string | null>;
   getSettings: () => Promise<import('@shared/types').Settings>;
   saveSettings: (settings: import('@shared/types').Settings) => Promise<{ success: boolean }>;
