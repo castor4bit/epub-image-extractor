@@ -11,6 +11,10 @@ dist/
 dist-electron/
 out/
 build/
+!build/README.md
+!build/icon.png
+!build/icon.ico
+!build/icon.icns
 *.local
 
 # エディタ

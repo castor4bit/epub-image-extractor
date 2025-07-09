@@ -34,12 +34,14 @@ function createWindow() {
     width: windowWidth,
     height: windowHeight,
     alwaysOnTop: settings.alwaysOnTop,
+    icon: process.platform === 'darwin' 
+      ? undefined  // macOSではアプリケーションバンドルのアイコンを使用
+      : join(__dirname, '../../build/icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: join(__dirname, '../preload/index.js'),
     },
-    // icon: join(__dirname, '../../public/icon.png'),
   });
 
   if (process.env.NODE_ENV === 'development') {
