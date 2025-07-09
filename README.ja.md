@@ -1,5 +1,9 @@
 # EPUB画像抽出ツール
 
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-green.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 EPUBファイルから章別に画像を抽出するクロスプラットフォームデスクトップアプリケーション
 
 ## 機能
@@ -39,12 +43,21 @@ npm run electron:dev
 # 現在のプラットフォーム用にビルド
 npm run dist
 
-# Windows用にビルド
+# Windows用にビルド（インストーラーとポータブル版）
 npm run dist:win
 
 # macOS用にビルド
 npm run dist:mac
+
+# 特定のアーキテクチャ用
+npm run dist:mac-x64    # Intel Mac用
+npm run dist:mac-arm64  # Apple Silicon Mac用
 ```
+
+### 配布形式
+
+- **Windows**: NSISインストーラー（.exe）およびポータブル版
+- **macOS**: IntelとApple Silicon両対応のDMGインストーラー
 
 ## 使い方
 
@@ -55,6 +68,7 @@ npm run dist:mac
 5. ヘッダーの設定アイコン（⚙️）をクリックして以下をカスタマイズ：
    - 出力先ディレクトリ
    - 並列処理ファイル数（1-10）
+   - ファイル名オプション（元のファイル名を含める、見開き情報を含める）
 
 ### 出力構造
 
@@ -62,25 +76,32 @@ npm run dist:mac
 EPUB_Images/
 └── 書籍タイトル/
     ├── 001_表紙/
-    │   ├── 001.jpg
-    │   └── 002.jpg
+    │   ├── 001.jpg          # デフォルト：連番
+    │   └── 002.jpg          # 元の名前付き：001_cover.jpg
     ├── 002_第1章/
-    │   ├── 001.png
-    │   ├── 002.png
+    │   ├── 001.png          # 見開き情報付き：001_left.png
+    │   ├── 002.png          # 見開き情報付き：002_right.png
     │   └── 003.jpg
     └── 003_第2章/
         └── 001.jpg
 ```
 
+### ファイル名オプション
+
+- **連番**：`001.jpg`、`002.png`（デフォルト）
+- **元のファイル名を含める**：`001_originalname.jpg`
+- **見開き情報を含める**：`001_left.jpg`、`002_right.jpg`
+
 ## 技術仕様
 
 ### 技術スタック
 
-- **フレームワーク**: Electron
-- **言語**: TypeScript
-- **UI**: React
-- **ビルドツール**: Vite
-- **EPUBパーサー**: @gxl/epub-parser
+- **フレームワーク**: Electron 28
+- **言語**: TypeScript 5
+- **UI**: React 18
+- **ビルドツール**: Vite 5
+- **EPUBパーサー**: xml2jsを使用したカスタム実装
+- **国際化**: i18next（日本語UI）
 
 ### アーキテクチャ
 
@@ -145,6 +166,15 @@ npm run typecheck
   - メモリ使用量の監視
 - **ファイル名のサニタイズ**: 異なるOSで安全なファイル名を保証
 
+## アプリケーションアイコン
+
+本アプリケーションは、開いた本から画像が浮かび上がるデザインのカスタムアイコンを使用しています。アイコンの設定方法：
+
+1. 1024x1024 PNGアイコンを `build/icon.png` に配置
+2. ビルドプロセスが自動的にプラットフォーム別のフォーマットを生成：
+   - Windows: `icon.ico`
+   - macOS: `icon.icns`
+
 ## トラブルシューティング
 
 ### デバッグログの確認
@@ -171,6 +201,17 @@ LOG_LEVEL=debug npm run dev
 1. **「Cannot find module」エラー**: `npm install`を実行してすべての依存関係がインストールされているか確認
 2. **macOSでのビルド失敗**: Xcode Command Line Toolsのインストールが必要な場合があります
 3. **大きなEPUBファイル**: 多くの画像を含むファイルは処理に時間がかかります。リソース制限に達した場合は警告が表示されます
+4. **目次情報がない場合**: 目次が正しく設定されていないEPUBでは、すべての画像が「001_未分類」フォルダに抽出されます
+
+## 最近の更新（v0.1.0）
+
+- ファイル名カスタマイズオプションを追加
+- エラーの二重出力問題を修正
+- macOSのウィンドウ動作を改善
+- Windowsポータブル版ビルドを追加
+- 進捗表示を強化
+- すべての単体テストと統合テストを修正
+- メモリ管理を改善
 
 ## 既知の問題
 

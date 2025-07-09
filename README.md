@@ -1,5 +1,9 @@
 # EPUB Image Extractor
 
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-green.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 A cross-platform desktop application for extracting images from EPUB files, organized by chapters.
 
 ## Features
@@ -39,12 +43,21 @@ npm run electron:dev
 # Build for current platform
 npm run dist
 
-# Build for Windows
+# Build for Windows (installer and portable)
 npm run dist:win
 
 # Build for macOS
 npm run dist:mac
+
+# Build for specific architectures
+npm run dist:mac-x64    # Intel Macs
+npm run dist:mac-arm64  # Apple Silicon Macs
 ```
+
+### Distribution Formats
+
+- **Windows**: NSIS installer (.exe) and portable version
+- **macOS**: DMG installer for both Intel and Apple Silicon
 
 ## Usage
 
@@ -55,6 +68,7 @@ npm run dist:mac
 5. Click the settings icon (⚙️) in the header to customize:
    - Output directory
    - Number of parallel files to process (1-10)
+   - Filename options (include original names, page spread info)
 
 ### Output Structure
 
@@ -62,25 +76,32 @@ npm run dist:mac
 EPUB_Images/
 └── BookTitle/
     ├── 001_表紙/
-    │   ├── 001.jpg
-    │   └── 002.jpg
+    │   ├── 001.jpg          # Default: sequential numbering
+    │   └── 002.jpg          # Or with original name: 001_cover.jpg
     ├── 002_第1章/
-    │   ├── 001.png
-    │   ├── 002.png
+    │   ├── 001.png          # Can include spread info: 001_left.png
+    │   ├── 002.png          # Can include spread info: 002_right.png
     │   └── 003.jpg
     └── 003_第2章/
         └── 001.jpg
 ```
 
+### Filename Options
+
+- **Sequential numbering**: `001.jpg`, `002.png` (default)
+- **Include original names**: `001_originalname.jpg`
+- **Include page spread**: `001_left.jpg`, `002_right.jpg`
+
 ## Technical Details
 
 ### Technology Stack
 
-- **Framework**: Electron
-- **Language**: TypeScript
-- **UI**: React
-- **Build Tool**: Vite
-- **EPUB Parser**: @gxl/epub-parser
+- **Framework**: Electron 28
+- **Language**: TypeScript 5
+- **UI**: React 18
+- **Build Tool**: Vite 5
+- **EPUB Parser**: Custom implementation using xml2js
+- **Internationalization**: i18next (Japanese UI)
 
 ### Architecture
 
@@ -145,6 +166,15 @@ npm run typecheck
   - Memory usage monitoring
 - **File Name Sanitization**: Ensures safe file names across different operating systems
 
+## Application Icon
+
+The application uses a custom icon featuring an open book with floating images. To set up icons:
+
+1. Place a 1024x1024 PNG icon at `build/icon.png`
+2. The build process will automatically generate platform-specific formats:
+   - Windows: `icon.ico`
+   - macOS: `icon.icns`
+
 ## Troubleshooting
 
 ### Common Issues
@@ -152,6 +182,17 @@ npm run typecheck
 1. **"Cannot find module" error**: Run `npm install` to ensure all dependencies are installed
 2. **Build failures on macOS**: You may need to install Xcode Command Line Tools
 3. **Large EPUB files**: Files with many images may take longer to process. The app will warn if resource limits are reached
+4. **Missing navigation/TOC**: EPUBs without proper navigation will have all images extracted to "001_未分類" folder
+
+## Recent Updates (v0.1.0)
+
+- Added filename customization options
+- Fixed double error output issue
+- Improved macOS window behavior
+- Added Windows portable build
+- Enhanced progress display
+- Fixed all unit and integration tests
+- Improved memory management
 
 ## License
 
