@@ -10,12 +10,14 @@ lerna-debug.log*
 dist/
 dist-electron/
 out/
-build/
+*.local
+
+# buildディレクトリの設定
+build/*
 !build/README.md
 !build/icon.png
 !build/icon.ico
 !build/icon.icns
-*.local
 
 # エディタ
 .vscode/*

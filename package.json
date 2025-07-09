@@ -1,7 +1,7 @@
 {
   "name": "epub-image-extractor",
-  "version": "0.0.5",
-  "description": "EPUBファイルから章別に画像を抽出するデスクトップアプリケーション",
+  "version": "0.1.0",
+  "description": "Desktop application to extract images from EPUB files organized by chapters",
   "main": "dist-electron/main/index.js",
   "author": "Toru Tanaka",
   "license": "MIT",
