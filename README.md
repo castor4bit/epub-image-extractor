@@ -20,7 +20,7 @@ A cross-platform desktop application for extracting images from EPUB files, orga
 
 ### Prerequisites
 
-- Node.js 18.0.0 or higher
+- Node.js 20.0.0 or higher
 - npm or yarn
 
 ### Development Setup
