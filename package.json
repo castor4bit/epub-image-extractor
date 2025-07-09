@@ -94,7 +94,11 @@
           ]
         }
       ],
-      "hardenedRuntime": false
+      "hardenedRuntime": false,
+      "extendInfo": {
+        "CFBundleName": "EPUB Image Extractor",
+        "CFBundleDisplayName": "EPUB Image Extractor"
+      }
     },
     "win": {
       "target": [
