@@ -7,12 +7,12 @@ import fs from 'fs';
 function getLogPath(): string {
   try {
     // Electronモジュールの動的インポートを試みる
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
     const electron = require('electron');
     if (electron && electron.app && electron.app.getPath) {
       return electron.app.getPath('userData');
     }
-  } catch (e) {
+  } catch {
     // Electronが利用できない場合（テスト環境など）
   }
   const tmpPath = path.join(os.tmpdir(), 'epub-image-extractor-logs');
@@ -21,7 +21,7 @@ function getLogPath(): string {
     if (!fs.existsSync(tmpPath)) {
       fs.mkdirSync(tmpPath, { recursive: true });
     }
-  } catch (e) {
+  } catch {
     // ディレクトリ作成エラーは無視
   }
   return tmpPath;

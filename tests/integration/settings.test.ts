@@ -151,7 +151,7 @@ describe('ZIPハンドラー統合テスト', () => {
   afterEach(async () => {
     try {
       await fs.rm(TEST_DIR, { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // クリーンアップエラーは無視
     }
   });
