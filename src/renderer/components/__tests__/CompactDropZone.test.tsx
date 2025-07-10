@@ -25,10 +25,12 @@ describe('CompactDropZone', () => {
       />,
     );
 
-    expect(screen.getByText('📁')).toBeInTheDocument();
-    expect(screen.getByText('ファイルを追加')).toBeInTheDocument();
-    expect(screen.getByText('ドラッグ&ドロップ')).toBeInTheDocument();
-    expect(screen.getByText('または選択')).toBeInTheDocument();
+    expect(screen.getByText('EPUB/ZIPファイルをドラッグ&ドロップ')).toBeInTheDocument();
+    expect(screen.getByText('または')).toBeInTheDocument();
+    expect(screen.getByText('ファイルを選択')).toBeInTheDocument();
+    // SVGアイコンが存在することを確認
+    const svgIcon = document.querySelector('.compact-drop-icon');
+    expect(svgIcon).toBeInTheDocument();
   });
 
   test('ドラッグ中のスタイルが適用される', () => {
@@ -44,7 +46,7 @@ describe('CompactDropZone', () => {
     );
 
     const dropZone = container.querySelector('.compact-drop-zone');
-    expect(dropZone).toHaveClass('dragging');
+    expect(dropZone).toHaveClass('active');
   });
 
   test('ドラッグイベントが正しく処理される', () => {
@@ -90,7 +92,7 @@ describe('CompactDropZone', () => {
       />,
     );
 
-    const input = screen.getByLabelText('または選択') as HTMLInputElement;
+    const input = screen.getByLabelText('ファイルを選択') as HTMLInputElement;
     expect(input).toHaveAttribute('type', 'file');
     expect(input).toHaveAttribute('multiple');
     expect(input).toHaveAttribute('accept', '.epub,.zip,application/epub+zip,application/zip');
