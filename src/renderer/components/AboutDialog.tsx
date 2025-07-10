@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppVersionInfo } from '@shared/types';
+import iconUrl from '../../../build/icon.png';
 import './AboutDialog.css';
 
 interface AboutDialogProps {
@@ -24,6 +25,22 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => 
       loadVersionInfo();
     }
   }, [isOpen]);
+
+  // ESCキーでダイアログを閉じる
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!isOpen) {
     return null;
@@ -53,61 +70,42 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => 
     <div className="about-overlay" onClick={handleBackdropClick}>
       <div className="about-dialog">
         <div className="about-header">
-          <div className="about-icon">📚</div>
+          <button className="about-close-x" onClick={onClose} title="閉じる">
+            ×
+          </button>
+          <div className="about-icon">
+            <img src={iconUrl} alt="App Icon" className="about-app-icon" />
+          </div>
           <h2>{versionInfo?.name || 'EPUB Image Extractor'}</h2>
-          <p className="about-description">EPUBファイルから章別に画像を抽出するアプリケーション</p>
         </div>
 
         <div className="about-content">
           {versionInfo && (
-            <>
-              <div className="about-version">
-                <h3>バージョン情報</h3>
-                <div className="about-item">
-                  <span className="about-label">バージョン:</span>
-                  <span className="about-value">{versionInfo.version}</span>
-                </div>
-                <div className="about-item">
-                  <span className="about-label">プラットフォーム:</span>
-                  <span className="about-value">
-                    {formatPlatform(versionInfo.platform, versionInfo.arch)}
-                  </span>
-                </div>
+            <div className="about-system">
+              <h3>システム情報</h3>
+              <div className="about-item">
+                <span className="about-label">バージョン:</span>
+                <span className="about-value">{versionInfo.version}</span>
               </div>
-
-              <div className="about-technical">
-                <h3>技術情報</h3>
-                <div className="about-item">
-                  <span className="about-label">Electron:</span>
-                  <span className="about-value">{versionInfo.electronVersion}</span>
-                </div>
-                <div className="about-item">
-                  <span className="about-label">Node.js:</span>
-                  <span className="about-value">{versionInfo.nodeVersion}</span>
-                </div>
-                <div className="about-item">
-                  <span className="about-label">Chromium:</span>
-                  <span className="about-value">{versionInfo.chromiumVersion}</span>
-                </div>
+              <div className="about-item">
+                <span className="about-label">プラットフォーム:</span>
+                <span className="about-value">
+                  {formatPlatform(versionInfo.platform, versionInfo.arch)}
+                </span>
               </div>
-            </>
+              <div className="about-item">
+                <span className="about-label">Electron:</span>
+                <span className="about-value">{versionInfo.electronVersion}</span>
+              </div>
+            </div>
           )}
 
           <div className="about-license">
             <h3>ライセンス</h3>
-            <p>このソフトウェアはMITライセンスの下で配布されています。</p>
-            <p>
-              詳細については、アプリケーションに同梱されている
-              <br />
-              LICENSEファイルをご確認ください。
+            <p className="license-simple">
+              このソフトウェアはMITライセンスの下で配布されています。
             </p>
           </div>
-        </div>
-
-        <div className="about-footer">
-          <button onClick={onClose} className="about-close-button">
-            閉じる
-          </button>
         </div>
       </div>
     </div>

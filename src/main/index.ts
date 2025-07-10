@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
@@ -60,7 +60,40 @@ function createWindow() {
   registerIpcHandlers(mainWindow);
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // カスタムメニューを設定（デフォルトのAboutダイアログを無効化）
+  if (process.platform === 'darwin') {
+    // macOS用のメニュー
+    const template: MenuItemConstructorOptions[] = [
+      {
+        label: app.getName(),
+        submenu: [
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' },
+        ],
+      },
+      {
+        label: 'Window',
+        submenu: [{ role: 'close' }, { role: 'minimize' }],
+      },
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  } else {
+    // Windows/Linux用のメニュー
+    const template: MenuItemConstructorOptions[] = [
+      {
+        label: 'File',
+        submenu: [{ role: 'quit' }],
+      },
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  }
+
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   // macOSでもウィンドウを閉じたらアプリケーションを終了する

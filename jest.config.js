@@ -53,6 +53,7 @@ module.exports = {
         '^@renderer/(.*)$': '<rootDir>/src/renderer/$1',
         '^@shared/(.*)$': '<rootDir>/src/shared/$1',
         '\\.(css|less|scss|sass)$': '<rootDir>/tests/mocks/styleMock.js',
+        '\\.(png|jpg|jpeg|gif|svg)$': '<rootDir>/tests/mocks/imageMock.js',
       },
     },
     {
@@ -74,6 +75,7 @@ module.exports = {
         '^@renderer/(.*)$': '<rootDir>/src/renderer/$1',
         '^@shared/(.*)$': '<rootDir>/src/shared/$1',
         '\\.(css|less|scss|sass)$': '<rootDir>/tests/mocks/styleMock.js',
+        '\\.(png|jpg|jpeg|gif|svg)$': '<rootDir>/tests/mocks/imageMock.js',
       },
     },
     {
