@@ -5,6 +5,7 @@ import { FileDropZone } from './components/FileDropZone';
 import { SettingsWindow } from './components/SettingsWindow';
 import { FileProcessingList } from './components/FileProcessingList';
 import { CompactDropZone } from './components/CompactDropZone';
+import { AboutDialog } from './components/AboutDialog';
 
 function App() {
   const [isDragging, setIsDragging] = useState(false);
@@ -12,6 +13,7 @@ function App() {
   const [progress, setProgress] = useState<Record<string, ProcessingProgress>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [completedResults, setCompletedResults] = useState<ExtractionResult[]>([]);
   const [hasAnyResults, setHasAnyResults] = useState(false);
 
@@ -171,6 +173,11 @@ function App() {
     localStorage.removeItem('epubExtractionResults');
   }, []);
 
+  // About dialog を表示
+  const handleShowAbout = useCallback(() => {
+    setIsAboutOpen(true);
+  }, []);
+
   // 初回ロード時にlocalStorageから結果を復元
   useEffect(() => {
     const savedResults = localStorage.getItem('epubExtractionResults');
@@ -262,7 +269,12 @@ function App() {
           </div>
         )}
       </main>
-      <SettingsWindow isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsWindow
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onShowAbout={handleShowAbout}
+      />
+      <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </div>
   );
 }

@@ -125,4 +125,17 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
       };
     }
   });
+
+  // アプリケーションバージョン情報の取得
+  ipcMain.handle('app:version', async () => {
+    return {
+      version: app.getVersion(),
+      name: app.getName(),
+      electronVersion: process.versions.electron,
+      nodeVersion: process.versions.node,
+      chromiumVersion: process.versions.chrome,
+      platform: process.platform,
+      arch: process.arch,
+    };
+  });
 }

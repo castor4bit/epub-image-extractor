@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './SettingsWindow.css';
+import { VersionInfo } from './VersionInfo';
+import './VersionInfo.css';
 
 interface Settings {
   outputDirectory: string;
@@ -12,9 +14,10 @@ interface Settings {
 interface SettingsWindowProps {
   isOpen: boolean;
   onClose: () => void;
+  onShowAbout?: () => void;
 }
 
-export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose }) => {
+export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose, onShowAbout }) => {
   const [settings, setSettings] = useState<Settings>({
     outputDirectory: '',
     language: 'ja',
@@ -145,6 +148,8 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose 
               左右情報（left/right）を含める
             </label>
           </div>
+
+          <VersionInfo onShowAbout={onShowAbout} />
         </div>
 
         <div className="settings-footer">

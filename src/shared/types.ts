@@ -45,3 +45,13 @@ export interface Settings {
   includeOriginalFilename: boolean;
   includePageSpread: boolean;
 }
+
+export interface AppVersionInfo {
+  version: string;
+  name: string;
+  electronVersion: string;
+  nodeVersion: string;
+  chromiumVersion: string;
+  platform: string;
+  arch: string;
+}

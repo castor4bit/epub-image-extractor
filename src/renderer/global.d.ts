@@ -1,6 +1,6 @@
 // Electron APIの型定義
 interface ElectronAPI {
-  getVersion: () => Promise<string>;
+  getVersion: () => Promise<import('@shared/types').AppVersionInfo>;
   processEpubFiles: (filePaths: string[]) => Promise<{
     success: boolean;
     results?: import('@shared/types').ExtractionResult[];
