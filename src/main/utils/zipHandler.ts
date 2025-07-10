@@ -9,10 +9,30 @@ import { app } from 'electron';
 export async function extractEpubsFromZip(zipPath: string): Promise<string[]> {
   const extractedPaths: string[] = [];
 
-  try {
-    const zip = new AdmZip(zipPath);
-    const zipEntries = zip.getEntries();
+  let zip: AdmZip;
+  let zipEntries: AdmZip.IZipEntry[];
 
+  // ZIPファイルの読み込み（展開失敗をキャッチ）
+  try {
+    zip = new AdmZip(zipPath);
+    zipEntries = zip.getEntries();
+  } catch (error) {
+    console.error('ZIP展開エラー:', error);
+    throw new Error('ZIPファイルの展開に失敗しました');
+  }
+
+  // ZIPファイル内にEPUBファイルがあるかを事前チェック
+  const hasEpubFiles = zipEntries.some(
+    (entry) => entry.entryName.toLowerCase().endsWith('.epub') && !entry.isDirectory,
+  );
+
+  if (!hasEpubFiles) {
+    throw new Error(
+      'ZIPファイル内にEPUBファイルが見つかりませんでした。EPUBファイルを含むZIPファイルを選択してください',
+    );
+  }
+
+  try {
     // 一時ディレクトリを作成
     const tempDir = path.join(app.getPath('temp'), 'epub-extractor', Date.now().toString());
     await fs.mkdir(tempDir, { recursive: true });
@@ -39,9 +59,9 @@ export async function extractEpubsFromZip(zipPath: string): Promise<string[]> {
 
     return extractedPaths;
   } catch (error) {
-    console.error('ZIP展開エラー:', error);
+    console.error('ファイル展開エラー:', error);
     throw new Error(
-      `ZIPファイルの展開に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+      `ファイルの展開に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
     );
   }
 }
@@ -75,6 +95,40 @@ export async function cleanupTempFiles(filePaths: string[]): Promise<void> {
 export function isZipFile(filePath: string): boolean {
   const ext = path.extname(filePath).toLowerCase();
   return ext === '.zip';
+}
+
+/**
+ * ZIPファイル内にEPUBファイルが含まれているかを検証
+ */
+export function validateZipContents(zipPath: string): { valid: boolean; errorMessage?: string } {
+  let zip: AdmZip;
+  let zipEntries: AdmZip.IZipEntry[];
+
+  // ZIPファイルの読み込み
+  try {
+    zip = new AdmZip(zipPath);
+    zipEntries = zip.getEntries();
+  } catch (error) {
+    return {
+      valid: false,
+      errorMessage: 'ZIPファイルの展開に失敗しました',
+    };
+  }
+
+  // EPUB存在チェック
+  const hasEpubFiles = zipEntries.some(
+    (entry) => entry.entryName.toLowerCase().endsWith('.epub') && !entry.isDirectory,
+  );
+
+  if (!hasEpubFiles) {
+    return {
+      valid: false,
+      errorMessage:
+        'ZIPファイル内にEPUBファイルが見つかりませんでした。EPUBファイルを含むZIPファイルを選択してください',
+    };
+  }
+
+  return { valid: true };
 }
 
 /**

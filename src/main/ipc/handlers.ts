@@ -59,7 +59,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
             totalImages: 0,
             processedImages: 0,
             status: 'error',
-            error: `ZIPファイルの展開に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+            error: error instanceof Error ? error.message : '不明なエラー',
           };
           mainWindow.webContents.send('epub:progress', progress);
         }

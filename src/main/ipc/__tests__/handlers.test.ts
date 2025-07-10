@@ -167,7 +167,7 @@ describe('IPC Handlers', () => {
       const filePaths = ['/test/invalid.zip', '/test/valid.epub'];
 
       (isZipFile as jest.Mock).mockImplementation((path) => path.endsWith('.zip'));
-      (extractEpubsFromZip as jest.Mock).mockRejectedValue(new Error('Invalid ZIP'));
+      (extractEpubsFromZip as jest.Mock).mockRejectedValue(new Error('ZIPファイルの展開に失敗しました'));
       (processEpubFiles as jest.Mock).mockResolvedValue([
         { fileName: 'valid.epub', status: 'completed', imageCount: 5 },
       ]);
@@ -187,7 +187,7 @@ describe('IPC Handlers', () => {
         expect.objectContaining({
           fileName: 'invalid.zip',
           status: 'error',
-          error: expect.stringContaining('ZIPファイルの展開に失敗しました'),
+          error: 'ZIPファイルの展開に失敗しました',
         }),
       );
 
