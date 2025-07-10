@@ -104,31 +104,48 @@
    git commit -m "test: バッチ処理のユニットテストを追加"
    ```
 
-2. **CHANGELOGの自動生成**
+2. **バージョンアップ（CHANGELOG自動生成・更新）**
    ```bash
-   npm run changelog
-   ```
-
-3. **生成されたCHANGELOGを確認・調整**
-   ```bash
-   # 必要に応じて手動で調整
-   vim CHANGELOG.md
-   
-   # CHANGELOGをコミット
-   git add CHANGELOG.md
-   git commit -m "docs: CHANGELOGを更新"
-   ```
-
-4. **バージョンアップ（CHANGELOGも自動更新）**
-   ```bash
-   # npm versionで自動的にCHANGELOGも更新される
+   # CHANGELOGの自動生成とバージョンアップを一度に実行
    npm version patch -m "chore: release v%s"
    ```
+   
+   この時、以下が自動的に実行されます：
+   - 前回リリース以降のコミットからCHANGELOG差分を生成
+   - package.jsonのバージョン更新
+   - Gitタグの作成
 
-5. **変更をプッシュ**
+3. **生成されたCHANGELOGを確認・調整（必要に応じて）**
+   ```bash
+   # 生成されたCHANGELOGを確認
+   cat CHANGELOG.md
+   
+   # 必要に応じて手動で調整
+   vim CHANGELOG.md
+   git add CHANGELOG.md
+   git commit --amend --no-edit  # 直前のリリースコミットに統合
+   ```
+
+4. **変更をプッシュ**
    ```bash
    git push origin main --follow-tags
    ```
+
+#### 📝 手動調整が不要な場合のシンプル手順
+
+```bash
+# 開発コミット（Conventional Commits形式）
+git commit -m "feat: 新機能を追加"
+git commit -m "fix: バグを修正"
+
+# リリース（CHANGELOG自動生成付き）
+npm version patch -m "chore: release v%s"
+
+# プッシュ
+git push origin main --follow-tags
+```
+
+**手動調整が不要であれば手順2と3は省略可能です！**
 
 ### 方法3: ローカルビルド + 手動リリース
 
