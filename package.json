@@ -21,13 +21,16 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "typecheck": "tsc --noEmit",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "version": "npm run changelog && git add CHANGELOG.md",
     "electron": "electron .",
     "electron:dev": "vite",
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
     "dist:mac": "npm run build && electron-builder --mac",
     "dist:mac-x64": "npm run build && electron-builder --mac --x64",
-    "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
+    "dist:mac-arm64": "npm run build && electron-builder --mac --arm64",
+    "dist:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
@@ -42,6 +45,8 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.40.1",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
@@ -56,6 +61,8 @@
     "@typescript-eslint/parser": "^8.36.0",
     "@vitejs/plugin-react": "^4.2.1",
     "concurrently": "^8.2.2",
+    "conventional-changelog-cli": "^5.0.0",
+    "conventional-commits-parser": "^6.2.0",
     "electron": "^28.0.0",
     "electron-builder": "^24.9.1",
     "eslint": "^8.56.0",
@@ -122,6 +129,24 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Utility",
+      "icon": "build/icon.png"
     },
     "publish": null
   },
