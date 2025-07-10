@@ -6,7 +6,15 @@ import { ProcessingProgress } from '@shared/types';
 
 // モックの設定
 const mockElectronAPI = {
-  getVersion: jest.fn().mockResolvedValue('1.0.0'),
+  getVersion: jest.fn().mockResolvedValue({
+    version: '1.0.0',
+    name: 'EPUB Image Extractor',
+    electronVersion: '28.3.3',
+    nodeVersion: '18.18.2',
+    chromiumVersion: '120.0.6099.291',
+    platform: 'darwin',
+    arch: 'x64',
+  }),
   processEpubFiles: jest.fn(),
   onProgress: jest.fn(),
   selectOutputDirectory: jest.fn(),

@@ -97,13 +97,15 @@ describe('App Component', () => {
     let progressCallback: ((data: ProcessingProgress) => void) | null = null;
 
     // onProgressのモックを設定
-    mockElectronAPI.onProgress.mockImplementation((callback: (data: ProcessingProgress) => void) => {
-      progressCallback = callback;
-      // クリーンアップ関数を返す
-      return () => {
-        progressCallback = null;
-      };
-    });
+    mockElectronAPI.onProgress.mockImplementation(
+      (callback: (data: ProcessingProgress) => void) => {
+        progressCallback = callback;
+        // クリーンアップ関数を返す
+        return () => {
+          progressCallback = null;
+        };
+      },
+    );
 
     render(<App />);
 
