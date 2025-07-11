@@ -29,7 +29,7 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
   onOpenFolder,
 }) => {
   const { t } = useTranslation();
-  // Integrate progress data and result data
+  // 進捗データと結果データを統合
   const items: ProcessingItem[] = [];
   const processedFileIds = new Set<string>();
 
@@ -140,7 +140,7 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
                 </div>
                 <div className="progress-text">
                   {item.phase === 'organizing'
-                    ? `${t('processing.organizing')} (${item.totalImages}画像)`
+                    ? `${t('processing.organizing')} (${item.totalImages}${t('units.images')})`
                     : `${t('processing.extracting')}: ${item.processedImages || 0} / ${item.totalImages}`}
                 </div>
               </>
@@ -151,7 +151,7 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
             {item.status === 'completed' && (
               <div className="completion-info">
                 <div className="result-text">
-                  {item.totalImages}画像{item.chapters ? `, ${item.chapters}章` : ''}
+                  {item.totalImages}{t('units.images')}{item.chapters ? `, ${item.chapters}${t('units.chapters')}` : ''}
                 </div>
                 {item.outputPath && (
                   <button

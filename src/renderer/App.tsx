@@ -20,10 +20,10 @@ function App() {
   const [completedResults, setCompletedResults] = useState<ExtractionResult[]>([]);
   const [hasAnyResults, setHasAnyResults] = useState(false);
 
-  // File processing
+  // ファイル処理
   const processFiles = useCallback(
     async (filesToProcess: File[]) => {
-      // Do not process if already processing
+      // 既に処理中の場合は処理しない
       if (isProcessing) {
         alert(t('processing.alreadyProcessing'));
         return;
@@ -31,21 +31,21 @@ function App() {
 
       setIsProcessing(true);
       setHasAnyResults(true);
-      // Do not reset progress for new processing (for additional processing)
+      // 新しい処理時は進捗をリセットしない（追加処理のため）
 
       try {
-        // Create array of file paths
+        // ファイルパスの配列を作成
         const filePaths = filesToProcess.map((file) => file.path || '').filter((path) => path);
 
         if (filePaths.length === 0) {
           throw new Error('有効なファイルパスがありません');
         }
 
-        // Execute EPUB processing
+        // EPUB処理を実行
         const result = await window.electronAPI.processEpubFiles(filePaths);
 
         if (result.success) {
-          // Save results (check for duplicates as they may already be added by progress listener)
+          // 結果を保存（進捗リスナーですでに追加されている可能性があるため重複チェック）
           if (result.results) {
             setCompletedResults((prevResults) => {
               const existingIds = new Set(prevResults.map((r) => r.fileId));
@@ -61,14 +61,14 @@ function App() {
             });
           }
 
-          // Remove completed items from progress
+          // 処理完了したアイテムをprogressから削除
           setProgress((prev) => {
             const newProgress = { ...prev };
-            // Get fileId of completed results
+            // 完了した結果のfileIdを取得
             const completedFileIds = new Set(result.results?.map((r) => r.fileId) || []);
 
             Object.keys(newProgress).forEach((key) => {
-              // Remove pending or completed items
+              // pendingまたは完了済みのアイテムを削除
               if (
                 newProgress[key].status === 'pending' ||
                 newProgress[key].status === 'completed' ||
@@ -87,7 +87,7 @@ function App() {
           setIsProcessing(false);
         }
       } catch (error) {
-        console.error('Processing error:', error);
+        console.error('処理エラー:', error);
         alert(t('errors.fileProcessing'));
         setIsProcessing(false);
       }
@@ -95,7 +95,7 @@ function App() {
     [isProcessing],
   );
 
-  // Drag event handlers
+  // ドラッグイベントハンドラー
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -138,7 +138,7 @@ function App() {
     [processFiles],
   );
 
-  // File selection handler
+  // ファイル選択ハンドラー
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = e.target.files;
@@ -162,26 +162,26 @@ function App() {
     [processFiles],
   );
 
-  // Open folder
+  // フォルダを開く
   const handleOpenFolder = useCallback((path: string) => {
     window.electronAPI.openFolder(path);
   }, []);
 
-  // Clear all
+  // すべてクリア
   const handleClearAll = useCallback(() => {
     setProgress({});
     setCompletedResults([]);
     setHasAnyResults(false);
-    // Also remove from localStorage
+    // localStorageからも削除
     localStorage.removeItem('epubExtractionResults');
   }, []);
 
-  // Show About dialog
+  // About dialog を表示
   const handleShowAbout = useCallback(() => {
     setIsAboutOpen(true);
   }, []);
 
-  // Restore results from localStorage on initial load
+  // 初回ロード時にlocalStorageから結果を復元
   useEffect(() => {
     const savedResults = localStorage.getItem('epubExtractionResults');
     if (savedResults) {
@@ -190,12 +190,12 @@ function App() {
         setCompletedResults(parsed);
         setHasAnyResults(parsed.length > 0);
       } catch (error) {
-        console.error('Error loading saved results:', error);
+        console.error('保存された結果の読み込みエラー:', error);
       }
     }
   }, []);
 
-  // Set up progress listener
+  // 進捗リスナーを設定
   useEffect(() => {
     const cleanup = window.electronAPI.onProgress((progressData: ProcessingProgress) => {
       setProgress((prev) => ({
@@ -203,15 +203,15 @@ function App() {
         [progressData.fileId]: progressData,
       }));
 
-      // When individual files complete or error, treat them as results immediately
+      // 個別のファイルが完了またはエラーになった場合、即座に結果として扱う
       if (progressData.status === 'completed' || progressData.status === 'error') {
         setCompletedResults((prevResults) => {
-          // Skip if already included in results
+          // すでに結果に含まれている場合はスキップ
           if (prevResults.some((r) => r.fileId === progressData.fileId)) {
             return prevResults;
           }
 
-          // Create result data from progress data
+          // 進捗データから結果データを作成
           const newResult: ExtractionResult = {
             fileId: progressData.fileId,
             fileName: progressData.fileName,
@@ -222,14 +222,14 @@ function App() {
           };
 
           const newResults = [...prevResults, newResult];
-          // Save to localStorage
+          // localStorageに保存
           localStorage.setItem('epubExtractionResults', JSON.stringify(newResults));
           return newResults;
         });
       }
     });
 
-    // Return cleanup function
+    // クリーンアップ関数を返す
     return cleanup;
   }, []);
 
@@ -243,7 +243,7 @@ function App() {
       </header>
       <main className="app-main">
         {!hasAnyResults ? (
-          // Initial state: large drop zone
+          // 初期状態：大きなドロップゾーン
           <FileDropZone
             isDragging={isDragging}
             onDragEnter={handleDragEnter}
@@ -253,7 +253,7 @@ function App() {
             onFileSelect={handleFileSelect}
           />
         ) : (
-          // Processing or result display: integrated list
+          // 処理中または結果表示：統合リスト
           <div className="integrated-view">
             <CompactDropZone
               isDragging={isDragging}

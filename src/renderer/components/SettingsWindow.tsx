@@ -31,7 +31,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
 
   useEffect(() => {
     if (isOpen) {
-      // Load settings
+      // 設定を読み込む
       window.electronAPI.getSettings().then((loadedSettings) => {
         setSettings({
           outputDirectory: loadedSettings.outputDirectory ?? '',
@@ -62,7 +62,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       await window.electronAPI.saveSettings(settings);
       onClose();
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error('設定の保存に失敗しました:', error);
     } finally {
       setIsSaving(false);
     }

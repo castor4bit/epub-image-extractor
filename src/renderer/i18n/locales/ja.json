@@ -65,5 +65,20 @@
     "fileProcessing": "ファイル処理中にエラーが発生しました",
     "invalidFile": "無効なファイル形式です",
     "noImages": "画像が見つかりませんでした"
+  },
+  "units": {
+    "images": "画像",
+    "chapters": "章"
+  },
+  "about": {
+    "title": "アプリケーション情報",
+    "version": "バージョン",
+    "description": "EPUBファイルから章別に画像を抽出するデスクトップアプリケーション",
+    "showDetails": "詳細情報を表示...",
+    "systemInfo": "システム情報",
+    "platform": "プラットフォーム",
+    "license": "ライセンス",
+    "licenseText": "このソフトウェアはMITライセンスの下で配布されています。",
+    "close": "閉じる"
   }
 }

@@ -65,5 +65,20 @@
     "fileProcessing": "An error occurred while processing the file",
     "invalidFile": "Invalid file format",
     "noImages": "No images found"
+  },
+  "units": {
+    "images": "images",
+    "chapters": "chapters"
+  },
+  "about": {
+    "title": "About Application",
+    "version": "Version",
+    "description": "Desktop application for extracting images from EPUB files by chapter",
+    "showDetails": "Show Details...",
+    "systemInfo": "System Information",
+    "platform": "Platform",
+    "license": "License",
+    "licenseText": "This software is distributed under the MIT License.",
+    "close": "Close"
   }
 }

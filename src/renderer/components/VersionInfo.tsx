@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppVersionInfo } from '@shared/types';
 
 interface VersionInfoProps {
@@ -7,6 +8,7 @@ interface VersionInfoProps {
 }
 
 export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShowAbout }) => {
+  const { t } = useTranslation();
   const [versionInfo, setVersionInfo] = useState<AppVersionInfo | null>(null);
 
   useEffect(() => {
@@ -29,12 +31,12 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
   return (
     <div className={`version-info ${className}`}>
       <div className="version-header">
-        <h3>アプリケーション情報</h3>
+        <h3>{t('about.title')}</h3>
       </div>
 
       <div className="version-basic">
         <div className="version-item">
-          <span className="version-label">バージョン:</span>
+          <span className="version-label">{t('about.version')}:</span>
           <span className="version-value">{versionInfo.version}</span>
         </div>
       </div>
@@ -42,7 +44,7 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
       {onShowAbout && (
         <div className="version-actions">
           <button onClick={onShowAbout} className="show-about-button">
-            詳細情報を表示...
+            {t('about.showDetails')}
           </button>
         </div>
       )}

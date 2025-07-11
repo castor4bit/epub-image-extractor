@@ -4,7 +4,7 @@ import { ProcessingProgress, Settings, AppVersionInfo } from '../shared/types';
 // レンダラープロセスに公開するAPI
 const electronAPI = {
   getVersion: (): Promise<AppVersionInfo> => ipcRenderer.invoke('app:version'),
-  // EPUB処理関連のAPIは後で追加
+  // EPUB処理関連のAPI
   processEpubFiles: (filePaths: string[]) => ipcRenderer.invoke('epub:process', filePaths),
   onProgress: (callback: (progress: ProcessingProgress) => void) => {
     const listener = (_event: IpcRendererEvent, progress: ProcessingProgress) => callback(progress);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppVersionInfo } from '@shared/types';
 import iconUrl from '../../../build/icon.png';
 import './AboutDialog.css';
@@ -9,6 +10,7 @@ interface AboutDialogProps {
 }
 
 export const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [versionInfo, setVersionInfo] = useState<AppVersionInfo | null>(null);
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => 
     <div className="about-overlay" onClick={handleBackdropClick}>
       <div className="about-dialog">
         <div className="about-header">
-          <button className="about-close-x" onClick={onClose} title="閉じる">
+          <button className="about-close-x" onClick={onClose} title={t('about.close')}>
             ×
           </button>
           <div className="about-icon">
@@ -82,13 +84,13 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => 
         <div className="about-content">
           {versionInfo && (
             <div className="about-system">
-              <h3>システム情報</h3>
+              <h3>{t('about.systemInfo')}</h3>
               <div className="about-item">
-                <span className="about-label">バージョン:</span>
+                <span className="about-label">{t('about.version')}:</span>
                 <span className="about-value">{versionInfo.version}</span>
               </div>
               <div className="about-item">
-                <span className="about-label">プラットフォーム:</span>
+                <span className="about-label">{t('about.platform')}:</span>
                 <span className="about-value">
                   {formatPlatform(versionInfo.platform, versionInfo.arch)}
                 </span>
@@ -101,9 +103,9 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => 
           )}
 
           <div className="about-license">
-            <h3>ライセンス</h3>
+            <h3>{t('about.license')}</h3>
             <p className="license-simple">
-              このソフトウェアはMITライセンスの下で配布されています。
+              {t('about.licenseText')}
             </p>
           </div>
         </div>
