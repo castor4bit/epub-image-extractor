@@ -108,7 +108,7 @@ export function validateZipContents(zipPath: string): { valid: boolean; errorMes
   try {
     zip = new AdmZip(zipPath);
     zipEntries = zip.getEntries();
-  } catch (error) {
+  } catch {
     return {
       valid: false,
       errorMessage: 'ZIPファイルの展開に失敗しました',
