@@ -1,0 +1,125 @@
+name: Build Latest
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Platforms to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - mac-only
+        - windows-only
+        - linux-only
+
+permissions:
+  contents: read
+
+jobs:
+  build-mac:
+    if: ${{ github.event.inputs.platforms == 'all' || github.event.inputs.platforms == 'mac-only' }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build macOS ${{ matrix.arch }}
+      run: npm run dist:mac-${{ matrix.arch }}
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+    
+    - name: Upload macOS ${{ matrix.arch }} build
+      uses: actions/upload-artifact@v4
+      with:
+        name: latest-mac-${{ matrix.arch }}
+        path: release/*.dmg
+        retention-days: 7
+
+  build-windows:
+    if: ${{ github.event.inputs.platforms == 'all' || github.event.inputs.platforms == 'windows-only' }}
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build Windows
+      run: npm run dist:win
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+    
+    - name: Upload Windows build
+      uses: actions/upload-artifact@v4
+      with:
+        name: latest-windows-x64
+        path: release/*.exe
+        retention-days: 7
+
+  build-linux:
+    if: ${{ github.event.inputs.platforms == 'all' || github.event.inputs.platforms == 'linux-only' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build Linux
+      run: npm run dist:linux
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+    
+    - name: Upload Linux build
+      uses: actions/upload-artifact@v4
+      with:
+        name: latest-linux-x64
+        path: release/*
+        retention-days: 7
+
+  summary:
+    needs: [build-mac, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Build summary
+      run: |
+        echo "## 🚀 Latest Build Complete" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Platforms:** ${{ github.event.inputs.platforms }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Download Artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "Go to **Actions > Build Latest > [This Run] > Artifacts** to download the builds." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "> 💡 **Tip:** Artifacts are available for 7 days and automatically overwritten on each run." >> $GITHUB_STEP_SUMMARY

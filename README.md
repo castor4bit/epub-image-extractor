@@ -58,6 +58,31 @@ npm run dist:mac-arm64  # Apple Silicon Macs
 
 - **Windows**: NSIS installer (.exe) and portable version
 - **macOS**: DMG installer for both Intel and Apple Silicon
+- **Linux**: AppImage and DEB packages
+
+## Development Builds
+
+### Getting Latest Development Builds
+
+You can download the latest development builds without waiting for releases:
+
+1. **Manual Build** (recommended for testing specific commits):
+   - Go to [Actions > Build Latest](../../actions/workflows/build-latest.yml)
+   - Click "Run workflow" 
+   - Select platforms to build (all/mac-only/windows-only/linux-only)
+   - Download artifacts from the completed run
+
+2. **Automatic Builds** (triggered on every main branch update):
+   - Go to [Actions > Build Development](../../actions/workflows/build-dev.yml)
+   - Select the latest successful run
+   - Download artifacts for your platform
+
+### Development Build Notes
+
+- ⚠️ **Unsigned builds**: Development builds are not code-signed
+- 🔄 **Always latest**: Reflects the current state of the main branch
+- 📅 **Retention**: Artifacts are kept for 30 days (development) or 7 days (manual)
+- 🏷️ **Naming**: `dev-{platform}-{arch}-{commit-hash}` or `latest-{platform}-{arch}`
 
 ## Usage
 

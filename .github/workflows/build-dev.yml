@@ -1,0 +1,88 @@
+name: Build Development
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # 手動実行も可能
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            arch: x64
+            build_cmd: dist:mac-x64
+            artifact_pattern: "*.dmg"
+          - os: macos-latest
+            arch: arm64
+            build_cmd: dist:mac-arm64
+            artifact_pattern: "*.dmg"
+          - os: windows-latest
+            arch: x64
+            build_cmd: dist:win
+            artifact_pattern: "*.exe"
+          - os: ubuntu-latest
+            arch: x64
+            build_cmd: dist:linux
+            artifact_pattern: "*"
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Build application (development)
+      run: npm run ${{ matrix.build_cmd }}
+      env:
+        # コード署名を無効化
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+    
+    - name: Upload development artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dev-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}
+        path: release/${{ matrix.artifact_pattern }}
+        retention-days: 30  # 30日間保持
+        if-no-files-found: warn
+
+  summary:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Development build summary
+      run: |
+        echo "## 🔧 Development Build Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Available Artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "- \`dev-macos-latest-x64-${{ github.sha }}\` - macOS Intel" >> $GITHUB_STEP_SUMMARY
+        echo "- \`dev-macos-latest-arm64-${{ github.sha }}\` - macOS Apple Silicon" >> $GITHUB_STEP_SUMMARY
+        echo "- \`dev-windows-latest-x64-${{ github.sha }}\` - Windows x64" >> $GITHUB_STEP_SUMMARY
+        echo "- \`dev-ubuntu-latest-x64-${{ github.sha }}\` - Linux x64" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "> ⚠️ **Note:** These are unsigned development builds for testing purposes only." >> $GITHUB_STEP_SUMMARY
