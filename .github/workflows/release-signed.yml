@@ -25,27 +25,12 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    # macOS証明書のセットアップ
-    - name: Import Code Signing Certificate
-      if: env.MACOS_CERTIFICATE
-      env:
-        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-      run: |
-        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-        security create-keychain -p actions build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p actions build.keychain
-        security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions build.keychain
+    # 証明書設定は一時的に無効化
     
     - name: Build and sign
       env:
-        CSC_LINK: ${{ secrets.MACOS_CERTIFICATE }}
-        CSC_KEY_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-        APPLE_ID: ${{ secrets.APPLE_ID }}
-        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-        APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        # macOSコード署名を無効化（証明書未設定のため）
+        CSC_IDENTITY_AUTO_DISCOVERY: false
       run: |
         npm run dist:mac-x64
         npm run dist:mac-arm64
@@ -72,8 +57,8 @@ jobs:
     
     - name: Build and sign
       env:
-        CSC_LINK: ${{ secrets.WINDOWS_CERTIFICATE }}
-        CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PWD }}
+        # Windowsコード署名を無効化（証明書未設定のため）
+        CSC_IDENTITY_AUTO_DISCOVERY: false
       run: npm run dist:win
     
     - name: Upload artifacts
