@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, act, fireEvent } from './setup';
 import App from '../App';
 import { ProcessingProgress } from '@shared/types';
 
@@ -70,7 +70,7 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
 
     // ファイルをドロップして処理を開始
     const dropZone = screen
-      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .getByText('EPUBファイルをドロップ')
       .closest('.drop-zone');
     const mockFile = new File(['test content'], 'test1.epub', { type: 'application/epub+zip' });
     Object.defineProperty(mockFile, 'path', { value: '/test/path/test1.epub' });
@@ -112,7 +112,7 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
 
     // ファイル1の「出力先を開く」ボタンが即座に表示されることを確認
     await waitFor(() => {
-      const buttons = screen.getAllByText('📁 出力先を開く');
+      const buttons = screen.getAllByText('📁 フォルダを開く');
       expect(buttons.length).toBe(1);
       expect(buttons[0]).toHaveAttribute('title', '/output/test1');
     });
@@ -129,7 +129,7 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
 
     // ファイルをドロップして処理を開始
     const dropZone = screen
-      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .getByText('EPUBファイルをドロップ')
       .closest('.drop-zone');
     const mockFile = new File(['test content'], 'test1.epub', { type: 'application/epub+zip' });
     Object.defineProperty(mockFile, 'path', { value: '/test/path/test1.epub' });
@@ -185,7 +185,7 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
 
     // 2つのファイルをドロップ
     const dropZone = screen
-      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .getByText('EPUBファイルをドロップ')
       .closest('.drop-zone');
     const mockFile1 = new File(['test1'], 'test1.epub', { type: 'application/epub+zip' });
     const mockFile2 = new File(['test2'], 'test2.epub', { type: 'application/epub+zip' });
@@ -236,7 +236,7 @@ describe('App - 個別ファイル完了時の即座の表示', () => {
     // ファイル1の結果が表示され、ファイル2はまだ処理中
     await waitFor(() => {
       expect(screen.getByText('10画像, 3章')).toBeInTheDocument();
-      expect(screen.getByText('画像を抽出中: 0 / 20')).toBeInTheDocument();
+      expect(screen.getByText('画像を抽出中...: 0 / 20')).toBeInTheDocument();
     });
   });
 });

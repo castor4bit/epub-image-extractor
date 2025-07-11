@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '../../__tests__/setup';
 import { FileProcessingList } from '../FileProcessingList';
 import { ProcessingProgress, ExtractionResult } from '@shared/types';
 
@@ -46,8 +46,8 @@ describe('FileProcessingList - 待機中の表示', () => {
     );
 
     // 待機中の件数が表示されることを確認
-    expect(screen.getByText('2待機中')).toBeInTheDocument();
-    expect(screen.getByText('1処理中')).toBeInTheDocument();
+    expect(screen.getByText('2件待機中')).toBeInTheDocument();
+    expect(screen.getByText('1件処理中')).toBeInTheDocument();
   });
 
   test('複数のステータスが混在する場合の表示', () => {
@@ -97,10 +97,10 @@ describe('FileProcessingList - 待機中の表示', () => {
     );
 
     // すべてのステータスが表示されることを確認
-    expect(screen.getByText('1完了')).toBeInTheDocument();
-    expect(screen.getByText('1処理中')).toBeInTheDocument();
-    expect(screen.getByText('1待機中')).toBeInTheDocument();
-    expect(screen.getByText('1エラー')).toBeInTheDocument();
+    expect(screen.getByText('1件完了')).toBeInTheDocument();
+    expect(screen.getByText('1件処理中')).toBeInTheDocument();
+    expect(screen.getByText('1件待機中')).toBeInTheDocument();
+    expect(screen.getByText('1件エラー')).toBeInTheDocument();
   });
 
   test('待機中のファイルがない場合は表示されない', () => {
@@ -126,6 +126,6 @@ describe('FileProcessingList - 待機中の表示', () => {
 
     // 待機中の表示がないことを確認
     expect(screen.queryByText(/待機中/)).not.toBeInTheDocument();
-    expect(screen.getByText('1完了')).toBeInTheDocument();
+    expect(screen.getByText('1件完了')).toBeInTheDocument();
   });
 });

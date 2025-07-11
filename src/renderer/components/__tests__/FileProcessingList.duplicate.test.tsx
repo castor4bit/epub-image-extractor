@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '../../__tests__/setup';
 import { FileProcessingList } from '../FileProcessingList';
 import { ProcessingProgress, ExtractionResult } from '@shared/types';
 
@@ -76,7 +76,7 @@ describe('FileProcessingList - 重複表示の防止', () => {
     );
 
     // 出力先を開くボタンが表示されることを確認
-    expect(screen.getByText('📁 出力先を開く')).toBeInTheDocument();
+    expect(screen.getByText('📁 フォルダを開く')).toBeInTheDocument();
   });
 
   test('処理中のファイルはprogressから、完了ファイルはresultsから表示', () => {
@@ -119,14 +119,14 @@ describe('FileProcessingList - 重複表示の防止', () => {
 
     // 処理中のファイルは1つ
     expect(screen.getByText('processing.epub')).toBeInTheDocument();
-    expect(screen.getByText('画像を抽出中: 50 / 100')).toBeInTheDocument();
+    expect(screen.getByText('画像を抽出中...: 50 / 100')).toBeInTheDocument();
 
     // 完了ファイルは1つ（重複なし）
     const completedElements = screen.getAllByText('completed.epub');
     expect(completedElements).toHaveLength(1);
 
     // 完了ファイルには出力先ボタンがある
-    const openButtons = screen.getAllByText('📁 出力先を開く');
+    const openButtons = screen.getAllByText('📁 フォルダを開く');
     expect(openButtons).toHaveLength(1);
   });
 });

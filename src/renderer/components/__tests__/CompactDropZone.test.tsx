@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '../../__tests__/setup';
 import { CompactDropZone } from '../CompactDropZone';
 
 describe('CompactDropZone', () => {
@@ -25,7 +25,7 @@ describe('CompactDropZone', () => {
       />,
     );
 
-    expect(screen.getByText('EPUB/ZIPファイルをドラッグ&ドロップ')).toBeInTheDocument();
+    expect(screen.getByText('追加のEPUBファイルをドロップ')).toBeInTheDocument();
     expect(screen.getByText('または')).toBeInTheDocument();
     expect(screen.getByText('ファイルを選択')).toBeInTheDocument();
     // SVGアイコンが存在することを確認

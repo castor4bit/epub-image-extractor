@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '../../__tests__/setup';
 import { FileProcessingList } from '../FileProcessingList';
 import { ProcessingProgress, ExtractionResult } from '@shared/types';
 
@@ -60,8 +60,8 @@ describe('FileProcessingList', () => {
     expect(screen.getByText('✓')).toBeInTheDocument(); // completed
 
     // 処理状況サマリーが正しい
-    expect(screen.getByText('1完了')).toBeInTheDocument();
-    expect(screen.getByText('1処理中')).toBeInTheDocument();
+    expect(screen.getByText('1件完了')).toBeInTheDocument();
+    expect(screen.getByText('1件処理中')).toBeInTheDocument();
   });
 
   test('ステータス優先度でソートされる', () => {
@@ -138,7 +138,7 @@ describe('FileProcessingList', () => {
       />,
     );
 
-    const openButton = screen.getByText('📁 出力先を開く');
+    const openButton = screen.getByText('📁 フォルダを開く');
     fireEvent.click(openButton);
 
     expect(mockOnOpenFolder).toHaveBeenCalledWith('/path/to/output');
@@ -214,7 +214,7 @@ describe('FileProcessingList', () => {
       />,
     );
 
-    expect(screen.getByText('画像を抽出中: 75 / 100')).toBeInTheDocument();
+    expect(screen.getByText('画像を抽出中...: 75 / 100')).toBeInTheDocument();
 
     // 進捗バーの幅が75%を超えないように設定されている（95%が上限）
     const progressBar = document.querySelector('.progress-fill') as HTMLElement;

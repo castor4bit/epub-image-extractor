@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from './__tests__/setup';
 import '@testing-library/jest-dom';
 import App from './App';
 import type { ProcessingProgress } from '@shared/types';
@@ -25,19 +25,19 @@ describe('App Component', () => {
 
   it('アプリケーションタイトルを表示する', () => {
     render(<App />);
-    expect(screen.getByText('EPUB画像抽出ツール')).toBeInTheDocument();
+    expect(screen.getByText('EPUB Image Extractor')).toBeInTheDocument();
   });
 
   it('ドロップゾーンを表示する', () => {
     render(<App />);
-    expect(screen.getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')).toBeInTheDocument();
+    expect(screen.getByText('EPUBファイルをドロップ')).toBeInTheDocument();
     expect(screen.getByText('ファイルを選択')).toBeInTheDocument();
   });
 
   it('ドラッグオーバー時にアクティブクラスを追加する', () => {
     render(<App />);
     const dropZone = screen
-      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .getByText('EPUBファイルをドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -52,7 +52,7 @@ describe('App Component', () => {
   it('EPUBファイルをドロップすると処理を開始する', async () => {
     render(<App />);
     const dropZone = screen
-      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .getByText('EPUBファイルをドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -77,7 +77,7 @@ describe('App Component', () => {
     window.alert = jest.fn();
     render(<App />);
     const dropZone = screen
-      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .getByText('EPUBファイルをドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -89,7 +89,7 @@ describe('App Component', () => {
         },
       });
 
-      expect(window.alert).toHaveBeenCalledWith('EPUBまたはZIPファイルを選択してください');
+      expect(window.alert).toHaveBeenCalledWith('無効なファイル形式です');
     }
   });
 
@@ -110,7 +110,7 @@ describe('App Component', () => {
     render(<App />);
 
     const dropZone = screen
-      .getByText('EPUB/ZIPファイルをここにドラッグ&ドロップ')
+      .getByText('EPUBファイルをドロップ')
       .closest('.drop-zone');
 
     if (dropZone) {
@@ -141,7 +141,7 @@ describe('App Component', () => {
 
       await waitFor(() => {
         expect(screen.getByText('test.epub')).toBeInTheDocument();
-        expect(screen.getByText('画像を抽出中: 5 / 10')).toBeInTheDocument();
+        expect(screen.getByText('画像を抽出中...: 5 / 10')).toBeInTheDocument();
       });
     }
   });
