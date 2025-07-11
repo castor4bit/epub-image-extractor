@@ -90,7 +90,7 @@ You can download the latest development builds without waiting for releases:
 - **Trigger**: Push to main, PRs
 - **Purpose**: Lint, type check, tests, build verification
 - **Platforms**: Multi-platform (Ubuntu, Windows, macOS)
-- **Node versions**: 20.x, 22.x
+- **Node version**: 24.x
 
 ### Build Development
 - **Trigger**: Push to main, PRs, manual
