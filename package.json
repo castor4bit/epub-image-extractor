@@ -3,7 +3,10 @@
   "version": "0.2.0",
   "description": "Desktop application to extract images from EPUB files organized by chapters",
   "main": "dist-electron/main/index.js",
-  "author": "Toru Tanaka",
+  "author": {
+    "name": "castor4bit",
+    "email": "30964+castor4bit@users.noreply.github.com"
+  },
   "license": "MIT",
   "private": true,
   "scripts": {
