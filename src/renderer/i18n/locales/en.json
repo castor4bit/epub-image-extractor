@@ -1,0 +1,69 @@
+{
+  "app": {
+    "title": "EPUB Image Extractor",
+    "settings": "Settings"
+  },
+  "dropZone": {
+    "title": "Drop EPUB files here",
+    "subtitle": "or ZIP files containing multiple EPUBs",
+    "or": "or",
+    "selectFiles": "Select files"
+  },
+  "compactDropZone": {
+    "title": "Drop additional EPUB files",
+    "or": "or",
+    "selectFiles": "Select files"
+  },
+  "processing": {
+    "title": "Processing",
+    "completed": "{{completed}} completed",
+    "processing": "{{processing}} processing",
+    "pending": "{{pending}} pending",
+    "error": "{{error}} error(s)",
+    "extracting": "Extracting images...",
+    "organizing": "Organizing files...",
+    "completed_text": "Completed",
+    "error_text": "Error",
+    "pending_text": "Pending",
+    "openFolder": "Open Folder",
+    "clear": "Clear",
+    "alreadyProcessing": "Currently processing. Please wait until completion."
+  },
+  "settings": {
+    "title": "Settings",
+    "close": "×",
+    "outputDirectory": {
+      "label": "Output Directory",
+      "browse": "Browse",
+      "description": "Destination folder for extracted images"
+    },
+    "parallelFiles": {
+      "label": "Parallel Processing Files",
+      "description": "Number of EPUB files to process simultaneously (1-10)"
+    },
+    "filenameOptions": {
+      "title": "Filename Options",
+      "includeOriginalFilename": "Include original filename",
+      "includeOriginalFilenameDesc": "e.g., 001_cover.jpg (enabled) vs 001.jpg (disabled)",
+      "includePageSpread": "Include page spread info",
+      "includePageSpreadDesc": "e.g., 001_left.jpg, 002_right.jpg (for spread pages)"
+    },
+    "actions": {
+      "reset": "Reset to Default",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "alwaysOnTop": "Keep window on top"
+  },
+  "language": {
+    "label": "Language",
+    "ja": "日本語",
+    "en": "English"
+  },
+  "errors": {
+    "fileProcessing": "An error occurred while processing the file",
+    "invalidFile": "Invalid file format",
+    "noImages": "No images found"
+  }
+}

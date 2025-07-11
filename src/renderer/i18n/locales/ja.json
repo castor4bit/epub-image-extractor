@@ -1,0 +1,69 @@
+{
+  "app": {
+    "title": "EPUB Image Extractor",
+    "settings": "設定"
+  },
+  "dropZone": {
+    "title": "EPUBファイルをドロップ",
+    "subtitle": "または複数のEPUBを含むZIPファイル",
+    "or": "または",
+    "selectFiles": "ファイルを選択"
+  },
+  "compactDropZone": {
+    "title": "追加のEPUBファイルをドロップ",
+    "or": "または",
+    "selectFiles": "ファイルを選択"
+  },
+  "processing": {
+    "title": "処理中",
+    "completed": "{{completed}}件完了",
+    "processing": "{{processing}}件処理中", 
+    "pending": "{{pending}}件待機中",
+    "error": "{{error}}件エラー",
+    "extracting": "画像を抽出中...",
+    "organizing": "ファイルを整理中...",
+    "completed_text": "完了",
+    "error_text": "エラー",
+    "pending_text": "待機中",
+    "openFolder": "フォルダを開く",
+    "clear": "クリア",
+    "alreadyProcessing": "現在処理中です。完了までお待ちください。"
+  },
+  "settings": {
+    "title": "設定",
+    "close": "×",
+    "outputDirectory": {
+      "label": "出力ディレクトリ",
+      "browse": "参照",
+      "description": "抽出した画像の保存先フォルダ"
+    },
+    "parallelFiles": {
+      "label": "並列処理ファイル数",
+      "description": "同時に処理するEPUBファイルの数（1-10）"
+    },
+    "filenameOptions": {
+      "title": "ファイル名オプション",
+      "includeOriginalFilename": "元のファイル名を含める",
+      "includeOriginalFilenameDesc": "例: 001_cover.jpg（有効時）vs 001.jpg（無効時）",
+      "includePageSpread": "見開き情報を含める",
+      "includePageSpreadDesc": "例: 001_left.jpg, 002_right.jpg（見開きページの場合）"
+    },
+    "actions": {
+      "reset": "デフォルトに戻す",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "saving": "保存中..."
+    },
+    "alwaysOnTop": "ウィンドウを最前面に表示"
+  },
+  "language": {
+    "label": "言語",
+    "ja": "日本語",
+    "en": "English"
+  },
+  "errors": {
+    "fileProcessing": "ファイル処理中にエラーが発生しました",
+    "invalidFile": "無効なファイル形式です",
+    "noImages": "画像が見つかりませんでした"
+  }
+}

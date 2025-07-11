@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface CompactDropZoneProps {
   isDragging: boolean;
@@ -17,6 +18,7 @@ export const CompactDropZone: React.FC<CompactDropZoneProps> = ({
   onDrop,
   onFileSelect,
 }) => {
+  const { t } = useTranslation();
   return (
     <div
       className={`compact-drop-zone ${isDragging ? 'active' : ''}`}
@@ -41,8 +43,8 @@ export const CompactDropZone: React.FC<CompactDropZoneProps> = ({
             strokeLinecap="round"
           />
         </svg>
-        <span className="compact-drop-text">EPUB/ZIPファイルをドラッグ&ドロップ</span>
-        <span className="compact-drop-or">または</span>
+        <span className="compact-drop-text">{t('compactDropZone.title')}</span>
+        <span className="compact-drop-or">{t('compactDropZone.or')}</span>
         <input
           type="file"
           id="compact-file-input"
@@ -52,7 +54,7 @@ export const CompactDropZone: React.FC<CompactDropZoneProps> = ({
           onChange={onFileSelect}
         />
         <label htmlFor="compact-file-input" className="compact-select-button">
-          ファイルを選択
+          {t('compactDropZone.selectFiles')}
         </label>
       </div>
     </div>

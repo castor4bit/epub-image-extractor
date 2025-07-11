@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProcessingProgress, ExtractionResult } from '@shared/types';
 
 interface FileProcessingListProps {
@@ -27,7 +28,8 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
   onClearAll,
   onOpenFolder,
 }) => {
-  // 進捗データと結果データを統合
+  const { t } = useTranslation();
+  // Integrate progress data and result data
   const items: ProcessingItem[] = [];
   const processedFileIds = new Set<string>();
 
@@ -103,11 +105,11 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
   return (
     <div className="file-processing-list">
       <div className="processing-summary">
-        <span>処理状況: </span>
-        {completedCount > 0 && <span className="summary-completed">{completedCount}完了</span>}
-        {processingCount > 0 && <span className="summary-processing">{processingCount}処理中</span>}
-        {pendingCount > 0 && <span className="summary-pending">{pendingCount}待機中</span>}
-        {errorCount > 0 && <span className="summary-error">{errorCount}エラー</span>}
+        <span>{t('processing.title')}: </span>
+        {completedCount > 0 && <span className="summary-completed">{t('processing.completed', { completed: completedCount })}</span>}
+        {processingCount > 0 && <span className="summary-processing">{t('processing.processing', { processing: processingCount })}</span>}
+        {pendingCount > 0 && <span className="summary-pending">{t('processing.pending', { pending: pendingCount })}</span>}
+        {errorCount > 0 && <span className="summary-error">{t('processing.error', { error: errorCount })}</span>}
       </div>
 
       <div className="processing-items">
@@ -138,13 +140,13 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
                 </div>
                 <div className="progress-text">
                   {item.phase === 'organizing'
-                    ? `画像を保存中... (${item.totalImages}画像)`
-                    : `画像を抽出中: ${item.processedImages || 0} / ${item.totalImages}`}
+                    ? `${t('processing.organizing')} (${item.totalImages}画像)`
+                    : `${t('processing.extracting')}: ${item.processedImages || 0} / ${item.totalImages}`}
                 </div>
               </>
             )}
 
-            {item.status === 'pending' && <div className="status-text">待機中</div>}
+            {item.status === 'pending' && <div className="status-text">{t('processing.pending_text')}</div>}
 
             {item.status === 'completed' && (
               <div className="completion-info">
@@ -157,14 +159,14 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
                     onClick={() => onOpenFolder(item.outputPath!)}
                     title={item.outputPath}
                   >
-                    📁 出力先を開く
+                    📁 {t('processing.openFolder')}
                   </button>
                 )}
               </div>
             )}
 
             {item.status === 'error' && item.error && (
-              <div className="error-message">エラー: {item.error}</div>
+              <div className="error-message">{t('processing.error_text')}: {item.error}</div>
             )}
           </div>
         ))}
@@ -173,7 +175,7 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
       {items.length > 0 && (
         <div className="list-actions">
           <button className="clear-button" onClick={onClearAll}>
-            クリア
+            {t('processing.clear')}
           </button>
         </div>
       )}

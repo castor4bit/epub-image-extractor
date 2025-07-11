@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './SettingsWindow.css';
 import { VersionInfo } from './VersionInfo';
 import './VersionInfo.css';
@@ -18,9 +19,10 @@ interface SettingsWindowProps {
 }
 
 export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose, onShowAbout }) => {
+  const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<Settings>({
     outputDirectory: '',
-    language: 'ja',
+    language: i18n.language,
     alwaysOnTop: true,
     includeOriginalFilename: true,
     includePageSpread: true,
@@ -29,7 +31,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
 
   useEffect(() => {
     if (isOpen) {
-      // 設定を読み込む
+      // Load settings
       window.electronAPI.getSettings().then((loadedSettings) => {
         setSettings({
           outputDirectory: loadedSettings.outputDirectory ?? '',
@@ -52,10 +54,15 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // 言語設定が変更された場合、i18nの言語を変更
+      if (settings.language !== i18n.language) {
+        i18n.changeLanguage(settings.language);
+      }
+      
       await window.electronAPI.saveSettings(settings);
       onClose();
     } catch (error) {
-      console.error('設定の保存に失敗しました:', error);
+      console.error('Failed to save settings:', error);
     } finally {
       setIsSaving(false);
     }
@@ -78,34 +85,33 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
     <div className="settings-overlay" onClick={onClose}>
       <div className="settings-window" onClick={(e) => e.stopPropagation()}>
         <div className="settings-header">
-          <h2>設定</h2>
+          <h2>{t('settings.title')}</h2>
           <button className="close-button" onClick={onClose}>
-            ×
+            {t('settings.close')}
           </button>
         </div>
 
         <div className="settings-content">
           <div className="setting-group">
-            <label htmlFor="output-directory">出力先ディレクトリ</label>
+            <label htmlFor="output-directory">{t('settings.outputDirectory.label')}</label>
             <div className="directory-input">
               <input id="output-directory" type="text" value={settings.outputDirectory} readOnly />
               <button onClick={handleSelectDirectory} className="browse-button">
-                参照...
+                {t('settings.outputDirectory.browse')}
               </button>
             </div>
+            <small>{t('settings.outputDirectory.description')}</small>
           </div>
 
           <div className="setting-group">
-            <label htmlFor="language">言語</label>
+            <label htmlFor="language">{t('language.label')}</label>
             <select
               id="language"
               value={settings.language}
               onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
             >
-              <option value="ja">日本語</option>
-              <option value="en" disabled>
-                English (今後対応予定)
-              </option>
+              <option value="ja">{t('language.ja')}</option>
+              <option value="en">{t('language.en')}</option>
             </select>
           </div>
 
@@ -119,12 +125,12 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
                   setSettings((prev) => ({ ...prev, alwaysOnTop: e.target.checked }))
                 }
               />
-              ウィンドウを最前面に表示
+              {t('settings.alwaysOnTop')}
             </label>
           </div>
 
           <div className="setting-group">
-            <h3>ファイル名設定</h3>
+            <h3>{t('settings.filenameOptions.title')}</h3>
             <label htmlFor="include-original-filename">
               <input
                 id="include-original-filename"
@@ -134,7 +140,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
                   setSettings((prev) => ({ ...prev, includeOriginalFilename: e.target.checked }))
                 }
               />
-              元のファイル名を含める
+              {t('settings.filenameOptions.includeOriginalFilename')}
             </label>
             <label htmlFor="include-page-spread">
               <input
@@ -145,7 +151,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
                   setSettings((prev) => ({ ...prev, includePageSpread: e.target.checked }))
                 }
               />
-              左右情報（left/right）を含める
+              {t('settings.filenameOptions.includePageSpread')}
             </label>
           </div>
 
@@ -154,14 +160,14 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
 
         <div className="settings-footer">
           <button onClick={handleReset} className="reset-button">
-            デフォルトに戻す
+            {t('settings.actions.reset')}
           </button>
           <div className="footer-buttons">
             <button onClick={onClose} className="cancel-button">
-              キャンセル
+              {t('settings.actions.cancel')}
             </button>
             <button onClick={handleSave} className="save-button" disabled={isSaving}>
-              {isSaving ? '保存中...' : '保存'}
+              {isSaving ? t('settings.actions.saving') : t('settings.actions.save')}
             </button>
           </div>
         </div>

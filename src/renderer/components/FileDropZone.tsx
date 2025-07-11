@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface FileDropZoneProps {
   isDragging: boolean;
@@ -17,6 +18,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
   onDrop,
   onFileSelect,
 }) => {
+  const { t } = useTranslation();
   return (
     <div
       className={`drop-zone ${isDragging ? 'active' : ''}`}
@@ -41,8 +43,9 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
             strokeLinecap="round"
           />
         </svg>
-        <p className="drop-text">EPUB/ZIPファイルをここにドラッグ&ドロップ</p>
-        <p className="drop-or">または</p>
+        <p className="drop-text">{t('dropZone.title')}</p>
+        <small className="drop-subtitle">{t('dropZone.subtitle')}</small>
+        <p className="drop-or">{t('dropZone.or')}</p>
         <input
           type="file"
           id="file-input"
@@ -52,7 +55,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           style={{ display: 'none' }}
         />
         <label htmlFor="file-input" className="select-button">
-          ファイルを選択
+          {t('dropZone.selectFiles')}
         </label>
       </div>
     </div>
