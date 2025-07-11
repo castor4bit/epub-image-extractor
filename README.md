@@ -84,6 +84,24 @@ You can download the latest development builds without waiting for releases:
 - 📅 **Retention**: Artifacts are kept for 30 days (development) or 7 days (manual)
 - 🏷️ **Naming**: `dev-{platform}-{arch}-{commit-hash}` or `latest-{platform}-{arch}`
 
+## CI/CD Workflows
+
+### Code Quality
+- **Trigger**: Push to main, PRs
+- **Purpose**: Lint, type check, tests, build verification
+- **Platforms**: Multi-platform (Ubuntu, Windows, macOS)
+- **Node versions**: 20.x, 22.x
+
+### Build Development
+- **Trigger**: Push to main, PRs, manual
+- **Purpose**: Full binary builds for testing
+- **Output**: Downloadable installers/packages
+
+### Release (Unsigned)
+- **Trigger**: Git tags (`v*`)
+- **Purpose**: Official releases
+- **Output**: GitHub releases with assets
+
 ## Usage
 
 1. Launch the application
