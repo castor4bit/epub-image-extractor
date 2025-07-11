@@ -108,6 +108,8 @@
         }
       ],
       "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "identity": null,
       "extendInfo": {
         "CFBundleName": "EPUB Image Extractor",
         "CFBundleDisplayName": "EPUB Image Extractor"

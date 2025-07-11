@@ -1,9 +1,11 @@
 name: Release (Code Signed)
 
 on:
-  push:
-    tags:
-      - 'v*'
+  # 無効化: タグpushでのトリガーを無効化
+  # push:
+  #   tags:
+  #     - 'v*'
+  workflow_dispatch:  # 手動実行のみ
 
 permissions:
   contents: write
