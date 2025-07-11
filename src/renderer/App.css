@@ -2,45 +2,54 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
 }
 
 .app-header {
-  background-color: #2c3e50;
-  color: white;
-  padding: 1rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: var(--color-white);
+  padding: var(--space-6);
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .app-header h1 {
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
   margin: 0;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .settings-button {
   position: absolute;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  right: var(--space-6);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-white);
+  font-size: var(--font-size-lg);
   cursor: pointer;
-  padding: 0.5rem;
-  transition: transform 0.2s ease;
+  padding: var(--space-3);
+  transition: all var(--transition-fast);
+  backdrop-filter: var(--backdrop-blur);
 }
 
 .settings-button:hover {
-  transform: rotate(90deg);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .app-main {
   flex: 1;
   display: flex;
-  padding: 2rem;
+  padding: var(--space-8);
   overflow-y: auto;
   min-height: 0; /* flexboxのoverflow対策 */
 }
@@ -61,71 +70,130 @@
   width: 100%;
   max-width: 600px;
   min-height: 400px;
-  border: 3px dashed #bdc3c7;
-  border-radius: 8px;
+  border: 2px dashed var(--color-gray-300);
+  border-radius: var(--radius-2xl);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: white;
-  transition: all 0.3s ease;
+  background: var(--color-white);
+  transition: all var(--transition-base);
   cursor: pointer;
-  padding: 3rem;
+  padding: var(--space-12);
   margin: auto;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.drop-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(102, 126, 234, 0.02) 100%);
+  transition: opacity var(--transition-base);
+  opacity: 0;
 }
 
 .drop-zone:hover {
-  border-color: #3498db;
-  background-color: #f8f9fa;
+  border-color: var(--color-primary);
+  background: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.drop-zone:hover::before {
+  opacity: 1;
 }
 
 .drop-zone.active {
-  border-color: #2ecc71;
-  background-color: #e8f5e9;
+  border-color: var(--color-success);
+  background: var(--color-success-light);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-xl);
 }
 
 .drop-zone-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-6);
+  position: relative;
+  z-index: 1;
 }
 
 .drop-icon {
-  color: #95a5a6;
-  margin-bottom: 1rem;
+  color: var(--color-gray-400);
+  transition: all var(--transition-base);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .drop-zone.active .drop-icon {
-  color: #2ecc71;
+  color: var(--color-success);
+  transform: scale(1.1);
+}
+
+.drop-zone:hover .drop-icon {
+  color: var(--color-primary);
+  transform: scale(1.05);
 }
 
 .drop-text {
-  color: #2c3e50;
-  font-size: 1.2rem;
-  font-weight: 500;
+  color: var(--color-gray-800);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   margin: 0;
+  text-align: center;
+  line-height: var(--line-height-tight);
 }
 
 .drop-or {
-  color: #95a5a6;
-  font-size: 0.9rem;
+  color: var(--color-gray-500);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   margin: 0;
+  position: relative;
+}
+
+.drop-or::before,
+.drop-or::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 1px;
+  background-color: var(--color-gray-300);
+}
+
+.drop-or::before {
+  left: -50px;
+}
+
+.drop-or::after {
+  right: -50px;
 }
 
 .select-button {
-  padding: 0.5rem 1.5rem;
-  background-color: #3498db;
-  color: white;
+  padding: var(--space-4) var(--space-8);
+  background-color: var(--color-primary);
+  color: var(--color-white);
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-base);
+  min-width: 140px;
 }
 
 .select-button:hover {
-  background-color: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+  background-color: var(--color-primary-hover);
 }
 
 .select-button:active {
@@ -362,20 +430,24 @@
 }
 
 .compact-select-button {
-  padding: 0.4rem 1rem;
-  background-color: #3498db;
-  color: white;
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-primary);
+  color: var(--color-white);
   border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all var(--transition-fast);
   text-decoration: none;
   display: inline-block;
+  box-shadow: var(--shadow-sm);
 }
 
 .compact-select-button:hover {
-  background-color: #2980b9;
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 /* ファイル処理リスト */
@@ -491,18 +563,22 @@
 }
 
 .open-folder-button {
-  padding: 0.3rem 0.8rem;
-  background-color: #3498db;
-  color: white;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-success);
+  color: var(--color-white);
   border: none;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .open-folder-button:hover {
-  background-color: #2980b9;
+  background-color: var(--color-success-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .list-actions {
@@ -513,18 +589,22 @@
 }
 
 .clear-button {
-  padding: 0.5rem 1.5rem;
-  background-color: #95a5a6;
-  color: white;
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--color-secondary);
+  color: var(--color-white);
   border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .clear-button:hover {
-  background-color: #7f8c8d;
+  background-color: var(--color-secondary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 /* スクロールバーのスタイル */
