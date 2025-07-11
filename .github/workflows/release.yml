@@ -56,11 +56,30 @@ jobs:
         # コード署名を無効化
         CSC_IDENTITY_AUTO_DISCOVERY: false
     
-    - name: Upload artifacts
+    - name: Upload macOS artifacts
+      if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-${{ matrix.arch }}-build
-        path: release/
+        path: release/*.dmg
+        retention-days: 7
+
+    - name: Upload Windows artifacts
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}-${{ matrix.arch }}-build
+        path: release/*.exe
+        retention-days: 7
+
+    - name: Upload Linux artifacts
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}-${{ matrix.arch }}-build
+        path: |
+          release/*.AppImage
+          release/*.deb
         retention-days: 7
 
   release:

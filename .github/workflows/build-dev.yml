@@ -22,19 +22,15 @@ jobs:
           - os: macos-latest
             arch: x64
             build_cmd: dist:mac-x64
-            artifact_pattern: "*.dmg"
           - os: macos-latest
             arch: arm64
             build_cmd: dist:mac-arm64
-            artifact_pattern: "*.dmg"
           - os: windows-latest
             arch: x64
             build_cmd: dist:win
-            artifact_pattern: "*.exe"
           - os: ubuntu-latest
             arch: x64
             build_cmd: dist:linux
-            artifact_pattern: "*"
     
     steps:
     - uses: actions/checkout@v4
@@ -57,12 +53,33 @@ jobs:
         # コード署名を無効化
         CSC_IDENTITY_AUTO_DISCOVERY: false
     
-    - name: Upload development artifacts
+    - name: Upload macOS development artifacts
+      if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v4
       with:
         name: dev-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}
-        path: release/${{ matrix.artifact_pattern }}
-        retention-days: 30  # 30日間保持
+        path: release/*.dmg
+        retention-days: 30
+        if-no-files-found: warn
+
+    - name: Upload Windows development artifacts
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: dev-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}
+        path: release/*.exe
+        retention-days: 30
+        if-no-files-found: warn
+
+    - name: Upload Linux development artifacts
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: dev-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}
+        path: |
+          release/*.AppImage
+          release/*.deb
+        retention-days: 30
         if-no-files-found: warn
 
   summary:
