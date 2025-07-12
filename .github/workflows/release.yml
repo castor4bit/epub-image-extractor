@@ -61,7 +61,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-${{ matrix.arch }}-build
-        path: release/*.dmg
+        path: release/*${{ matrix.arch }}.dmg
         retention-days: 7
 
     - name: Upload Windows artifacts
@@ -69,7 +69,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-${{ matrix.arch }}-build
-        path: release/*.exe
+        path: release/*${{ matrix.arch }}*.exe
         retention-days: 7
 
     - name: Upload Linux artifacts
