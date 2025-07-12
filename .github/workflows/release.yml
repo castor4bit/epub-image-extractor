@@ -77,9 +77,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-${{ matrix.arch }}-build
-        path: |
-          release/*.AppImage
-          release/*.deb
+        path: release/*.deb
         retention-days: 7
 
   release:
