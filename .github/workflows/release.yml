@@ -125,7 +125,11 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
-        files: release-artifacts/**/*
+        files: |
+          release-artifacts/macos-latest-x64-build/*
+          release-artifacts/macos-latest-arm64-build/*
+          release-artifacts/windows-latest-x64-build/*
+          release-artifacts/ubuntu-latest-x64-build/*
         draft: false
         prerelease: false
         body: ${{ steps.changelog.outputs.content }}
