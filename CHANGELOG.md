@@ -1,6 +1,56 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [0.3.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.2.0...v0.3.0) (2025-07-13)
+
+
+### Features
+
+* Add internationalization (i18n) support with Japanese and English ([43494f5](https://github.com/castor4bit/epub-image-extractor/commit/43494f5920195138d60865d81090544e899e08fc))
+* Complete test framework integration for i18n support ([c5d0b60](https://github.com/castor4bit/epub-image-extractor/commit/c5d0b60365fd7ed4b5d5294ead324007bd61a289))
+* デザインシステムの統一とモダンなUIの実装 ([93f4086](https://github.com/castor4bit/epub-image-extractor/commit/93f408630119aa29398b856e768eb6bef444f314))
+* ワークフローを署名あり/なしに分離 ([c113481](https://github.com/castor4bit/epub-image-extractor/commit/c113481bf6936b03a0cb2c7928b55d0bac976a34))
+* 開発版ビルドワークフローを追加 ([d1364d5](https://github.com/castor4bit/epub-image-extractor/commit/d1364d518b9e617e95360249f3a9fb829307bc90))
+* 全ワークフローでNode.js 24に統一 ([e794bdc](https://github.com/castor4bit/epub-image-extractor/commit/e794bdcda6e1447c6bba54741ce7a13358ff1b2b))
+
+
+### Bug Fixes
+
+* CHANGELOG自動生成の改善と構造化 ([f4382a6](https://github.com/castor4bit/epub-image-extractor/commit/f4382a674b2b8bad1c0bd4dcd355cbc9a0eaa2b7))
+* Code Signedワークフローでコード署名エラーを修正 ([0fdeb86](https://github.com/castor4bit/epub-image-extractor/commit/0fdeb86ed7a515d6c56f43a161672ff86f03bb78))
+* Complete internationalization support for units and app info ([eea323f](https://github.com/castor4bit/epub-image-extractor/commit/eea323fd5b7f5a818ddda4612f81c06e7a72e805))
+* Enable manual release workflow execution ([0d5a4ed](https://github.com/castor4bit/epub-image-extractor/commit/0d5a4ede03a0f5eb083045e5272a6172b8ddf9f2))
+* Linuxビルド用にauthorの適切なemailを追加 ([a45566d](https://github.com/castor4bit/epub-image-extractor/commit/a45566d36e98c46b5f6ebcc51c406f2868efc833))
+* Resolve all ESLint warnings for cleaner codebase ([76c402d](https://github.com/castor4bit/epub-image-extractor/commit/76c402dabdfa6fe05f072bfee03f18f50ba15d10))
+* Resolve duplicate file upload error in release workflow ([134fea5](https://github.com/castor4bit/epub-image-extractor/commit/134fea53d14fa4eeb07d1f2d4af4d54e51a1b296))
+* Resolve Windows installer naming conflicts and macOS duplicate uploads ([741bdd4](https://github.com/castor4bit/epub-image-extractor/commit/741bdd40ba20978ef79deedf7e347915e953b97e))
+* zipHandler.tsのlintエラーを修正 ([3fd9ca1](https://github.com/castor4bit/epub-image-extractor/commit/3fd9ca1d0eb21a8b0c51cd975e3d860aca951526))
+* リリースアセットを配布用ファイルのみに限定 ([f0fffd8](https://github.com/castor4bit/epub-image-extractor/commit/f0fffd828ecf60c40f9168023fcdf233220bd9cd))
+
+
+### Code Refactoring
+
+* CIワークフローを最適化し役割を明確化 ([15f17a2](https://github.com/castor4bit/epub-image-extractor/commit/15f17a2d0c66c9eaf71d5ceaaca904a06238859c))
+* Remove AppImage from Linux build targets ([95797cf](https://github.com/castor4bit/epub-image-extractor/commit/95797cf82b5635d4e7e29a06f4be18f52f08d7b5))
+
+
+### Dependencies
+
+* Update @types/jest from 29.5.14 to 30.0.0 ([774e852](https://github.com/castor4bit/epub-image-extractor/commit/774e852612bf6c783d225143badeb7741b1f8012))
+* Update @types/node from 20.19.7 to 24.0.13 ([ad03cf8](https://github.com/castor4bit/epub-image-extractor/commit/ad03cf86c568f4700131bc0196cf0a49a7529b8c))
+* Update dependencies to latest versions ([7574235](https://github.com/castor4bit/epub-image-extractor/commit/7574235854b9c01a6bc25086ba9b5141a58711fc))
+* Update Jest ecosystem to v30 (jest, jest-environment-jsdom) ([eccfbf4](https://github.com/castor4bit/epub-image-extractor/commit/eccfbf4e3eaca550be22f297684351154ea342d7))
+* Update remaining dependencies to latest versions ([9a0c798](https://github.com/castor4bit/epub-image-extractor/commit/9a0c7984cb1c6978a38b3ddb225992ab2cbd17e2))
+* Upgrade Electron from 28.0.0 to 37.2.1 ([c94c629](https://github.com/castor4bit/epub-image-extractor/commit/c94c629e3fd80c22d3fc4125a95b11818c00e87a))
+* Upgrade ESLint from 8.56.0 to 9.31.0 ([729d33a](https://github.com/castor4bit/epub-image-extractor/commit/729d33a1cf3badc6b945814fa15652c190006a83))
+* Upgrade Vite from 5.0.10 to 7.0.4 ([b8249aa](https://github.com/castor4bit/epub-image-extractor/commit/b8249aa924864664d350ee6399200476037aa099))
+
+
+### Documentation
+
+* Update technical stack versions across documentation and tests ([599ca77](https://github.com/castor4bit/epub-image-extractor/commit/599ca77949138af29ac449b53004f84a4707e60b))
+* パッケージマネージャーをnpmに統一 ([8b6daf0](https://github.com/castor4bit/epub-image-extractor/commit/8b6daf08597767a94b37029e564e96d973002de5))
 
 ## [0.2.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.1.0...v0.2.0) (2025-07-10)
 

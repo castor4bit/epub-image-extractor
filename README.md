@@ -1,6 +1,6 @@
 # EPUB Image Extractor
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
@@ -227,17 +227,28 @@ The application uses a custom icon featuring an open book with floating images. 
 3. **Large EPUB files**: Files with many images may take longer to process. The app will warn if resource limits are reached
 4. **Missing navigation/TOC**: EPUBs without proper navigation will have all images extracted to "001_未分類" folder
 
-## Recent Updates (v0.2.0)
+## Recent Updates (v0.3.0)
 
-- Updated all dependencies to latest versions
-- Upgraded Electron from 28 to 37
-- Upgraded Vite from 5 to 7
-- Upgraded React from 18 to 19
-- Upgraded Jest from 29 to 30
-- Upgraded ESLint from 8 to 9 with flat config
-- Updated Node.js requirement to 24.0.0
-- Fixed all ESLint warnings for cleaner codebase
-- Unified package manager to npm
+### New Features
+- International language support (Japanese/English)
+- Modern UI design system implementation
+- Separated signed/unsigned release workflows
+- Development build workflow for testing
+- Node.js 24 unified across all workflows
+
+### Major Dependency Updates
+- Electron 28 → 37
+- Vite 5 → 7
+- React 18 → 19
+- Jest 29 → 30
+- ESLint 8 → 9 (flat config)
+- TypeScript 5.8.3 support
+
+### Improvements
+- Automated changelog generation with sections
+- Enhanced CI/CD workflows
+- Fixed all ESLint warnings
+- Resolved release workflow issues
 
 ## License
 
