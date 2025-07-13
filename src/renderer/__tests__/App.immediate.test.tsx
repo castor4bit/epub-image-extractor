@@ -8,9 +8,9 @@ const mockElectronAPI = {
   getVersion: jest.fn().mockResolvedValue({
     version: '1.0.0',
     name: 'EPUB Image Extractor',
-    electronVersion: '28.3.3',
-    nodeVersion: '18.18.2',
-    chromiumVersion: '120.0.6099.291',
+    electronVersion: '37.2.1',
+    nodeVersion: '24.1.0',
+    chromiumVersion: '132.0.6834.110',
     platform: 'darwin',
     arch: 'x64',
   }),

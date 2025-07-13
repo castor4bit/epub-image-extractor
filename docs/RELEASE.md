@@ -344,7 +344,7 @@ electron-updaterを使用した自動アップデートを実装する場合：
 ## トラブルシューティング
 
 ### ビルドが失敗する場合
-- Node.jsのバージョンが20.0.0以上であることを確認
+- Node.jsのバージョンが24.0.0以上であることを確認
 - `node_modules`を削除して`npm ci`を実行
 - electron-builderのキャッシュをクリア: `npx electron-builder install-app-deps`
 

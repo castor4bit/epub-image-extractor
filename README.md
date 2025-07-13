@@ -1,6 +1,6 @@
 # EPUB Image Extractor
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
@@ -20,7 +20,7 @@ A cross-platform desktop application for extracting images from EPUB files, orga
 
 ### Prerequisites
 
-- Node.js 20.0.0 or higher
+- Node.js 24.0.0 or higher
 - npm
 
 ### Development Setup
@@ -58,7 +58,7 @@ npm run dist:mac-arm64  # Apple Silicon Macs
 
 - **Windows**: NSIS installer (.exe) and portable version
 - **macOS**: DMG installer for both Intel and Apple Silicon
-- **Linux**: AppImage and DEB packages
+- **Linux**: DEB packages
 
 ## Development Builds
 
@@ -139,10 +139,10 @@ EPUB_Images/
 
 ### Technology Stack
 
-- **Framework**: Electron 28
+- **Framework**: Electron 37
 - **Language**: TypeScript 5
-- **UI**: React 18
-- **Build Tool**: Vite 5
+- **UI**: React 19
+- **Build Tool**: Vite 7
 - **EPUB Parser**: Custom implementation using xml2js
 - **Internationalization**: i18next (Japanese UI)
 
@@ -227,15 +227,17 @@ The application uses a custom icon featuring an open book with floating images. 
 3. **Large EPUB files**: Files with many images may take longer to process. The app will warn if resource limits are reached
 4. **Missing navigation/TOC**: EPUBs without proper navigation will have all images extracted to "001_未分類" folder
 
-## Recent Updates (v0.1.0)
+## Recent Updates (v0.2.0)
 
-- Added filename customization options
-- Fixed double error output issue
-- Improved macOS window behavior
-- Added Windows portable build
-- Enhanced progress display
-- Fixed all unit and integration tests
-- Improved memory management
+- Updated all dependencies to latest versions
+- Upgraded Electron from 28 to 37
+- Upgraded Vite from 5 to 7
+- Upgraded React from 18 to 19
+- Upgraded Jest from 29 to 30
+- Upgraded ESLint from 8 to 9 with flat config
+- Updated Node.js requirement to 24.0.0
+- Fixed all ESLint warnings for cleaner codebase
+- Unified package manager to npm
 
 ## License
 
