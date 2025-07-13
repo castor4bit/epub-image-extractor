@@ -63,7 +63,7 @@
     "@types/xml2js": "^0.4.14",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^4.6.0",
     "concurrently": "^9.2.0",
     "conventional-changelog-cli": "^5.0.0",
     "conventional-commits-parser": "^6.2.0",
@@ -78,7 +78,7 @@
     "prettier": "^3.1.1",
     "ts-jest": "^29.4.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10",
+    "vite": "^7.0.4",
     "vite-plugin-electron": "^0.15.5",
     "vite-plugin-electron-renderer": "^0.14.5",
     "wait-on": "^8.0.3"
