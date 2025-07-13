@@ -1,6 +1,5 @@
 const AdmZip = require('adm-zip');
 const path = require('path');
-const fs = require('fs');
 
 // テスト用EPUBファイルを作成
 function createTestEpub() {
@@ -136,7 +135,7 @@ function createTestEpub() {
   const outputPath = path.join(__dirname, 'test.epub');
   zip.writeZip(outputPath);
   
-  console.log(`テスト用EPUBファイルを作成しました: ${outputPath}`);
+  console.warn(`テスト用EPUBファイルを作成しました: ${outputPath}`);
 }
 
 createTestEpub();

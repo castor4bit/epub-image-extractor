@@ -92,7 +92,7 @@ function App() {
         setIsProcessing(false);
       }
     },
-    [isProcessing],
+    [isProcessing, t],
   );
 
   // ドラッグイベントハンドラー
@@ -135,7 +135,7 @@ function App() {
         alert(t('errors.invalidFile'));
       }
     },
-    [processFiles],
+    [processFiles, t],
   );
 
   // ファイル選択ハンドラー
@@ -159,7 +159,7 @@ function App() {
         }
       }
     },
-    [processFiles],
+    [processFiles, t],
   );
 
   // フォルダを開く

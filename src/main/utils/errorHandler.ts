@@ -7,7 +7,7 @@ import fs from 'fs';
 function getLogPath(): string {
   try {
     // Electronモジュールの動的インポートを試みる
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const electron = require('electron');
     if (electron && electron.app && electron.app.getPath) {
       return electron.app.getPath('userData');
