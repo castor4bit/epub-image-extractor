@@ -77,7 +77,7 @@
    - GitHubリリースの作成（CHANGELOGから自動抽出）
    - ビルド成果物のアップロード
 
-### 方法2: 自動CHANGELOG + GitHub Actions（推奨チーム開発）
+### 方法2: standard-version + GitHub Actions（推奨チーム開発）
 
 #### 前提条件
 - Conventional Commitsのルールに従ったコミットメッセージ
@@ -97,41 +97,53 @@
    # ドキュメント
    git commit -m "docs: READMEにバッチ処理の説明を追加"
    
+   # 依存関係更新
+   git commit -m "deps: Electronを37.2.1に更新"
+   
    # リファクタリング
    git commit -m "refactor: 画像処理ロジックの最適化"
    
-   # テスト
-   git commit -m "test: バッチ処理のユニットテストを追加"
+   # CI/CD
+   git commit -m "ci: GitHub Actionsワークフローを最適化"
    ```
 
-2. **バージョンアップ（CHANGELOG自動生成・更新）**
+2. **リリース（standard-versionで自動化）**
    ```bash
-   # CHANGELOGの自動生成とバージョンアップを一度に実行
-   npm version patch -m "chore: release v%s"
+   # 自動バージョン決定（feat→minor, fix→patch）
+   npm run release
+   
+   # 明示的なバージョン指定
+   npm run release:patch   # 0.2.0 → 0.2.1
+   npm run release:minor   # 0.2.0 → 0.3.0
+   npm run release:major   # 0.2.0 → 1.0.0
+   
+   # ドライラン（実際の変更なしで確認）
+   npm run release:dry
    ```
    
-   この時、以下が自動的に実行されます：
-   - 前回リリース以降のコミットからCHANGELOG差分を生成
+   standard-versionが自動的に実行すること：
+   - Conventional Commitsからバージョンを決定
+   - CHANGELOGを自動生成（セクション分けあり）
    - package.jsonのバージョン更新
    - Gitタグの作成
+   - コミットの作成
 
-3. **生成されたCHANGELOGを確認・調整（必要に応じて）**
-   ```bash
-   # 生成されたCHANGELOGを確認
-   cat CHANGELOG.md
-   
-   # 必要に応じて手動で調整
-   vim CHANGELOG.md
-   git add CHANGELOG.md
-   git commit --amend --no-edit  # 直前のリリースコミットに統合
-   ```
-
-4. **変更をプッシュ**
+3. **変更をプッシュ**
    ```bash
    git push origin main --follow-tags
    ```
 
-#### 📝 手動調整が不要な場合のシンプル手順
+#### 📝 CHANGELOGのセクション
+
+standard-versionは以下のセクションに自動分類します：
+- **Features** - 新機能（feat）
+- **Bug Fixes** - バグ修正（fix）
+- **Documentation** - ドキュメント（docs）
+- **Dependencies** - 依存関係（deps）
+- **Code Refactoring** - リファクタリング（refactor）
+- **Continuous Integration** - CI/CD（ci）
+
+#### 🚀 シンプルな手順
 
 ```bash
 # 開発コミット（Conventional Commits形式）
@@ -139,13 +151,11 @@ git commit -m "feat: 新機能を追加"
 git commit -m "fix: バグを修正"
 
 # リリース（CHANGELOG自動生成付き）
-npm version patch -m "chore: release v%s"
+npm run release
 
 # プッシュ
 git push origin main --follow-tags
 ```
-
-**手動調整が不要であれば手順2と3は省略可能です！**
 
 ### 方法3: ローカルビルド + 手動リリース
 
@@ -257,14 +267,22 @@ feat(ui): バッチ処理のプログレスバーを追加
 Closes #123
 ```
 
-#### 自動生成コマンド
+#### standard-versionコマンド
 ```bash
-# CHANGELOGを生成
-npm run changelog
+# リリース（自動バージョン決定）
+npm run release
 
-# 生成されたCHANGELOGを確認
-cat CHANGELOG.md
+# 特定バージョンでリリース
+npm run release:patch   # パッチバージョン
+npm run release:minor   # マイナーバージョン
+npm run release:major   # メジャーバージョン
+
+# ドライラン（変更内容の確認）
+npm run release:dry
 ```
+
+#### 設定ファイル
+`.versionrc.json`でCHANGELOGのセクション分けをカスタマイズ可能です。
 
 ## ビルド成果物
 
