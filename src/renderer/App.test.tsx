@@ -36,9 +36,7 @@ describe('App Component', () => {
 
   it('ドラッグオーバー時にアクティブクラスを追加する', () => {
     render(<App />);
-    const dropZone = screen
-      .getByText('EPUBファイルをドロップ')
-      .closest('.drop-zone');
+    const dropZone = screen.getByText('EPUBファイルをドロップ').closest('.drop-zone');
 
     if (dropZone) {
       fireEvent.dragEnter(dropZone);
@@ -51,9 +49,7 @@ describe('App Component', () => {
 
   it('EPUBファイルをドロップすると処理を開始する', async () => {
     render(<App />);
-    const dropZone = screen
-      .getByText('EPUBファイルをドロップ')
-      .closest('.drop-zone');
+    const dropZone = screen.getByText('EPUBファイルをドロップ').closest('.drop-zone');
 
     if (dropZone) {
       // モックファイルを作成
@@ -76,9 +72,7 @@ describe('App Component', () => {
   it('EPUB以外のファイルをドロップするとアラートを表示する', () => {
     window.alert = jest.fn();
     render(<App />);
-    const dropZone = screen
-      .getByText('EPUBファイルをドロップ')
-      .closest('.drop-zone');
+    const dropZone = screen.getByText('EPUBファイルをドロップ').closest('.drop-zone');
 
     if (dropZone) {
       const mockFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
@@ -109,9 +103,7 @@ describe('App Component', () => {
 
     render(<App />);
 
-    const dropZone = screen
-      .getByText('EPUBファイルをドロップ')
-      .closest('.drop-zone');
+    const dropZone = screen.getByText('EPUBファイルをドロップ').closest('.drop-zone');
 
     if (dropZone) {
       const mockFile = new File(['test content'], 'test.epub', { type: 'application/epub+zip' });

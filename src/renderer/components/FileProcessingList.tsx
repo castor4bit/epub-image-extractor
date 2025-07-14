@@ -106,10 +106,24 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
     <div className="file-processing-list">
       <div className="processing-summary">
         <span>{t('processing.title')}: </span>
-        {completedCount > 0 && <span className="summary-completed">{t('processing.completed', { completed: completedCount })}</span>}
-        {processingCount > 0 && <span className="summary-processing">{t('processing.processing', { processing: processingCount })}</span>}
-        {pendingCount > 0 && <span className="summary-pending">{t('processing.pending', { pending: pendingCount })}</span>}
-        {errorCount > 0 && <span className="summary-error">{t('processing.error', { error: errorCount })}</span>}
+        {completedCount > 0 && (
+          <span className="summary-completed">
+            {t('processing.completed', { completed: completedCount })}
+          </span>
+        )}
+        {processingCount > 0 && (
+          <span className="summary-processing">
+            {t('processing.processing', { processing: processingCount })}
+          </span>
+        )}
+        {pendingCount > 0 && (
+          <span className="summary-pending">
+            {t('processing.pending', { pending: pendingCount })}
+          </span>
+        )}
+        {errorCount > 0 && (
+          <span className="summary-error">{t('processing.error', { error: errorCount })}</span>
+        )}
       </div>
 
       <div className="processing-items">
@@ -146,12 +160,16 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
               </>
             )}
 
-            {item.status === 'pending' && <div className="status-text">{t('processing.pending_text')}</div>}
+            {item.status === 'pending' && (
+              <div className="status-text">{t('processing.pending_text')}</div>
+            )}
 
             {item.status === 'completed' && (
               <div className="completion-info">
                 <div className="result-text">
-                  {item.totalImages}{t('units.images')}{item.chapters ? `, ${item.chapters}${t('units.chapters')}` : ''}
+                  {item.totalImages}
+                  {t('units.images')}
+                  {item.chapters ? `, ${item.chapters}${t('units.chapters')}` : ''}
                 </div>
                 {item.outputPath && (
                   <button
@@ -166,7 +184,9 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
             )}
 
             {item.status === 'error' && item.error && (
-              <div className="error-message">{t('processing.error_text')}: {item.error}</div>
+              <div className="error-message">
+                {t('processing.error_text')}: {item.error}
+              </div>
             )}
           </div>
         ))}

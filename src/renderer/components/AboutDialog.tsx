@@ -104,9 +104,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => 
 
           <div className="about-license">
             <h3>{t('about.license')}</h3>
-            <p className="license-simple">
-              {t('about.licenseText')}
-            </p>
+            <p className="license-simple">{t('about.licenseText')}</p>
           </div>
         </div>
       </div>

@@ -1,0 +1,41 @@
+# Dependabot設定ファイル
+# 依存関係の自動更新を管理します
+
+version: 2
+updates:
+  # npm依存関係の更新
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      # 毎週月曜日の午前9時（UTC）に実行
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    # 同時に開くPRの最大数
+    open-pull-requests-limit: 10
+    # PRのラベル
+    labels:
+      - "dependencies"
+      - "automated"
+    # 依存関係をグループ化して管理
+    groups:
+      # 開発用依存関係をまとめて更新
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      # 本番用依存関係は個別に更新（より慎重に）
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+    # セキュリティアップデートは最優先
+    allow:
+      - dependency-type: "all"
+    # コミットメッセージの設定
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"

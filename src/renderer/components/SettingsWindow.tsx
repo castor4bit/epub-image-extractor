@@ -58,7 +58,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       if (settings.language !== i18n.language) {
         i18n.changeLanguage(settings.language);
       }
-      
+
       await window.electronAPI.saveSettings(settings);
       onClose();
     } catch (error) {

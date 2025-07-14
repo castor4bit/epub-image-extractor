@@ -237,7 +237,11 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>{t('app.title')}</h1>
-        <button className="settings-button" onClick={() => setIsSettingsOpen(true)} title={t('app.settings')}>
+        <button
+          className="settings-button"
+          onClick={() => setIsSettingsOpen(true)}
+          title={t('app.settings')}
+        >
           ⚙️
         </button>
       </header>

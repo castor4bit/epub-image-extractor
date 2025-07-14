@@ -1,0 +1,121 @@
+# 依存関係チェックワークフロー
+# 毎週依存関係の状態をチェックし、更新が必要な場合は通知します
+
+name: Dependency Check
+
+on:
+  # 毎週火曜日の午前10時（UTC）に実行
+  schedule:
+    - cron: '0 10 * * 2'
+  # 手動実行も可能
+  workflow_dispatch:
+  # main ブランチへのプッシュ時にも実行
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  check-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check for outdated dependencies
+        id: outdated
+        run: |
+          echo "## 📦 Dependency Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # 古い依存関係をチェック
+          echo "### Outdated Dependencies" >> $GITHUB_STEP_SUMMARY
+          if npm outdated > outdated.txt 2>&1; then
+            if [ -s outdated.txt ]; then
+              echo "```" >> $GITHUB_STEP_SUMMARY
+              cat outdated.txt >> $GITHUB_STEP_SUMMARY
+              echo "```" >> $GITHUB_STEP_SUMMARY
+              echo "has_outdated=true" >> $GITHUB_OUTPUT
+            else
+              echo "✅ All dependencies are up to date!" >> $GITHUB_STEP_SUMMARY
+              echo "has_outdated=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "```" >> $GITHUB_STEP_SUMMARY
+            cat outdated.txt >> $GITHUB_STEP_SUMMARY
+            echo "```" >> $GITHUB_STEP_SUMMARY
+            echo "has_outdated=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check for major updates
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Major Version Updates Available" >> $GITHUB_STEP_SUMMARY
+          
+          # npm-check-updatesを使用してメジャーアップデートをチェック
+          npx -y npm-check-updates > major-updates.txt 2>&1 || true
+          
+          if grep -q "All dependencies match the latest package versions" major-updates.txt; then
+            echo "✅ No major updates available" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "```" >> $GITHUB_STEP_SUMMARY
+            cat major-updates.txt >> $GITHUB_STEP_SUMMARY
+            echo "```" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Security audit
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
+          
+          # セキュリティ監査を実行
+          if npm audit --audit-level=moderate > audit.txt 2>&1; then
+            echo "✅ No security vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Security vulnerabilities detected:" >> $GITHUB_STEP_SUMMARY
+            echo "```" >> $GITHUB_STEP_SUMMARY
+            cat audit.txt >> $GITHUB_STEP_SUMMARY
+            echo "```" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Create issue if updates needed
+        if: steps.outdated.outputs.has_outdated == 'true' && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const date = new Date().toISOString().split('T')[0];
+            const title = `依存関係更新レポート - ${date}`;
+            
+            // 既存のissueをチェック
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'dependencies'
+            });
+            
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes('依存関係更新レポート')
+            );
+            
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: '依存関係の更新が利用可能です。GitHub ActionsのSummaryで詳細を確認してください。',
+                labels: ['dependencies', 'maintenance']
+              });
+            }
