@@ -1,21 +1,50 @@
-name: Release (Unsigned)
+name: Release Please
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version to release (e.g., v0.1.1)'
-        required: true
-        type: string
+      release_type:
+        description: 'Type of release'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - 'auto'
+          - 'patch'
+          - 'minor'
+          - 'major'
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  build:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created || steps.release-explicit.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name || steps.release-explicit.outputs.tag_name }}
+    steps:
+      - name: Create Release PR (Auto)
+        uses: googleapis/release-please-action@v4
+        id: release
+        if: github.event.inputs.release_type == 'auto' || github.event.inputs.release_type == ''
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      
+      - name: Create Release PR (Explicit)
+        uses: googleapis/release-please-action@v4
+        id: release-explicit
+        if: github.event.inputs.release_type != 'auto' && github.event.inputs.release_type != ''
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          release-as: ${{ github.event.inputs.release_type }}
+
+  build-and-release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -69,57 +98,26 @@ jobs:
         path: release/*${{ matrix.arch }}*.exe
         retention-days: 7
 
-
-  release:
-    needs: build
+  upload-release-assets:
+    needs: [release-please, build-and-release]
+    if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # CHANGELOGの履歴を取得
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 24.x
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Generate release notes from CHANGELOG
-      id: changelog
-      run: |
-        # CHANGELOGから今回のバージョンの内容を抽出
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          VERSION=${{ github.event.inputs.version }}
-          VERSION=${VERSION#v}  # Remove 'v' prefix if present
-        else
-          VERSION=${GITHUB_REF#refs/tags/v}
-        fi
-        CHANGELOG_CONTENT=$(sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | head -n -1)
-        echo "content<<EOF" >> $GITHUB_OUTPUT
-        echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
     
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
         path: release-artifacts
     
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
+        tag_name: ${{ needs.release-please.outputs.tag_name }}
         files: |
           release-artifacts/macos-latest-x64-build/*
           release-artifacts/macos-latest-arm64-build/*
           release-artifacts/windows-latest-x64-build/*
-        draft: false
-        prerelease: false
-        body: ${{ steps.changelog.outputs.content }}
-        generate_release_notes: false  # CHANGELOGを使うのでfalse
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
