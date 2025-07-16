@@ -387,26 +387,48 @@
 
 /* コンパクトドロップゾーン */
 .compact-drop-zone {
-  background-color: white;
-  border: 3px dashed #bdc3c7;
-  border-radius: 8px;
+  background-color: var(--color-white);
+  border: 2px dashed var(--color-gray-300);
+  border-radius: var(--radius-xl);
   padding: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
   min-height: 120px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.compact-drop-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(102, 126, 234, 0.02) 100%);
+  transition: opacity var(--transition-base);
+  opacity: 0;
 }
 
 .compact-drop-zone:hover {
-  border-color: #3498db;
-  background-color: #f8f9fa;
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.compact-drop-zone:hover::before {
+  opacity: 1;
 }
 
 .compact-drop-zone.active {
-  border-color: #2ecc71;
-  background-color: #e8f5e9;
+  border-color: var(--color-success);
+  background-color: var(--color-success-light);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-xl);
 }
 
 .compact-drop-zone-content {
@@ -414,28 +436,58 @@
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  z-index: 1;
 }
 
 .compact-drop-icon {
-  color: #95a5a6;
+  color: var(--color-gray-400);
+  transition: all var(--transition-base);
+}
+
+.compact-drop-zone:hover .compact-drop-icon {
+  color: var(--color-primary);
+  transform: scale(1.05);
 }
 
 .compact-drop-zone.active .compact-drop-icon {
-  color: #2ecc71;
+  color: var(--color-success);
+  transform: scale(1.1);
 }
 
 .compact-drop-text {
-  color: #2c3e50;
-  font-size: 0.9rem;
-  font-weight: 500;
+  color: var(--color-gray-800);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   margin: 0;
   text-align: center;
+  line-height: var(--line-height-tight);
 }
 
 .compact-drop-or {
-  color: #95a5a6;
-  font-size: 0.8rem;
+  color: var(--color-gray-500);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   margin: 0;
+  position: relative;
+}
+
+.compact-drop-or::before,
+.compact-drop-or::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 1px;
+  background-color: var(--color-gray-300);
+}
+
+.compact-drop-or::before {
+  left: -35px;
+}
+
+.compact-drop-or::after {
+  right: -35px;
 }
 
 .compact-select-button {
