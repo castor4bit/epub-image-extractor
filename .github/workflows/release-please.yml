@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   release-please:
@@ -32,7 +33,6 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          skip-labeling: true
       
       - name: Create Release PR (Explicit)
         uses: googleapis/release-please-action@v4
@@ -42,7 +42,6 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           release-as: ${{ github.event.inputs.release_type }}
-          skip-labeling: true
 
   build-and-release:
     needs: release-please
