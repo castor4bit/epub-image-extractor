@@ -14,5 +14,8 @@
     {"type": "revert", "section": "Reverts"}
   ],
   "commitUrlFormat": "https://github.com/castor4bit/epub-image-extractor/commit/{{hash}}",
-  "compareUrlFormat": "https://github.com/castor4bit/epub-image-extractor/compare/{{previousTag}}...{{currentTag}}"
+  "compareUrlFormat": "https://github.com/castor4bit/epub-image-extractor/compare/{{previousTag}}...{{currentTag}}",
+  "scripts": {
+    "postbump": "node scripts/update-version-badges.js && node scripts/update-readme-content.js"
+  }
 }

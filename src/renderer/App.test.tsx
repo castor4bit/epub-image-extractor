@@ -10,6 +10,15 @@ const mockElectronAPI = {
   processEpubFiles: jest.fn().mockResolvedValue({ success: true, results: [] }),
   onProgress: jest.fn(),
   selectOutputDirectory: jest.fn().mockResolvedValue('/test/path'),
+  getDroppedFilePaths: jest.fn((fileList) => {
+    // FileListをモック化したデータに変換
+    return Array.from(fileList as any).map((file: any) => ({
+      path: file.path || file.name,
+      name: file.name,
+      size: file.size || 1000,
+      type: file.type || 'application/epub+zip',
+    }));
+  }),
 };
 
 // window.electronAPIを設定
