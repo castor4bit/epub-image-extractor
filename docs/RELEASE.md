@@ -183,11 +183,6 @@ CI/CDを使わずにローカルでビルドしてリリースする方法です
    npm run dist:win
    ```
    
-   **Linux**
-   ```bash
-   # AppImage + deb
-   npm run dist:linux
-   ```
 
 2. **成果物の確認**
    ```bash
@@ -296,9 +291,6 @@ npm run release:dry
 - `EPUB-Image-Extractor-Setup-{version}.exe` - インストーラー
 - `EPUB-Image-Extractor-{version}.exe` - ポータブル版
 
-### Linux
-- `EPUB-Image-Extractor-{version}.AppImage` - AppImage形式
-- `epub-image-extractor_{version}_amd64.deb` - Debian/Ubuntu用
 
 ## コード署名
 

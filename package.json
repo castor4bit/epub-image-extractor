@@ -42,8 +42,7 @@
     "dist:win": "npm run build && electron-builder --win",
     "dist:mac": "npm run build && electron-builder --mac",
     "dist:mac-x64": "npm run build && electron-builder --mac --x64",
-    "dist:mac-arm64": "npm run build && electron-builder --mac --arm64",
-    "dist:linux": "npm run build && electron-builder --linux"
+    "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
@@ -151,19 +150,6 @@
     },
     "portable": {
       "artifactName": "${productName}-${version}-${arch}-Portable.${ext}"
-    },
-    "linux": {
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "target": [
-        {
-          "target": "deb",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "category": "Utility",
-      "icon": "build/icon.png"
     },
     "publish": null
   },

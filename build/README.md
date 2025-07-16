@@ -24,9 +24,6 @@ If you want to provide platform-specific icons:
 - **Filename**: `icon.ico`
 - **Required sizes**: 16x16, 32x32, 48x48, 64x64, 128x128, 256x256
 
-#### Linux:
-- **Filename**: `icon.png`
-- **Recommended size**: 512x512 or 1024x1024
 
 ## Icon Design Guidelines
 

@@ -68,8 +68,6 @@ npm run dist:win
 # macOS用
 npm run dist:mac
 
-# Linux用
-npm run dist:linux
 ```
 
 ビルド成果物は`release/`ディレクトリに作成されます。

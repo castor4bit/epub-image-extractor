@@ -82,7 +82,7 @@ app.whenReady().then(() => {
     ];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   } else {
-    // Windows/Linux用のメニュー
+    // Windows用のメニュー
     const template: MenuItemConstructorOptions[] = [
       {
         label: 'File',

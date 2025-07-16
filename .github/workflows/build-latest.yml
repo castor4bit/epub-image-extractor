@@ -12,7 +12,6 @@ on:
         - all
         - mac-only
         - windows-only
-        - linux-only
 
 permissions:
   contents: read
@@ -77,38 +76,8 @@ jobs:
         path: release/*.exe
         retention-days: 7
 
-  build-linux:
-    if: ${{ github.event.inputs.platforms == 'all' || github.event.inputs.platforms == 'linux-only' }}
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 24.x
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build Linux
-      run: npm run dist:linux
-      env:
-        CSC_IDENTITY_AUTO_DISCOVERY: false
-    
-    - name: Upload Linux build
-      uses: actions/upload-artifact@v4
-      with:
-        name: latest-linux-x64
-        path: |
-          release/*.AppImage
-          release/*.deb
-        retention-days: 7
-
   summary:
-    needs: [build-mac, build-windows, build-linux]
+    needs: [build-mac, build-windows]
     runs-on: ubuntu-latest
     if: always()
     

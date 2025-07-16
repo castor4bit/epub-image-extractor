@@ -28,9 +28,6 @@ jobs:
           - os: windows-latest
             arch: x64
             build_cmd: dist:win
-          - os: ubuntu-latest
-            arch: x64
-            build_cmd: dist:linux
     
     steps:
     - uses: actions/checkout@v4
@@ -71,16 +68,6 @@ jobs:
         retention-days: 30
         if-no-files-found: warn
 
-    - name: Upload Linux development artifacts
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: dev-${{ matrix.os }}-${{ matrix.arch }}-${{ github.sha }}
-        path: |
-          release/*.AppImage
-          release/*.deb
-        retention-days: 30
-        if-no-files-found: warn
 
   summary:
     needs: build
@@ -100,6 +87,5 @@ jobs:
         echo "- \`dev-macos-latest-x64-${{ github.sha }}\` - macOS Intel" >> $GITHUB_STEP_SUMMARY
         echo "- \`dev-macos-latest-arm64-${{ github.sha }}\` - macOS Apple Silicon" >> $GITHUB_STEP_SUMMARY
         echo "- \`dev-windows-latest-x64-${{ github.sha }}\` - Windows x64" >> $GITHUB_STEP_SUMMARY
-        echo "- \`dev-ubuntu-latest-x64-${{ github.sha }}\` - Linux x64" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "> ⚠️ **Note:** These are unsigned development builds for testing purposes only." >> $GITHUB_STEP_SUMMARY

@@ -30,9 +30,6 @@ jobs:
           - os: windows-latest
             arch: x64
             build_cmd: dist:win
-          - os: ubuntu-latest
-            arch: x64
-            build_cmd: dist:linux
     
     steps:
     - uses: actions/checkout@v4
@@ -72,13 +69,6 @@ jobs:
         path: release/*${{ matrix.arch }}*.exe
         retention-days: 7
 
-    - name: Upload Linux artifacts
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.os }}-${{ matrix.arch }}-build
-        path: release/*.deb
-        retention-days: 7
 
   release:
     needs: build
@@ -127,7 +117,6 @@ jobs:
           release-artifacts/macos-latest-x64-build/*
           release-artifacts/macos-latest-arm64-build/*
           release-artifacts/windows-latest-x64-build/*
-          release-artifacts/ubuntu-latest-x64-build/*
         draft: false
         prerelease: false
         body: ${{ steps.changelog.outputs.content }}

@@ -183,7 +183,6 @@ npm run typecheck
 
 - **Windows**: `%APPDATA%\epub-image-extractor\logs\`
 - **macOS**: `~/Library/Application Support/epub-image-extractor/logs/`
-- **Linux**: `~/.config/epub-image-extractor/logs/`
 
 ログファイル：
 - `error.log` - エラー情報のみ
