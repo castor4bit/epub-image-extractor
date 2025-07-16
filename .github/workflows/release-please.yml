@@ -20,7 +20,37 @@ permissions:
   issues: write
 
 jobs:
+  pre-release-checks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ESLint
+      run: npm run lint
+    
+    - name: Run TypeScript check
+      run: npm run typecheck
+    
+    - name: Run unit tests
+      run: npm test
+    
+    - name: Run integration tests
+      run: npm run test:integration
+    
+    - name: Test build
+      run: npm run build
+
   release-please:
+    needs: pre-release-checks
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created || steps.release-explicit.outputs.release_created }}
@@ -72,9 +102,6 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
-    
-    - name: Run tests
-      run: npm test
     
     - name: Build application (unsigned)
       run: npm run ${{ matrix.build_cmd }}
