@@ -1,6 +1,6 @@
 {
   "name": "epub-image-extractor",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Desktop application to extract images from EPUB files organized by chapters",
   "main": "dist-electron/main/index.js",
   "author": {
@@ -34,6 +34,8 @@
     "release:patch": "standard-version --release-as patch",
     "release:major": "standard-version --release-as major",
     "release:dry": "standard-version --dry-run",
+    "release:complete": "npm run release:minor && git push --follow-tags origin main && node scripts/create-release.js",
+    "version:update-badges": "node scripts/update-version-badges.js",
     "electron": "electron .",
     "electron:dev": "vite",
     "dist": "npm run build && electron-builder",

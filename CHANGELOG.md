@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.3.0...v0.4.0) (2025-07-16)
+
+
+### Features
+
+* Add automated dependency management system ([de49645](https://github.com/castor4bit/epub-image-extractor/commit/de49645631a8655ff713d3aec727874e29a00f03))
+
+
+### Bug Fixes
+
+* ドラッグ&ドロップでファイルパスが取得できない問題を修正 ([296252b](https://github.com/castor4bit/epub-image-extractor/commit/296252b56c1645bae6302df1abd6c54d1303256a))
+
 ## [0.3.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.2.0...v0.3.0) (2025-07-13)
 
 
