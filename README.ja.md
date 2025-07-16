@@ -1,6 +1,5 @@
 # EPUB画像抽出ツール
 
-![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
@@ -201,14 +200,6 @@ LOG_LEVEL=debug npm run dev
 2. **macOSでのビルド失敗**: Xcode Command Line Toolsのインストールが必要な場合があります
 3. **大きなEPUBファイル**: 多くの画像を含むファイルは処理に時間がかかります。リソース制限に達した場合は警告が表示されます
 4. **目次情報がない場合**: 目次が正しく設定されていないEPUBでは、すべての画像が「001_未分類」フォルダに抽出されます
-
-## 最近の更新（v0.4.0）
-
-### 新機能
-- 自動依存関係管理システムを追加
-
-### バグ修正
-- ドラッグ&ドロップでファイルパスが取得できない問題を修正
 
 ## 既知の問題
 

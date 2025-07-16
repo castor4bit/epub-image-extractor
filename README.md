@@ -1,6 +1,5 @@
 # EPUB Image Extractor
 
-![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
@@ -225,14 +224,6 @@ The application uses a custom icon featuring an open book with floating images. 
 2. **Build failures on macOS**: You may need to install Xcode Command Line Tools
 3. **Large EPUB files**: Files with many images may take longer to process. The app will warn if resource limits are reached
 4. **Missing navigation/TOC**: EPUBs without proper navigation will have all images extracted to "001_未分類" folder
-
-## Recent Updates (v0.4.0)
-
-### New Features
-- Add automated dependency management system
-
-### Bug Fixes
-- Fixed issue where file paths could not be obtained via drag and drop
 
 ## License
 
