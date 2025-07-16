@@ -15,7 +15,7 @@
     "selectFiles": "ファイルを選択"
   },
   "processing": {
-    "title": "処理中",
+    "title": "処理状況",
     "completed": "{{completed}}件完了",
     "processing": "{{processing}}件処理中",
     "pending": "{{pending}}件待機中",

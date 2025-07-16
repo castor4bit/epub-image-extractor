@@ -15,7 +15,7 @@
     "selectFiles": "Select files"
   },
   "processing": {
-    "title": "Processing",
+    "title": "Status",
     "completed": "{{completed}} completed",
     "processing": "{{processing}} processing",
     "pending": "{{pending}} pending",
