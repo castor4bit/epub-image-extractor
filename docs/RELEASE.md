@@ -2,368 +2,347 @@
 
 ## 概要
 
-このドキュメントでは、EPUB Image Extractorのリリース手順について説明します。
+EPUB Image Extractorは**release-please**を使用した自動リリース システムを採用しています。このドキュメントでは、リリースプロセスの詳細と運用方法について説明します。
 
-## 📝 CHANGELOG管理について
+## 🚀 リリースプロセスの仕組み
 
-### 手動管理（シンプル）
-リリース前に手動でCHANGELOG.mdを更新する方法です。初心者におすすめです。
+### 完全自動化されたリリースフロー
 
-### 自動管理（Conventional Commits）
-コミットメッセージの規則に従って自動でCHANGELOGを生成する方法です。チーム開発におすすめです。
+1. **開発**: conventional commitsでコードを開発
+2. **プッシュ**: `main`ブランチにpush（リリースは自動実行されない）
+3. **手動リリース**: GitHub Actionsで「Release Please」ワークフローを手動実行
+4. **Release PR作成**: release-pleaseがRelease PRを作成
+5. **リリース**: Release PRをマージするとリリース実行
+6. **ビルド**: 自動的に各プラットフォーム用のビルド実行
+7. **配布**: GitHub Releaseにビルド成果物を自動アップロード
 
-詳細は「CHANGELOG管理方法」セクションを参照してください。
+### 従来のstandard-versionから変更された点
 
-## 🚀 リリース方法
+- **✅ 手動リリース作業が不要**: Release PRのマージのみ
+- **✅ CHANGELOG自動管理**: コミットから自動生成
+- **✅ バージョン管理自動化**: package.jsonの更新も自動
+- **✅ ビルド自動化**: リリースと同時にビルド実行
+- **✅ 配布自動化**: GitHub Releaseへの自動アップロード
 
-### 方法1: 手動CHANGELOG + GitHub Actions（推奨初心者向け）
+## 📝 コミットメッセージのルール
 
-#### 前提条件
-- mainブランチに最新のコードがマージされている
-- すべてのテストが通っている
-
-#### 手順
-
-1. **CHANGELOGの手動更新**
-   ```bash
-   # CHANGELOG.mdを編集
-   vim CHANGELOG.md
-   ```
-   
-   ```markdown
-   ## [Unreleased]
-
-   ### Added
-   - 新しいバッチ処理機能
-
-   ### Fixed
-   - 大容量EPUBファイルのメモリ使用量改善
-
-   ## [0.1.1] - 2025-07-10
-   
-   ### Added
-   - 新機能の説明
-   
-   ### Fixed
-   - バグ修正の説明
-   ```
-
-2. **CHANGELOGをコミット**
-   ```bash
-   git add CHANGELOG.md
-   git commit -m "docs: v0.1.1のCHANGELOGを更新"
-   ```
-
-3. **バージョンの更新**
-   ```bash
-   # パッチバージョン (0.1.0 → 0.1.1)
-   npm version patch -m "chore: release v%s"
-   
-   # マイナーバージョン (0.1.0 → 0.2.0)
-   npm version minor -m "chore: release v%s"
-   
-   # メジャーバージョン (0.1.0 → 1.0.0)
-   npm version major -m "chore: release v%s"
-   ```
-
-4. **変更をプッシュ**
-   ```bash
-   git push origin main --follow-tags
-   ```
-
-5. **GitHub Actionsが自動的に実行**
-   - テストの実行
-   - 各プラットフォーム用のビルド
-   - GitHubリリースの作成（CHANGELOGから自動抽出）
-   - ビルド成果物のアップロード
-
-### 方法2: standard-version + GitHub Actions（推奨チーム開発）
-
-#### 前提条件
-- Conventional Commitsのルールに従ったコミットメッセージ
-- mainブランチに最新のコードがマージされている
-- すべてのテストが通っている
-
-#### 手順
-
-1. **開発中のコミット（Conventional Commits形式）**
-   ```bash
-   # 新機能
-   git commit -m "feat: バッチ処理機能を追加"
-   
-   # バグ修正
-   git commit -m "fix: 大容量EPUBファイルのメモリリーク修正"
-   
-   # ドキュメント
-   git commit -m "docs: READMEにバッチ処理の説明を追加"
-   
-   # 依存関係更新
-   git commit -m "deps: Electronを37.2.1に更新"
-   
-   # リファクタリング
-   git commit -m "refactor: 画像処理ロジックの最適化"
-   
-   # CI/CD
-   git commit -m "ci: GitHub Actionsワークフローを最適化"
-   ```
-
-2. **リリース（standard-versionで自動化）**
-   ```bash
-   # 自動バージョン決定（feat→minor, fix→patch）
-   npm run release
-   
-   # 明示的なバージョン指定
-   npm run release:patch   # 0.2.0 → 0.2.1
-   npm run release:minor   # 0.2.0 → 0.3.0
-   npm run release:major   # 0.2.0 → 1.0.0
-   
-   # ドライラン（実際の変更なしで確認）
-   npm run release:dry
-   ```
-   
-   standard-versionが自動的に実行すること：
-   - Conventional Commitsからバージョンを決定
-   - CHANGELOGを自動生成（セクション分けあり）
-   - package.jsonのバージョン更新
-   - Gitタグの作成
-   - コミットの作成
-
-3. **変更をプッシュ**
-   ```bash
-   git push origin main --follow-tags
-   ```
-
-#### 📝 CHANGELOGのセクション
-
-standard-versionは以下のセクションに自動分類します：
-- **Features** - 新機能（feat）
-- **Bug Fixes** - バグ修正（fix）
-- **Documentation** - ドキュメント（docs）
-- **Dependencies** - 依存関係（deps）
-- **Code Refactoring** - リファクタリング（refactor）
-- **Continuous Integration** - CI/CD（ci）
-
-#### 🚀 シンプルな手順
+### Conventional Commits形式
 
 ```bash
-# 開発コミット（Conventional Commits形式）
-git commit -m "feat: 新機能を追加"
-git commit -m "fix: バグを修正"
-
-# リリース（CHANGELOG自動生成付き）
-npm run release
-
-# プッシュ
-git push origin main --follow-tags
-```
-
-### 方法3: ローカルビルド + 手動リリース
-
-CI/CDを使わずにローカルでビルドしてリリースする方法です。
-
-#### 手順
-
-1. **各プラットフォーム用にビルド**
-
-   **macOS**
-   ```bash
-   # Intel Mac用
-   npm run dist:mac-x64
-   
-   # Apple Silicon用
-   npm run dist:mac-arm64
-   
-   # ユニバーサルビルド（両方）
-   npm run dist:mac
-   ```
-   
-   **Windows**
-   ```bash
-   # インストーラー + ポータブル版
-   npm run dist:win
-   ```
-   
-
-2. **成果物の確認**
-   ```bash
-   ls -la release/
-   ```
-
-3. **GitHubでリリースを作成**
-   - GitHubのReleases画面で新規リリース作成
-   - `release/`ディレクトリ内のファイルをアップロード
-   - CHANGELOGから該当バージョンの内容をコピー&ペースト
-
-## 📋 CHANGELOG管理方法
-
-### 手動管理
-
-#### テンプレート
-CHANGELOG.mdは以下の形式で管理します：
-
-```markdown
-# Changelog
-
-## [Unreleased]
-
-### Added
-- 新機能の説明
-
-### Changed
-- 変更された機能の説明
-
-### Fixed
-- 修正されたバグの説明
-
-## [0.1.1] - 2025-07-10
-
-### Added
-- 実際にリリースされた新機能
-
-### Fixed
-- 実際に修正されたバグ
-```
-
-#### 更新手順
-1. 開発中は`[Unreleased]`セクションに変更を記録
-2. リリース時に`[Unreleased]`を新しいバージョン番号に変更
-3. 新しい空の`[Unreleased]`セクションを作成
-
-### 自動管理（Conventional Commits）
-
-#### コミットメッセージのルール
-```bash
-<type>(<scope>): <subject>
+<type>(<scope>): <description>
 
 <body>
 
 <footer>
 ```
 
-#### タイプ一覧
-- `feat`: 新機能
-- `fix`: バグ修正
-- `docs`: ドキュメント
-- `style`: フォーマット（機能に影響しない）
-- `refactor`: リファクタリング
-- `test`: テスト
-- `chore`: その他（ビルド、依存関係更新など）
-- `perf`: パフォーマンス改善
-- `ci`: CI/CD関連
-- `build`: ビルドシステム関連
+### 重要なタイプ一覧
 
-#### 例
+| タイプ | 説明 | バージョン影響 | CHANGELOGセクション |
+|--------|------|---------------|------------------|
+| `feat` | 新機能 | **minor** | Features |
+| `fix` | バグ修正 | **patch** | Bug Fixes |
+| `docs` | ドキュメント | patch | Documentation |
+| `refactor` | リファクタリング | patch | Code Refactoring |
+| `perf` | パフォーマンス改善 | patch | Performance Improvements |
+| `deps` | 依存関係更新 | patch | Dependencies |
+| `ci` | CI/CD関連 | patch | Continuous Integration |
+| `chore` | その他 | patch | *非表示* |
+| `test` | テスト | patch | *非表示* |
+| `build` | ビルド | patch | *非表示* |
+| `style` | フォーマット | patch | *非表示* |
+| `revert` | リバート | patch | Reverts |
+
+### コミットメッセージの例
+
 ```bash
-feat(ui): バッチ処理のプログレスバーを追加
+# 新機能（minorバージョンアップ）
+feat: Add batch processing support for multiple EPUB files
 
-ユーザーが処理の進捗を視覚的に確認できるよう、
-プログレスバーコンポーネントを実装しました。
+# バグ修正（patchバージョンアップ）
+fix: Fix memory leak in large EPUB file processing
 
-Closes #123
+# ドキュメント更新
+docs: Update installation instructions for Windows
+
+# 依存関係更新
+deps: Update Electron to v37.2.1
+
+# リファクタリング
+refactor: Optimize image extraction algorithm
+
+# 破壊的変更（majorバージョンアップ）
+feat!: Change API for image extraction settings
+
+BREAKING CHANGE: The setImageOptions method now requires a different parameter structure
 ```
 
-#### standard-versionコマンド
+## 🔄 日常的なリリースフロー
+
+### 1. 開発フェーズ
+
 ```bash
-# リリース（自動バージョン決定）
-npm run release
+# 機能開発
+git checkout -b feature/batch-processing
+git commit -m "feat: Add batch processing UI components"
+git commit -m "feat: Implement parallel file processing"
+git commit -m "fix: Handle edge case in file validation"
 
-# 特定バージョンでリリース
-npm run release:patch   # パッチバージョン
-npm run release:minor   # マイナーバージョン
-npm run release:major   # メジャーバージョン
-
-# ドライラン（変更内容の確認）
-npm run release:dry
+# mainブランチにマージ
+git checkout main
+git merge feature/batch-processing
+git push origin main
 ```
 
-#### 設定ファイル
-`.versionrc.json`でCHANGELOGのセクション分けをカスタマイズ可能です。
+### 2. 手動リリース実行
 
-## ビルド成果物
+GitHub Actionsで「Release Please」ワークフローを手動実行します：
 
-ビルドが成功すると、`release/`ディレクトリに以下のファイルが生成されます：
+1. **GitHub Actionsページに移動**: リポジトリの「Actions」タブ
+2. **「Release Please」ワークフローを選択**
+3. **「Run workflow」をクリック**
+4. **リリースタイプを選択**:
+   - `auto`: コミット履歴から自動決定（推奨）
+   - `patch`: パッチリリース (0.4.0 → 0.4.1)
+   - `minor`: マイナーリリース (0.4.0 → 0.5.0)
+   - `major`: メジャーリリース (0.4.0 → 1.0.0)
+5. **「Run workflow」で実行**
 
-### macOS
-- `EPUB-Image-Extractor-{version}-arm64.dmg` - Apple Silicon用
-- `EPUB-Image-Extractor-{version}-x64.dmg` - Intel Mac用
+ワークフローが実行されると、release-pleaseが自動的に：
 
-### Windows
-- `EPUB-Image-Extractor-Setup-{version}.exe` - インストーラー
-- `EPUB-Image-Extractor-{version}.exe` - ポータブル版
+- コミット履歴を分析
+- セマンティックバージョニングに基づいてバージョン決定（またはマニュアル指定）
+- CHANGELOGを自動生成
+- package.jsonのバージョンを更新
+- **Release PR**を作成
 
+### 3. リリース実行
 
-## コード署名
+**Release PR**をマージすると：
 
-### macOS
-1. Apple Developer Programに登録
-2. Developer ID Application証明書を取得
-3. GitHub Secretsに以下を設定：
-   - `MACOS_CERTIFICATE`: 証明書のBase64エンコード
-   - `MACOS_CERTIFICATE_PWD`: 証明書のパスワード
-   - `APPLE_ID`: Apple ID
-   - `APPLE_ID_PASSWORD`: App用パスワード
-   - `APPLE_TEAM_ID`: チームID
+1. **タグ作成**: `v0.4.1`のようなタグが自動作成
+2. **ビルド開始**: GitHub Actionsがビルドを開始
+3. **成果物生成**: 
+   - macOS: `EPUB-Image-Extractor-{version}-arm64.dmg`
+   - macOS: `EPUB-Image-Extractor-{version}-x64.dmg`
+   - Windows: `EPUB-Image-Extractor-{version}-x64-Setup.exe`
+   - Windows: `EPUB-Image-Extractor-{version}-x64-Portable.exe`
+4. **リリース作成**: GitHub Releaseが作成され、成果物がアップロード
 
-### Windows
-1. コード署名証明書を取得
-2. GitHub Secretsに以下を設定：
-   - `WINDOWS_CERTIFICATE`: 証明書のBase64エンコード
-   - `WINDOWS_CERTIFICATE_PWD`: 証明書のパスワード
+## 🛠 メンテナンス作業
 
-## 🎯 推奨リリース方法の選択指針
+### Release PRの内容確認
 
-### 初回リリース・個人開発
-- **方法1（手動CHANGELOG + GitHub Actions）**を推奨
-- 理由：シンプルで理解しやすく、自動ビルドの恩恵を受けられる
+Release PRには以下が含まれています：
 
-### チーム開発・継続的なリリース
-- **方法2（自動CHANGELOG + GitHub Actions）**を推奨
-- 理由：コミットメッセージの統一とCHANGELOGの自動化で品質向上
+- `CHANGELOG.md`の更新
+- `package.json`のバージョン更新
+- `.release-please-manifest.json`の更新
 
-### 特殊な要件がある場合
-- **方法3（ローカルビルド）**を使用
-- 理由：特別なビルド環境や署名プロセスが必要な場合
+マージ前に内容を確認し、必要に応じて追加のコミットを行います。
+
+### 緊急修正のリリース
+
+```bash
+# 緊急修正
+git commit -m "fix: Critical security vulnerability in file parser"
+git push origin main
+
+# Release PRが自動作成されるので、すぐにマージ
+```
+
+### 特定バージョンでのリリース
+
+通常は自動バージョン決定を使用しますが、特別な場合は手動調整可能：
+
+```bash
+# 強制的にメジャーバージョンアップ
+git commit -m "feat!: Complete UI redesign
+
+BREAKING CHANGE: All UI components have been redesigned with new API"
+```
+
+## 📋 設定ファイル
+
+### release-please-config.json
+
+```json
+{
+  "release-type": "node",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "epub-image-extractor",
+      "changelog-sections": [
+        {"type": "feat", "section": "Features"},
+        {"type": "fix", "section": "Bug Fixes"},
+        {"type": "docs", "section": "Documentation"},
+        {"type": "refactor", "section": "Code Refactoring"},
+        {"type": "perf", "section": "Performance Improvements"},
+        {"type": "deps", "section": "Dependencies"},
+        {"type": "ci", "section": "Continuous Integration"},
+        {"type": "revert", "section": "Reverts"}
+      ]
+    }
+  }
+}
+```
+
+### .release-please-manifest.json
+
+```json
+{
+  ".": "0.4.0"
+}
+```
+
+現在のバージョンを記録します。release-pleaseが自動更新します。
+
+## 🎯 各種リリースタイプの実行例
+
+### パッチリリース（バグ修正）
+
+```bash
+git commit -m "fix: Resolve crash when processing corrupted EPUB files"
+git push origin main
+# → 0.4.0 → 0.4.1
+```
+
+### マイナーリリース（新機能）
+
+```bash
+git commit -m "feat: Add dark mode support"
+git push origin main
+# → 0.4.0 → 0.5.0
+```
+
+### メジャーリリース（破壊的変更）
+
+```bash
+git commit -m "feat!: Redesign settings API
+
+BREAKING CHANGE: Settings configuration format has changed"
+git push origin main
+# → 0.4.0 → 1.0.0
+```
 
 ## ✅ リリース前チェックリスト
 
-### 共通項目
+### 開発者向け
+
 - [ ] すべてのテストが通る（`npm test`）
+- [ ] 統合テストが通る（`npm run test:integration`）
 - [ ] Lintエラーがない（`npm run lint`）
 - [ ] TypeScriptコンパイルが通る（`npm run typecheck`）
 - [ ] ビルドが成功する（`npm run build`）
-- [ ] CHANGELOGが更新されている
+- [ ] Conventional Commitsルールに従っている
 
-### GitHub Actions使用時
-- [ ] GitHub Actionsの権限が正しく設定されている
-- [ ] Secretsが設定されている（コード署名を使う場合）
-- [ ] mainブランチが最新状態である
+### Release PR確認時
 
-### ローカルビルド時
-- [ ] 必要なプラットフォームでビルドテスト済み
-- [ ] ビルド成果物の動作確認済み
-- [ ] GitHubリリースページの準備完了
+- [ ] CHANGELOGの内容が正確
+- [ ] バージョン番号が適切
+- [ ] 重要な変更が含まれている場合、追加のテストを実行
+- [ ] 破壊的変更がある場合、マイグレーションガイドを作成
 
-## 自動アップデート
+## 🚨 トラブルシューティング
 
-electron-updaterを使用した自動アップデートを実装する場合：
+### Release PRが作成されない場合
 
-1. `package.json`の`publish`設定を更新
-2. リリースサーバーまたはGitHub Releasesを使用
-3. アプリケーション起動時にアップデートをチェック
+1. **コミットメッセージの確認**
+   - Conventional Commitsの形式に従っているか確認
+   - `feat:`、`fix:`などのタイプが正しく使用されているか確認
 
-## トラブルシューティング
+2. **GitHub Actionsの確認**
+   - `.github/workflows/release-please.yml`が正しく設定されているか確認
+   - GitHub Actionsの実行ログを確認
+
+3. **権限の確認**
+   - `contents: write`と`pull-requests: write`の権限が設定されているか確認
 
 ### ビルドが失敗する場合
-- Node.jsのバージョンが24.0.0以上であることを確認
-- `node_modules`を削除して`npm ci`を実行
-- electron-builderのキャッシュをクリア: `npx electron-builder install-app-deps`
 
-### 署名エラー
-- 証明書の有効期限を確認
-- Keychainアクセス（macOS）で証明書の信頼設定を確認
-- Windows: signtoolのパスが正しいことを確認
+1. **ローカルビルドテスト**
+   ```bash
+   npm run build
+   npm run dist:mac  # macOS
+   npm run dist:win  # Windows
+   ```
 
-### GitHub Actions エラー
-- Secretsが正しく設定されているか確認
-- ワークフローの権限設定を確認
-- アーティファクトのアップロード制限（容量）を確認
+2. **依存関係の確認**
+   ```bash
+   npm ci
+   npm run typecheck
+   npm test
+   ```
+
+3. **Node.jsバージョン**
+   - Node.js 24.0.0以上を使用していることを確認
+
+### 緊急時の手動リリース
+
+release-pleaseが機能しない場合の手動リリース方法：
+
+```bash
+# 1. バージョンを手動更新
+npm version patch  # または minor, major
+
+# 2. 手動でCHANGELOGを更新
+vim CHANGELOG.md
+
+# 3. コミットとプッシュ
+git add .
+git commit -m "chore: Release v0.4.1"
+git push origin main --follow-tags
+
+# 4. GitHub Releaseを手動作成
+gh release create v0.4.1 --title "v0.4.1" --notes "$(cat CHANGELOG.md | sed -n '/## \[0.4.1\]/,/## \[/p' | head -n -1)"
+```
+
+## 📚 参考資料
+
+- [release-please公式ドキュメント](https://github.com/googleapis/release-please)
+- [Conventional Commits](https://www.conventionalcommits.org/ja/)
+- [セマンティックバージョニング](https://semver.org/lang/ja/)
+- [GitHub Actions Documentation](https://docs.github.com/ja/actions)
+
+## 🔧 カスタマイズ
+
+### CHANGELOGセクションの追加
+
+新しいコミットタイプを追加する場合：
+
+```json
+{
+  "changelog-sections": [
+    {"type": "feat", "section": "Features"},
+    {"type": "security", "section": "Security"},
+    {"type": "deprecated", "section": "Deprecated"}
+  ]
+}
+```
+
+### リリースノートのカスタマイズ
+
+release-please-config.jsonで以下を設定可能：
+
+```json
+{
+  "release-notes-header": "## What's Changed",
+  "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
+  "pull-request-header": "This PR was generated by release-please."
+}
+```
+
+## 🎉 まとめ
+
+release-pleaseの導入により、リリースプロセスは大幅に自動化され、以下のメリットがあります：
+
+- **⚡ 迅速なリリース**: コミットから数分でリリース可能
+- **🔒 一貫性**: 標準化されたリリースプロセス
+- **📖 自動ドキュメント**: CHANGELOGの自動生成
+- **🚀 継続的デリバリー**: プッシュからリリースまで完全自動化
+- **🛡️ 安全性**: Pull Requestベースのレビュー可能なリリース
+
+conventional commitsを採用することで、チーム全体でのリリース品質向上も実現されています。

@@ -1,0 +1,151 @@
+name: Release Please
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - 'auto'
+          - 'patch'
+          - 'minor'
+          - 'major'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  pre-release-checks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ESLint
+      run: npm run lint
+    
+    - name: Run TypeScript check
+      run: npm run typecheck
+    
+    - name: Run unit tests
+      run: npm test
+    
+    - name: Run integration tests
+      run: npm run test:integration
+    
+    - name: Test build
+      run: npm run build
+
+  release-please:
+    needs: pre-release-checks
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created || steps.release-explicit.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name || steps.release-explicit.outputs.tag_name }}
+    steps:
+      - name: Create Release PR (Auto)
+        uses: googleapis/release-please-action@v4
+        id: release
+        if: github.event.inputs.release_type == 'auto' || github.event.inputs.release_type == ''
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      
+      - name: Create Release PR (Explicit)
+        uses: googleapis/release-please-action@v4
+        id: release-explicit
+        if: github.event.inputs.release_type != 'auto' && github.event.inputs.release_type != ''
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          release-as: ${{ github.event.inputs.release_type }}
+
+  build-and-release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            arch: x64
+            build_cmd: dist:mac-x64
+          - os: macos-latest
+            arch: arm64
+            build_cmd: dist:mac-arm64
+          - os: windows-latest
+            arch: x64
+            build_cmd: dist:win
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application (unsigned)
+      run: npm run ${{ matrix.build_cmd }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # コード署名を無効化
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+    
+    - name: Upload macOS artifacts
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}-${{ matrix.arch }}-build
+        path: release/*${{ matrix.arch }}.dmg
+        retention-days: 7
+
+    - name: Upload Windows artifacts
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}-${{ matrix.arch }}-build
+        path: release/*${{ matrix.arch }}*.exe
+        retention-days: 7
+
+  upload-release-assets:
+    needs: [release-please, build-and-release]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-artifacts
+    
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ needs.release-please.outputs.tag_name }}
+        files: |
+          release-artifacts/macos-latest-x64-build/*
+          release-artifacts/macos-latest-arm64-build/*
+          release-artifacts/windows-latest-x64-build/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
