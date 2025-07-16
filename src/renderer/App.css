@@ -8,7 +8,7 @@
 .app-header {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: var(--color-white);
-  padding: var(--space-6);
+  padding: var(--space-5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -18,7 +18,7 @@
 }
 
 .app-header h1 {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   margin: 0;
   letter-spacing: -0.025em;
@@ -27,14 +27,14 @@
 
 .settings-button {
   position: absolute;
-  right: var(--space-6);
+  right: var(--space-5);
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-md);
   color: var(--color-white);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   cursor: pointer;
-  padding: var(--space-3);
+  padding: var(--space-2);
   transition: all var(--transition-fast);
   backdrop-filter: var(--backdrop-blur);
 }
@@ -49,7 +49,7 @@
 .app-main {
   flex: 1;
   display: flex;
-  padding: var(--space-8);
+  padding: var(--space-6);
   overflow-y: auto;
   min-height: 0; /* flexboxのoverflow対策 */
 }
@@ -69,7 +69,7 @@
 .drop-zone {
   width: 100%;
   max-width: 600px;
-  min-height: 400px;
+  min-height: 350px;
   border: 2px dashed var(--color-gray-300);
   border-radius: var(--radius-2xl);
   display: flex;
@@ -79,7 +79,7 @@
   background: var(--color-white);
   transition: all var(--transition-base);
   cursor: pointer;
-  padding: var(--space-12);
+  padding: var(--space-10);
   margin: auto;
   box-shadow: var(--shadow-sm);
   position: relative;
@@ -120,7 +120,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-5);
   position: relative;
   z-index: 1;
 }

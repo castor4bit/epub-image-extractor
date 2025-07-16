@@ -28,7 +28,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
       onDrop={onDrop}
     >
       <div className="drop-zone-content">
-        <svg className="drop-icon" width="64" height="64" viewBox="0 0 24 24" fill="none">
+        <svg className="drop-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 2L12 14M12 14L16 10M12 14L8 10"
             stroke="currentColor"
