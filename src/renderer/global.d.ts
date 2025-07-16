@@ -6,6 +6,12 @@ interface ElectronAPI {
     results?: import('@shared/types').ExtractionResult[];
     error?: string;
   }>;
+  getDroppedFilePaths: (fileList: FileList) => Array<{
+    path: string;
+    name: string;
+    size: number;
+    type: string;
+  }>;
   onProgress: (
     callback: (progress: import('@shared/types').ProcessingProgress) => void,
   ) => () => void;

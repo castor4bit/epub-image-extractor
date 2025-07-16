@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { ExtractionResult, ProcessingProgress } from '@shared/types';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './App.css';
-import './i18n';
-import { ProcessingProgress, ExtractionResult } from '@shared/types';
-import { FileDropZone } from './components/FileDropZone';
-import { SettingsWindow } from './components/SettingsWindow';
-import { FileProcessingList } from './components/FileProcessingList';
-import { CompactDropZone } from './components/CompactDropZone';
 import { AboutDialog } from './components/AboutDialog';
+import { CompactDropZone } from './components/CompactDropZone';
+import { FileDropZone } from './components/FileDropZone';
+import { FileProcessingList } from './components/FileProcessingList';
+import { SettingsWindow } from './components/SettingsWindow';
+import './i18n';
 
 function App() {
   const { t } = useTranslation();
@@ -35,7 +35,11 @@ function App() {
 
       try {
         // ファイルパスの配列を作成
-        const filePaths = filesToProcess.map((file) => file.path || '').filter((path) => path);
+        const fileData = window.electronAPI.getDroppedFilePaths(
+          filesToProcess as unknown as FileList,
+        );
+
+        const filePaths = fileData.filter((file) => file.path).map((file) => file.path);
 
         if (filePaths.length === 0) {
           throw new Error('有効なファイルパスがありません');
