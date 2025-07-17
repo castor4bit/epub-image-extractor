@@ -37,22 +37,20 @@ export function createLogger(): pino.Logger {
   }
 
   const logPath = getLogPath();
+  
+  // デバッグ用
+  console.log('[Logger] Creating logger instance', {
+    logPath,
+    NODE_ENV: process.env.NODE_ENV,
+    LOG_LEVEL: process.env.LOG_LEVEL,
+  });
   const logLevel = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'test' ? 'error' : 'info');
   const isDevelopment = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
   const isTest = process.env.NODE_ENV === 'test';
 
   // テスト環境：トランスポートなし、開発環境：コンソール出力、本番環境：ファイル出力
-  const transport = isTest
+  const transport = isTest || isDevelopment
     ? undefined
-    : isDevelopment
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'SYS:standard',
-          ignore: 'pid,hostname',
-        },
-      }
     : {
         target: 'pino/file',
         options: {
@@ -64,6 +62,14 @@ export function createLogger(): pino.Logger {
   const pinoOptions: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
     level: logLevel,
     timestamp: pino.stdTimeFunctions.isoTime,
+    // 開発環境では人間が読みやすい形式に
+    ...(isDevelopment && {
+      formatters: {
+        level: (label: string) => {
+          return { level: label };
+        },
+      },
+    }),
     serializers: {
       err: pino.stdSerializers.err,
       error: pino.stdSerializers.err,
@@ -93,7 +99,15 @@ export function createLogger(): pino.Logger {
     pinoOptions.transport = transport;
   }
 
-  loggerInstance = pino(pinoOptions);
+  try {
+    loggerInstance = pino(pinoOptions);
+  } catch (error) {
+    console.error('[Logger] Failed to create pino instance:', error);
+    // フォールバック: 最小限のロガーを作成
+    loggerInstance = pino({
+      level: logLevel,
+    });
+  }
 
   return loggerInstance;
 }
