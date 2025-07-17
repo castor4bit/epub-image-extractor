@@ -71,6 +71,12 @@ export const settingsStore = {
   },
 
   setWindowBounds: (bounds: Settings['windowBounds']) => {
-    store.set('windowBounds', bounds);
+    if (bounds === undefined) {
+      // windowBoundsを削除（デフォルト値に戻す）
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      store.set('windowBounds', undefined as any);
+    } else {
+      store.set('windowBounds', bounds);
+    }
   },
 };

@@ -28,6 +28,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
     includePageSpread: true,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [wasReset, setWasReset] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -41,6 +42,8 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           includePageSpread: loadedSettings.includePageSpread ?? true,
         });
       });
+      // ダイアログを開いたときにリセットフラグをクリア
+      setWasReset(false);
     }
   }, [isOpen]);
 
@@ -60,6 +63,12 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       }
 
       await window.electronAPI.saveSettings(settings);
+      
+      // リセット後の保存の場合、ウィンドウサイズもデフォルトに戻す
+      if (wasReset) {
+        await window.electronAPI.clearWindowBounds();
+      }
+      
       onClose();
     } catch (error) {
       console.error('設定の保存に失敗しました:', error);
@@ -77,6 +86,8 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       includeOriginalFilename: defaultSettings.includeOriginalFilename ?? true,
       includePageSpread: defaultSettings.includePageSpread ?? true,
     });
+    // リセットフラグを設定
+    setWasReset(true);
   };
 
   if (!isOpen) return null;

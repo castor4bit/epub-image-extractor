@@ -109,7 +109,18 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   // 設定のリセット
   ipcMain.handle('settings:reset', async () => {
     settingsStore.resetToDefaults();
-    return settingsStore.get();
+    const defaultSettings = settingsStore.get();
+    // デフォルトのalwaysOnTopを即座に適用
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(defaultSettings.alwaysOnTop);
+    }
+    return defaultSettings;
+  });
+
+  // ウィンドウサイズのクリア
+  ipcMain.handle('settings:clearWindowBounds', async () => {
+    settingsStore.setWindowBounds(undefined);
+    return { success: true };
   });
 
   // フォルダを開く
