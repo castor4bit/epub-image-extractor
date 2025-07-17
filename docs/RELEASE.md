@@ -280,6 +280,26 @@ git push origin main
 - [ ] 重要な変更が含まれている場合、追加のテストを実行
 - [ ] 破壊的変更がある場合、マイグレーションガイドを作成
 
+## ⚙️ 初期設定
+
+### Release PRでPR Checksを有効にする
+
+デフォルトでは、GitHub Actionsの`GITHUB_TOKEN`で作成されたPRは他のワークフローをトリガーしません。Release PRでもPR Checksを実行するには、Personal Access Token (PAT)の設定が必要です：
+
+1. **Personal Access Tokenの作成**
+   - GitHubの Settings > Developer settings > Personal access tokens
+   - `repo`スコープを持つトークンを作成
+
+2. **リポジトリシークレットの追加**
+   - リポジトリの Settings > Secrets and variables > Actions
+   - `RELEASE_TOKEN`という名前でトークンを追加
+
+3. **ワークフローの更新**
+   - `.github/workflows/release-please.yml`の`token: ${{ secrets.GITHUB_TOKEN }}`を
+   - `token: ${{ secrets.RELEASE_TOKEN }}`に変更
+
+これにより、Release PRが作成された際に自動的にPR Checksが実行されます。
+
 ## 🚨 トラブルシューティング
 
 ### Release PRが作成されない場合

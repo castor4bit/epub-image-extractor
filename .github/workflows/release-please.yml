@@ -19,6 +19,12 @@ permissions:
   pull-requests: write
   issues: write
 
+# Note: PRs created with GITHUB_TOKEN won't trigger PR Checks workflow.
+# To enable PR Checks on release PRs, you need to use a Personal Access Token (PAT).
+# 1. Create a PAT with 'repo' scope
+# 2. Add it as a repository secret named 'RELEASE_TOKEN'
+# 3. Replace ${{ secrets.GITHUB_TOKEN }} with ${{ secrets.RELEASE_TOKEN }} below
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -31,6 +37,7 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           skip-github-release: true
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Create Release PR (Explicit)
         uses: googleapis/release-please-action@v4
@@ -41,3 +48,4 @@ jobs:
           manifest-file: .release-please-manifest.json
           release-as: ${{ github.event.inputs.release_type }}
           skip-github-release: true
+          token: ${{ secrets.GITHUB_TOKEN }}
