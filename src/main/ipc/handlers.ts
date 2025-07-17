@@ -120,6 +120,15 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   // ウィンドウサイズのクリア
   ipcMain.handle('settings:clearWindowBounds', async () => {
     settingsStore.setWindowBounds(undefined);
+    
+    // デフォルトサイズに即座にリサイズ
+    if (mainWindow) {
+      const defaultWidth = 600;
+      const defaultHeight = 560;
+      mainWindow.setSize(defaultWidth, defaultHeight);
+      mainWindow.center(); // 画面中央に配置
+    }
+    
     return { success: true };
   });
 
