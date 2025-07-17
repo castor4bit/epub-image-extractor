@@ -14,7 +14,11 @@ module.exports = [
       'node_modules/**',
       'coverage/**',
       '*.config.js',
-      '*.config.ts'
+      '*.config.ts',
+      'scripts/**',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/__tests__/**'
     ]
   },
   
