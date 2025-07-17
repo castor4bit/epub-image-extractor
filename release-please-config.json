@@ -3,6 +3,9 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
   "include-v-in-tags": true,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "changelog-path": "CHANGELOG.md",
+  "ignore-github-merge-commits": true,
   "packages": {
     ".": {
       "release-type": "node",
@@ -16,10 +19,29 @@
         {"type": "perf", "section": "Performance Improvements"},
         {"type": "test", "section": "Tests", "hidden": true},
         {"type": "build", "section": "Build System", "hidden": true},
-        {"type": "ci", "section": "Continuous Integration"},
+        {"type": "ci", "section": "Continuous Integration", "hidden": true},
         {"type": "chore", "section": "Chores", "hidden": true},
         {"type": "deps", "section": "Dependencies"},
         {"type": "revert", "section": "Reverts"}
+      ],
+      "exclude-paths": [
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "test/**",
+        "tests/**",
+        ".github/**"
+      ],
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json", 
+          "path": "package-lock.json",
+          "jsonpath": "$.version"
+        }
       ]
     }
   }

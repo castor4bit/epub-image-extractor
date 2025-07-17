@@ -229,34 +229,81 @@ BREAKING CHANGE: All UI components have been redesigned with new API"
   "release-type": "node",
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
+  "include-v-in-tags": true,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "changelog-path": "CHANGELOG.md",
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "epub-image-extractor",
+      "include-component-in-tag": false,
       "changelog-sections": [
         {"type": "feat", "section": "Features"},
         {"type": "fix", "section": "Bug Fixes"},
         {"type": "docs", "section": "Documentation"},
+        {"type": "style", "section": "Styles", "hidden": true},
         {"type": "refactor", "section": "Code Refactoring"},
         {"type": "perf", "section": "Performance Improvements"},
-        {"type": "deps", "section": "Dependencies"},
+        {"type": "test", "section": "Tests", "hidden": true},
+        {"type": "build", "section": "Build System", "hidden": true},
         {"type": "ci", "section": "Continuous Integration"},
+        {"type": "chore", "section": "Chores", "hidden": true},
+        {"type": "deps", "section": "Dependencies"},
         {"type": "revert", "section": "Reverts"}
+      ],
+      "exclude-paths": [
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "test/**",
+        "tests/**",
+        ".github/**"
+      ],
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json", 
+          "path": "package-lock.json",
+          "jsonpath": "$.version"
+        }
       ]
     }
-  }
+  },
+  "merge-method": "squash",
+  "separate-pull-requests": true
 }
 ```
+
+#### 設定の説明
+
+- **merge-method**: "squash"でマージコミットを避けて、クリーンな履歴を維持
+- **separate-pull-requests**: 複数のリリースを別々のPRとして管理
+- **exclude-paths**: テストファイルやGitHub Actionsの変更を除外
+- **extra-files**: package.jsonとpackage-lock.jsonのバージョンを自動更新
 
 ### .release-please-manifest.json
 
 ```json
 {
-  ".": "0.4.0"
+  ".": "0.4.2"
 }
 ```
 
 現在のバージョンを記録します。release-pleaseが自動更新します。
+
+### .gitattributes
+
+```
+# release-please管理ファイルのマージ競合を防ぐ
+CHANGELOG.md merge=union
+.release-please-manifest.json merge=ours
+package.json merge=ours
+package-lock.json merge=ours
+```
+
+重複エントリーやマージ競合を防ぐための設定です。
 
 ## 🎯 各種リリースタイプの実行例
 
@@ -355,6 +402,21 @@ git push origin main
 2. **ビルドが失敗する場合**
    - `skip_build`オプションをチェックしてリリースのみ実行
    - 後で手動でビルドを実行
+
+### CHANGELOGに重複エントリーが発生する場合
+
+1. **原因の確認**
+   - 同じコミットが複数のブランチにマージされた
+   - release-pleaseが同じコミットを複数回検出した
+
+2. **防止策**
+   - `.gitattributes`ファイルが正しく設定されているか確認
+   - `merge-method: "squash"`が設定されているか確認
+   - `exclude-paths`に不要なファイルが含まれているか確認
+
+3. **修正方法**
+   - CHANGELOGを手動で編集して重複を削除
+   - release-please設定を更新して今後の重複を防ぐ
 
 ### 緊急時の手動リリース
 
