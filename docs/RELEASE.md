@@ -10,14 +10,14 @@ EPUB Image Extractorは**release-please**を使用した自動リリース シ�
 
 1. **開発**: conventional commitsでコードを開発
 2. **プッシュ**: `main`ブランチにpush
-3. **リリース準備**:
-   - 自動: mainへのpush時にrelease-pleaseが自動でRelease PRを作成/更新
-   - 手動: GitHub Actionsで「Release Please」ワークフローを手動実行してRelease PRを作成
+3. **リリース準備**: GitHub Actionsで「Release Please」ワークフローを**手動実行**してRelease PRを作成
 4. **Release PR確認**: 生成されたCHANGELOGとバージョンを確認
-5. **リリース実行**: Release PRをマージすると自動的にリリースが作成される
-6. **品質チェック**: リリース前に自動で品質チェックを実行
+5. **品質チェック**: PR作成時に自動で品質チェックを実行
+6. **リリース実行**: Release PRをマージすると自動的にリリースが作成される
 7. **ビルド**: 各プラットフォーム用のビルドを自動実行
 8. **配布**: GitHub Releaseにビルド成果物を自動アップロード
+
+> **注意**: mainブランチへのpush時に自動的にRelease PRは作成されません。新バージョンをリリースしたい場合は、必ずGitHub Actionsから手動でワークフローを実行してください。
 
 ### 従来のstandard-versionから変更された点
 
@@ -97,14 +97,14 @@ git merge feature/batch-processing
 git push origin main
 ```
 
-mainへのpush後、release-pleaseが自動的に既存のRelease PRを更新します。
+Release PRは手動でワークフローを実行した時のみ作成・更新されます。
 
 ### 2. Release PRの確認
 
-mainブランチへのpush後、またはワークフローの手動実行後：
+ワークフローの手動実行後：
 
 1. **Pull Requestsページを確認**: 「chore(main): release X.X.X」というタイトルのPRを探す
-2. **自動品質チェック**: PRが作成されると自動的に以下が実行されます
+2. **自動品質チェック**: PRが作成されると自動的に以下が実行されます（pr-checks.ymlにより）
    - ESLintチェック
    - TypeScriptコンパイルチェック
    - ユニットテスト
@@ -162,7 +162,8 @@ Release PRには以下が含まれています：
 git commit -m "fix: Critical security vulnerability in file parser"
 git push origin main
 
-# Release PRが自動作成されるので、すぐにマージ
+# GitHub Actionsで手動実行してRelease PRを作成
+# 作成されたPRをすぐにマージ
 ```
 
 ### 特定バージョンでのリリース
@@ -175,6 +176,25 @@ git commit -m "feat!: Complete UI redesign
 
 BREAKING CHANGE: All UI components have been redesigned with new API"
 ```
+
+## 🔧 GitHub Actionsワークフロー
+
+### 1. release-please.yml
+**手動実行専用**のワークフローで、Release PRの作成のみを行います。
+- トリガー: `workflow_dispatch`（手動実行のみ）
+- 機能: Release PRの作成（`skip-github-release: true`により、リリースは作成しない）
+
+### 2. release-on-merge.yml
+Release PRがマージされた時に自動的にリリースを作成します。
+- トリガー: PRのクローズ時（マージされた場合のみ）
+- 条件: PRタイトルが`chore(main):`で始まる場合
+- 機能: リリース作成、ビルド実行、成果物のアップロード
+
+### 3. pr-checks.yml
+すべてのPRに対して品質チェックを実行します。
+- トリガー: PRの作成・更新時
+- 機能: Lint、TypeScriptチェック、テスト、ビルドテスト
+- PR結果コメント: チェック結果を自動でコメント
 
 ## 📋 設定ファイル
 
