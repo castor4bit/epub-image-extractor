@@ -40,6 +40,7 @@ const electronAPI = {
   getSettings: () => ipcRenderer.invoke('settings:get'),
   saveSettings: (settings: Settings) => ipcRenderer.invoke('settings:save', settings),
   resetSettings: () => ipcRenderer.invoke('settings:reset'),
+  clearWindowBounds: () => ipcRenderer.invoke('settings:clearWindowBounds'),
   openFolder: (path: string) => ipcRenderer.invoke('file:openFolder', path),
 };
 

@@ -19,6 +19,7 @@
   box-shadow: var(--shadow-2xl);
   width: 90%;
   max-width: 600px;
+  min-width: 480px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -190,6 +191,8 @@
   border-top: 1px solid var(--color-gray-200);
   background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-white) 100%);
   border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }
 
 .reset-button {
@@ -202,6 +205,7 @@
   transition: all var(--transition-fast);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
+  white-space: nowrap;
 }
 
 .reset-button:hover {
@@ -226,6 +230,7 @@
   font-weight: var(--font-weight-medium);
   transition: all var(--transition-fast);
   min-width: 100px;
+  white-space: nowrap;
 }
 
 .cancel-button {
@@ -258,4 +263,30 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: var(--shadow-sm);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 520px) {
+  .settings-window {
+    min-width: 95%;
+  }
+  
+  .settings-footer {
+    justify-content: center;
+  }
+  
+  .footer-buttons {
+    flex: 1;
+    justify-content: flex-end;
+  }
+  
+  .reset-button {
+    order: 1;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .footer-buttons {
+    order: 2;
+  }
 }

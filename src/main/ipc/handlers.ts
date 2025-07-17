@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { settingsStore } from '../store/settings';
 import { extractEpubsFromZip, cleanupTempFiles, isZipFile } from '../utils/zipHandler';
+import { WINDOW_SIZES } from '../constants/window';
 
 // 出力ディレクトリ選択
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
@@ -109,7 +110,25 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   // 設定のリセット
   ipcMain.handle('settings:reset', async () => {
     settingsStore.resetToDefaults();
-    return settingsStore.get();
+    const defaultSettings = settingsStore.get();
+    // デフォルトのalwaysOnTopを即座に適用
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(defaultSettings.alwaysOnTop);
+    }
+    return defaultSettings;
+  });
+
+  // ウィンドウサイズのクリア
+  ipcMain.handle('settings:clearWindowBounds', async () => {
+    settingsStore.setWindowBounds(undefined);
+    
+    // デフォルトサイズに即座にリサイズ
+    if (mainWindow) {
+      mainWindow.setSize(WINDOW_SIZES.default.width, WINDOW_SIZES.default.height);
+      mainWindow.center(); // 画面中央に配置
+    }
+    
+    return { success: true };
   });
 
   // フォルダを開く

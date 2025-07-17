@@ -8,6 +8,12 @@ interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean; // 元のファイル名を含めるか
   includePageSpread: boolean; // 左右情報を含めるか
+  windowBounds?: { // ウィンドウのサイズと位置
+    width: number;
+    height: number;
+    x?: number;
+    y?: number;
+  };
 }
 
 const defaults: Settings = {
@@ -36,6 +42,7 @@ export const settingsStore = {
       alwaysOnTop: store.get('alwaysOnTop'),
       includeOriginalFilename: store.get('includeOriginalFilename'),
       includePageSpread: store.get('includePageSpread'),
+      windowBounds: store.get('windowBounds'),
     };
   },
 
@@ -57,5 +64,18 @@ export const settingsStore = {
 
   resetToDefaults: (): void => {
     store.clear();
+  },
+
+  getWindowBounds: () => {
+    return store.get('windowBounds');
+  },
+
+  setWindowBounds: (bounds: Settings['windowBounds']) => {
+    if (bounds === undefined) {
+      // windowBoundsを削除（デフォルト値に戻す）
+      store.delete('windowBounds');
+    } else {
+      store.set('windowBounds', bounds);
+    }
   },
 };

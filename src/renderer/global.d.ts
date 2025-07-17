@@ -19,6 +19,7 @@ interface ElectronAPI {
   getSettings: () => Promise<import('@shared/types').Settings>;
   saveSettings: (settings: import('@shared/types').Settings) => Promise<{ success: boolean }>;
   resetSettings: () => Promise<import('@shared/types').Settings>;
+  clearWindowBounds: () => Promise<{ success: boolean }>;
   openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
 }
 
