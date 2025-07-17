@@ -1,7 +1,7 @@
 import { ImageInfo } from '@shared/types';
 import { EpubData } from './parser';
 import { AppError, ErrorCode } from '../../shared/error-types';
-import { getLogger } from '../utils/errorHandler';
+import { logger } from '../utils/logger';
 import path from 'path';
 import AdmZip from 'adm-zip';
 import { checkResourceLimits } from '../utils/pathSecurity';
@@ -15,11 +15,11 @@ export async function extractImages(
   let totalImageCount = 0;
 
   try {
-    getLogger().debug('画像抽出開始', {
+    logger.debug({
       spineLength: epubData.spine.length,
       manifestSize: Object.keys(epubData.manifest).length,
       hasParser: !!epubData.parser,
-    });
+    }, '画像抽出開始');
 
     // チャプターとページのマッピングを作成
     const chapterPageMapping = createChapterPageMapping(epubData);
@@ -30,12 +30,12 @@ export async function extractImages(
 
     for (let pageIndex = 0; pageIndex < epubData.spine.length; pageIndex++) {
       const spineItem = epubData.spine[pageIndex];
-      getLogger().debug(`ページ ${pageIndex + 1}/${totalPages} 処理中`, spineItem);
+      logger.debug({ pageIndex: pageIndex + 1, totalPages, spineItem }, 'ページ処理中');
 
       const manifestItem = epubData.manifest[spineItem.idref];
 
       if (!manifestItem) {
-        getLogger().warn(`Manifest item not found for spine idref: ${spineItem.idref}`);
+        logger.warn({ idref: spineItem.idref }, 'Manifest item not found for spine idref');
         continue;
       }
 
@@ -44,17 +44,17 @@ export async function extractImages(
 
       // HTMLコンテンツを取得
       const contentPath = path.join(epubData.contentPath, manifestItem.href).replace(/\\/g, '/');
-      getLogger().debug(`コンテンツ取得: ${contentPath}`);
+      logger.debug({ contentPath }, 'コンテンツ取得');
 
       try {
         const contentEntry = zip.getEntry(contentPath);
         if (!contentEntry) {
-          getLogger().warn(`エントリーが見つかりません: ${contentPath}`);
+          logger.warn({ contentPath }, 'エントリーが見つかりません');
           continue;
         }
 
         const contentString = zip.readAsText(contentEntry);
-        getLogger().debug(`コンテンツサイズ: ${contentString.length} 文字`);
+        logger.debug({ contentSize: contentString.length }, 'コンテンツサイズ');
 
         // HTMLを解析して画像を抽出
         const pageImages = await extractImagesFromHTML(
@@ -74,7 +74,7 @@ export async function extractImages(
         );
 
         if (!limitCheck.allowed) {
-          getLogger().warn(`リソース制限: ${limitCheck.reason}`);
+          logger.warn({ reason: limitCheck.reason }, 'リソース制限');
           // 制限に達した場合は警告を出して処理を継続（これまでの画像は保持）
           break;
         }
@@ -87,9 +87,9 @@ export async function extractImages(
           onProgress(processedCount, totalPages);
         }
       } catch (contentError) {
-        getLogger().error(
-          `コンテンツ取得エラー (${contentPath})`,
-          contentError instanceof Error ? contentError : new Error(String(contentError)),
+        logger.error(
+          { err: contentError instanceof Error ? contentError : new Error(String(contentError)), contentPath },
+          'コンテンツ取得エラー'
         );
         continue;
       }
@@ -120,7 +120,7 @@ export async function extractImages(
             error instanceof Error ? error : undefined,
           );
 
-    getLogger().error('画像抽出エラー', appError);
+    logger.error({ err: appError }, '画像抽出エラー');
     throw appError;
   }
 }
@@ -191,7 +191,7 @@ async function extractImagesFromHTML(
       }
     }
   } catch (error) {
-    getLogger().error('HTML解析エラー', error instanceof Error ? error : new Error(String(error)));
+    logger.error({ err: error instanceof Error ? error : new Error(String(error)) }, 'HTML解析エラー');
   }
 
   return images;
@@ -289,12 +289,12 @@ function createChapterPageMapping(epubData: EpubData): Map<number, number> {
   }
 
   // デバッグ情報を出力
-  getLogger().debug('チャプターページマッピング', {
-    ナビゲーション数: epubData.navigation.length,
-    spine数: epubData.spine.length,
-    チャプター開始位置: chapterStartIndices.slice(0, 10),
-    マッピングサンプル: Array.from(mapping.entries()).slice(0, 10),
-  });
+  logger.debug({
+    navigationCount: epubData.navigation.length,
+    spineCount: epubData.spine.length,
+    chapterStartPositions: chapterStartIndices.slice(0, 10),
+    mappingSample: Array.from(mapping.entries()).slice(0, 10),
+  }, 'チャプターページマッピング');
 
   // 特定チャプターの詳細情報
   const chapter3Info = chapterStartIndices.find((c) => c.chapterOrder === 3);
@@ -303,14 +303,20 @@ function createChapterPageMapping(epubData: EpubData): Map<number, number> {
   const chapter7Info = chapterStartIndices.find((c) => c.chapterOrder === 7);
 
   if (chapter3Info && chapter4Info) {
-    getLogger().debug(
-      `チャプター3（巻頭特集）: spine ${chapter3Info.spineIndex} から ${chapter4Info.spineIndex - 1} まで（${chapter4Info.spineIndex - chapter3Info.spineIndex}ページ）`,
-    );
+    logger.debug({
+      chapter: '巻頭特集',
+      startSpine: chapter3Info.spineIndex,
+      endSpine: chapter4Info.spineIndex - 1,
+      pageCount: chapter4Info.spineIndex - chapter3Info.spineIndex
+    }, 'チャプター範囲');
   }
   if (chapter6Info && chapter7Info) {
-    getLogger().debug(
-      `チャプター6（勇者は魔王が好きらしい）: spine ${chapter6Info.spineIndex} から ${chapter7Info.spineIndex - 1} まで（${chapter7Info.spineIndex - chapter6Info.spineIndex}ページ）`,
-    );
+    logger.debug({
+      chapter: '勇者は魔王が好きらしい',
+      startSpine: chapter6Info.spineIndex,
+      endSpine: chapter7Info.spineIndex - 1,
+      pageCount: chapter7Info.spineIndex - chapter6Info.spineIndex
+    }, 'チャプター範囲');
   }
 
   return mapping;

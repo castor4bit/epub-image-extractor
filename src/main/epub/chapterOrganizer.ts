@@ -1,6 +1,6 @@
 import { ImageInfo, ChapterInfo } from '@shared/types';
 import { AppError, ErrorCode } from '../../shared/error-types';
-import { getLogger } from '../utils/errorHandler';
+import { logger } from '../utils/logger';
 import path from 'path';
 import fs from 'fs/promises';
 import AdmZip from 'adm-zip';
@@ -83,12 +83,12 @@ export async function organizeByChapters(
         // EPUBから画像データを取得
         const imageEntry = zip.getEntry(image.src);
         if (!imageEntry) {
-          getLogger().warn(`画像エントリーが見つかりません: ${image.src}`);
+          logger.warn({ imageSrc: image.src }, '画像エントリーが見つかりません');
           continue;
         }
         const imageBuffer = zip.readFile(imageEntry);
         if (!imageBuffer) {
-          getLogger().warn(`画像データが読み取れません: ${image.src}`);
+          logger.warn({ imageSrc: image.src }, '画像データが読み取れません');
           continue;
         }
 
@@ -99,7 +99,7 @@ export async function organizeByChapters(
           process.memoryUsage().heapUsed,
         );
         if (!sizeCheck.allowed) {
-          getLogger().warn(`画像サイズ制限超過 (${image.src}): ${sizeCheck.reason}`);
+          logger.warn({ imageSrc: image.src, reason: sizeCheck.reason }, '画像サイズ制限超過');
           continue;
         }
 
@@ -129,9 +129,9 @@ export async function organizeByChapters(
 
         imageIndex++;
       } catch (error) {
-        getLogger().error(
-          `画像保存エラー (${image.src})`,
-          error instanceof Error ? error : new Error(String(error)),
+        logger.error(
+          { err: error instanceof Error ? error : new Error(String(error)), imageSrc: image.src },
+          '画像保存エラー'
         );
       }
     }
