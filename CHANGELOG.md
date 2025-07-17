@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.2](https://github.com/castor4bit/epub-image-extractor/compare/v0.4.1...v0.4.2) (2025-07-17)
+
+
+### Features
+
+* Add resizable window support ([011bef3](https://github.com/castor4bit/epub-image-extractor/commit/011bef329491e9e802db47d69f6fce9bab81c289))
+* Add resizable window support with persistent size/position ([9023cbf](https://github.com/castor4bit/epub-image-extractor/commit/9023cbfd4712f3351a145a1454314cc7a5017af1))
+* Clear window bounds when resetting settings ([b6f9c3b](https://github.com/castor4bit/epub-image-extractor/commit/b6f9c3bdc811816238fdb6c7962d47f2de54339c))
+
+
+### Bug Fixes
+
+* Apply default window size immediately when clearing bounds ([f454f5e](https://github.com/castor4bit/epub-image-extractor/commit/f454f5e4371520c8e662850eefcdb218889b16cf))
+* Enable automatic release on PR merge ([abaf919](https://github.com/castor4bit/epub-image-extractor/commit/abaf919e8b4ea3d8c7c10582110d24787d2cb753))
+* Exclude test files and scripts from ESLint checks ([be0e6d9](https://github.com/castor4bit/epub-image-extractor/commit/be0e6d96373436a83737a5d5d337b73ef6cc891d))
+* Exclude test files and scripts from ESLint checks ([79492d7](https://github.com/castor4bit/epub-image-extractor/commit/79492d75a81bef07458f5eda4ecb61e57d916d37))
+* Prevent button text wrapping in settings window ([95fd691](https://github.com/castor4bit/epub-image-extractor/commit/95fd691951ada60ae60e87a2df94798fdfe874c8))
+* Separate PR checks from release workflow ([729f2a2](https://github.com/castor4bit/epub-image-extractor/commit/729f2a253b0069439bee99e39466383caf5d2dbc))
+* Separate PR checks from release workflow ([2bc2534](https://github.com/castor4bit/epub-image-extractor/commit/2bc2534d6583dd5256a5c46937ec1f16431011c9))
+* Separate PR creation from release process ([62f56c5](https://github.com/castor4bit/epub-image-extractor/commit/62f56c519b20f2f70806a017a1d619ab8e616a5e))
+* Separate PR creation from release process ([85691f4](https://github.com/castor4bit/epub-image-extractor/commit/85691f4ac3a5d275fadaa013cb8979251ebafeb6))
+* Use delete method instead of setting undefined for windowBounds ([12038bd](https://github.com/castor4bit/epub-image-extractor/commit/12038bde3cfab92c7fe31e65167d4bb002135cf6))
+
+
+### Documentation
+
+* Update release documentation for new workflow ([5a447cf](https://github.com/castor4bit/epub-image-extractor/commit/5a447cf471fb754832322b7ecefebf22a7447631))
+
+
+### Code Refactoring
+
+* Centralize window size constants ([193ea6d](https://github.com/castor4bit/epub-image-extractor/commit/193ea6dd82a722290946e805e6bdca3a900cd5fb))
+
 ## [0.4.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.4.0...v0.4.1) (2025-07-17)
 
 
