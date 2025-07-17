@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { settingsStore } from '../store/settings';
 import { extractEpubsFromZip, cleanupTempFiles, isZipFile } from '../utils/zipHandler';
+import { WINDOW_SIZES } from '../constants/window';
 
 // 出力ディレクトリ選択
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
@@ -123,9 +124,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     
     // デフォルトサイズに即座にリサイズ
     if (mainWindow) {
-      const defaultWidth = 600;
-      const defaultHeight = 560;
-      mainWindow.setSize(defaultWidth, defaultHeight);
+      mainWindow.setSize(WINDOW_SIZES.default.width, WINDOW_SIZES.default.height);
       mainWindow.center(); // 画面中央に配置
     }
     

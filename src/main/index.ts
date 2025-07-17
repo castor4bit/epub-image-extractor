@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
+import { WINDOW_SIZES } from './constants/window';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -22,22 +23,18 @@ if (process.platform === 'darwin' && app.dock) {
 }
 
 function createWindow() {
-  // デフォルトサイズ
-  const defaultWidth = 600;
-  const defaultHeight = 560;
-
   // 設定から最前面表示とウィンドウサイズを取得
   const settings = settingsStore.get();
   const savedBounds = settings.windowBounds;
 
   mainWindow = new BrowserWindow({
     title: 'EPUB Image Extractor',
-    width: savedBounds?.width || defaultWidth,
-    height: savedBounds?.height || defaultHeight,
+    width: savedBounds?.width || WINDOW_SIZES.default.width,
+    height: savedBounds?.height || WINDOW_SIZES.default.height,
     x: savedBounds?.x,
     y: savedBounds?.y,
-    minWidth: 500, // 最小幅
-    minHeight: 400, // 最小高さ
+    minWidth: WINDOW_SIZES.minimum.width,
+    minHeight: WINDOW_SIZES.minimum.height,
     resizable: true, // リサイズ可能に設定
     alwaysOnTop: settings.alwaysOnTop,
     icon:
