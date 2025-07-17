@@ -9,12 +9,15 @@ EPUB Image Extractorは**release-please**を使用した自動リリース シ�
 ### 完全自動化されたリリースフロー
 
 1. **開発**: conventional commitsでコードを開発
-2. **プッシュ**: `main`ブランチにpush（リリースは自動実行されない）
-3. **手動リリース**: GitHub Actionsで「Release Please」ワークフローを手動実行
-4. **Release PR作成**: release-pleaseがRelease PRを作成
-5. **リリース**: Release PRをマージするとリリース実行
-6. **ビルド**: 自動的に各プラットフォーム用のビルド実行
-7. **配布**: GitHub Releaseにビルド成果物を自動アップロード
+2. **プッシュ**: `main`ブランチにpush
+3. **リリース準備**:
+   - 自動: mainへのpush時にrelease-pleaseが自動でRelease PRを作成/更新
+   - 手動: GitHub Actionsで「Release Please」ワークフローを手動実行してRelease PRを作成
+4. **Release PR確認**: 生成されたCHANGELOGとバージョンを確認
+5. **リリース実行**: Release PRをマージすると自動的にリリースが作成される
+6. **品質チェック**: リリース前に自動で品質チェックを実行
+7. **ビルド**: 各プラットフォーム用のビルドを自動実行
+8. **配布**: GitHub Releaseにビルド成果物を自動アップロード
 
 ### 従来のstandard-versionから変更された点
 
@@ -94,9 +97,28 @@ git merge feature/batch-processing
 git push origin main
 ```
 
-### 2. 手動リリース実行
+mainへのpush後、release-pleaseが自動的に既存のRelease PRを更新します。
 
-GitHub Actionsで「Release Please」ワークフローを手動実行します：
+### 2. Release PRの確認
+
+mainブランチへのpush後、またはワークフローの手動実行後：
+
+1. **Pull Requestsページを確認**: 「chore(main): release X.X.X」というタイトルのPRを探す
+2. **自動品質チェック**: PRが作成されると自動的に以下が実行されます
+   - ESLintチェック
+   - TypeScriptコンパイルチェック
+   - ユニットテスト
+   - 統合テスト
+   - ビルドテスト
+3. **内容を確認**:
+   - CHANGELOGの変更内容
+   - package.jsonのバージョン
+   - 含まれるコミット一覧
+   - 品質チェックの結果（すべて✅になっていることを確認）
+
+### 3. 手動でのリリースバージョン指定（オプション）
+
+特定のバージョンでリリースしたい場合：
 
 1. **GitHub Actionsページに移動**: リポジトリの「Actions」タブ
 2. **「Release Please」ワークフローを選択**
@@ -108,26 +130,18 @@ GitHub Actionsで「Release Please」ワークフローを手動実行します�
    - `major`: メジャーリリース (0.4.0 → 1.0.0)
 5. **「Run workflow」で実行**
 
-ワークフローが実行されると、release-pleaseが自動的に：
+### 4. リリース実行
 
-- コミット履歴を分析
-- セマンティックバージョニングに基づいてバージョン決定（またはマニュアル指定）
-- CHANGELOGを自動生成
-- package.jsonのバージョンを更新
-- **Release PR**を作成
-
-### 3. リリース実行
-
-**Release PR**をマージすると：
+**Release PR**をマージすると自動的に：
 
 1. **タグ作成**: `v0.4.1`のようなタグが自動作成
-2. **ビルド開始**: GitHub Actionsがビルドを開始
-3. **成果物生成**: 
+2. **GitHub Release作成**: リリースノートとともに公開
+3. **ビルド実行**: 各プラットフォーム向けにビルド
    - macOS: `EPUB-Image-Extractor-{version}-arm64.dmg`
    - macOS: `EPUB-Image-Extractor-{version}-x64.dmg`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Setup.exe`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Portable.exe`
-4. **リリース作成**: GitHub Releaseが作成され、成果物がアップロード
+4. **成果物アップロード**: ビルド成果物をGitHub Releaseに自動追加
 
 ## 🛠 メンテナンス作業
 
