@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.4.0...v0.4.1) (2025-07-17)
+
+
+### Features
+
+* Change processing status title to be more appropriate ([09c49a5](https://github.com/castor4bit/epub-image-extractor/commit/09c49a51f07c994cd5b1213f098e053f291013c5))
+* Remove Linux support - Windows and macOS only ([07188bd](https://github.com/castor4bit/epub-image-extractor/commit/07188bdb4e748cda7ace762a4128d717ef6d5206))
+
+
+### Bug Fixes
+
+* Adjust initial screen layout to prevent scroll bars ([ce146c4](https://github.com/castor4bit/epub-image-extractor/commit/ce146c41067a8ae2aad172dcfc54c655271d89db))
+* Unify hover styles between normal and compact drop zones ([16f5c9a](https://github.com/castor4bit/epub-image-extractor/commit/16f5c9a787fb90f8f13031ac847e2532fc2150cd))
+
+
+### Code Refactoring
+
+* Migrate from standard-version to release-please ([d14c6c0](https://github.com/castor4bit/epub-image-extractor/commit/d14c6c0d10aeb661304d94b4c02e46e2509e1f6a))
+* Remove version badges and recent updates automation ([6ea9084](https://github.com/castor4bit/epub-image-extractor/commit/6ea9084a1fd8e471fff28cfb9895bd93320717de))
+
 ## [0.4.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.3.0...v0.4.0) (2025-07-16)
 
 
