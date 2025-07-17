@@ -104,10 +104,17 @@ mainへのpush後、release-pleaseが自動的に既存のRelease PRを更新し
 mainブランチへのpush後、またはワークフローの手動実行後：
 
 1. **Pull Requestsページを確認**: 「chore(main): release X.X.X」というタイトルのPRを探す
-2. **内容を確認**:
+2. **自動品質チェック**: PRが作成されると自動的に以下が実行されます
+   - ESLintチェック
+   - TypeScriptコンパイルチェック
+   - ユニットテスト
+   - 統合テスト
+   - ビルドテスト
+3. **内容を確認**:
    - CHANGELOGの変更内容
    - package.jsonのバージョン
    - 含まれるコミット一覧
+   - 品質チェックの結果（すべて✅になっていることを確認）
 
 ### 3. 手動でのリリースバージョン指定（オプション）
 
@@ -127,15 +134,14 @@ mainブランチへのpush後、またはワークフローの手動実行後：
 
 **Release PR**をマージすると自動的に：
 
-1. **品質チェック**: ESLint、TypeScript、テスト、ビルドチェックを実行
-2. **タグ作成**: `v0.4.1`のようなタグが自動作成
-3. **GitHub Release作成**: リリースノートとともに公開
-4. **ビルド実行**: 各プラットフォーム向けにビルド
+1. **タグ作成**: `v0.4.1`のようなタグが自動作成
+2. **GitHub Release作成**: リリースノートとともに公開
+3. **ビルド実行**: 各プラットフォーム向けにビルド
    - macOS: `EPUB-Image-Extractor-{version}-arm64.dmg`
    - macOS: `EPUB-Image-Extractor-{version}-x64.dmg`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Setup.exe`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Portable.exe`
-5. **成果物アップロード**: ビルド成果物をGitHub Releaseに自動追加
+4. **成果物アップロード**: ビルド成果物をGitHub Releaseに自動追加
 
 ## 🛠 メンテナンス作業
 
