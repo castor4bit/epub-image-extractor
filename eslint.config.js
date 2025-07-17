@@ -37,7 +37,11 @@ module.exports = [
         exports: 'readonly',
         __dirname: 'readonly',
         __filename: 'readonly',
-        Buffer: 'readonly'
+        Buffer: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly'
       }
     },
     ...js.configs.recommended

@@ -22,17 +22,23 @@ if (process.platform === 'darwin' && app.dock) {
 }
 
 function createWindow() {
-  // 以前のサイズ（1200x800）に対して、幅50%、高さ70%に設定
-  const windowWidth = 600; // 1200 * 0.5
-  const windowHeight = 560; // 800 * 0.7
+  // デフォルトサイズ
+  const defaultWidth = 600;
+  const defaultHeight = 560;
 
-  // 設定から最前面表示を取得
+  // 設定から最前面表示とウィンドウサイズを取得
   const settings = settingsStore.get();
+  const savedBounds = settings.windowBounds;
 
   mainWindow = new BrowserWindow({
     title: 'EPUB Image Extractor',
-    width: windowWidth,
-    height: windowHeight,
+    width: savedBounds?.width || defaultWidth,
+    height: savedBounds?.height || defaultHeight,
+    x: savedBounds?.x,
+    y: savedBounds?.y,
+    minWidth: 500, // 最小幅
+    minHeight: 400, // 最小高さ
+    resizable: true, // リサイズ可能に設定
     alwaysOnTop: settings.alwaysOnTop,
     icon:
       process.platform === 'darwin'
@@ -55,6 +61,24 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // ウィンドウサイズと位置の変更を保存
+  let saveTimer: ReturnType<typeof setTimeout> | null = null;
+  const saveBounds = () => {
+    if (!mainWindow) return;
+    
+    const bounds = mainWindow.getBounds();
+    settingsStore.setWindowBounds(bounds);
+  };
+
+  // リサイズやムーブが終わったら保存（デバウンス処理）
+  const debouncedSave = () => {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveBounds, 500);
+  };
+
+  mainWindow.on('resize', debouncedSave);
+  mainWindow.on('move', debouncedSave);
 
   // IPCハンドラーを登録
   registerIpcHandlers(mainWindow);
