@@ -1,10 +1,13 @@
-name: Release on Merge
+name: Execute Release
 
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: 'Skip build process (for testing)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -12,23 +15,58 @@ permissions:
   issues: write
 
 jobs:
-  check-and-release:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.title, 'chore(main):')
+  create-release:
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
     steps:
-      - name: Run Release Please
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check if release PR was merged
+        id: check-merged
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // 最近マージされたRelease PRを探す
+            const { data: pulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              base: 'main',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 10
+            });
+            
+            const releasePR = pulls.find(pr => 
+              pr.merged_at && 
+              pr.title.startsWith('chore(main): release') &&
+              new Date(pr.merged_at) > new Date(Date.now() - 24 * 60 * 60 * 1000) // 24時間以内
+            );
+            
+            if (!releasePR) {
+              core.setFailed('No recently merged release PR found. Please merge a release PR first.');
+              return;
+            }
+            
+            console.log(`Found merged release PR: #${releasePR.number} - ${releasePR.title}`);
+            core.setOutput('pr_number', releasePR.number);
+            core.setOutput('pr_title', releasePR.title);
+
+      - name: Create GitHub Release
         uses: googleapis/release-please-action@v4
         id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # skip-github-releaseを指定しない（リリースを作成する）
 
   build-and-release:
-    needs: check-and-release
-    if: needs.check-and-release.outputs.release_created == 'true'
+    needs: create-release
+    if: needs.create-release.outputs.release_created == 'true' && github.event.inputs.skip_build != 'true'
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -46,6 +84,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        # 作成されたタグをチェックアウト
+        ref: ${{ needs.create-release.outputs.tag_name }}
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -80,8 +121,8 @@ jobs:
         retention-days: 7
 
   upload-release-assets:
-    needs: [check-and-release, build-and-release]
-    if: needs.check-and-release.outputs.release_created == 'true'
+    needs: [create-release, build-and-release]
+    if: needs.create-release.outputs.release_created == 'true' && github.event.inputs.skip_build != 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -95,7 +136,7 @@ jobs:
     - name: Upload release assets
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ needs.check-and-release.outputs.tag_name }}
+        tag_name: ${{ needs.create-release.outputs.tag_name }}
         files: |
           release-artifacts/macos-latest-x64-build/*
           release-artifacts/macos-latest-arm64-build/*

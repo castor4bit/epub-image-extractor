@@ -6,18 +6,25 @@ EPUB Image Extractorは**release-please**を使用した自動リリース シ�
 
 ## 🚀 リリースプロセスの仕組み
 
-### 完全自動化されたリリースフロー
+### 2段階手動リリースフロー
 
 1. **開発**: conventional commitsでコードを開発
 2. **プッシュ**: `main`ブランチにpush
-3. **リリース準備**: GitHub Actionsで「Release Please」ワークフローを**手動実行**してRelease PRを作成
-4. **Release PR確認**: 生成されたCHANGELOGとバージョンを確認
-5. **品質チェック**: PR作成時に自動で品質チェックを実行
-6. **リリース実行**: Release PRをマージすると自動的にリリースが作成される
-7. **ビルド**: 各プラットフォーム用のビルドを自動実行
-8. **配布**: GitHub Releaseにビルド成果物を自動アップロード
+3. **Stage 1 - リリース準備**: 
+   - GitHub Actionsで「Release Please」ワークフローを**手動実行**
+   - Release PRが作成される
+   - PR Checksが自動的に実行される（lint、テスト、ビルド）
+4. **Release PR確認とマージ**: 
+   - 生成されたCHANGELOGとバージョンを確認
+   - PR Checksがすべて成功していることを確認
+   - PRをマージ
+5. **Stage 2 - リリース実行**:
+   - GitHub Actionsで「Execute Release」ワークフローを**手動実行**
+   - GitHubリリースが作成される
+   - 各プラットフォーム用のビルドが実行される
+   - ビルド成果物がGitHub Releaseにアップロードされる
 
-> **注意**: mainブランチへのpush時に自動的にRelease PRは作成されません。新バージョンをリリースしたい場合は、必ずGitHub Actionsから手動でワークフローを実行してください。
+> **重要**: このワークフローではPATは不要です。通常のGITHUB_TOKENで動作し、PR Checksも確実に実行されます。
 
 ### 従来のstandard-versionから変更された点
 
@@ -132,16 +139,25 @@ Release PRは手動でワークフローを実行した時のみ作成・更新�
 
 ### 4. リリース実行
 
-**Release PR**をマージすると自動的に：
+**Release PR**をマージした後：
 
-1. **タグ作成**: `v0.4.1`のようなタグが自動作成
-2. **GitHub Release作成**: リリースノートとともに公開
-3. **ビルド実行**: 各プラットフォーム向けにビルド
+1. **GitHub Actionsページに移動**: リポジトリの「Actions」タブ
+2. **「Execute Release」ワークフローを選択**
+3. **「Run workflow」をクリック**
+4. **オプション設定**:
+   - `Skip build process`: テスト時のみチェック（通常は未チェック）
+5. **「Run workflow」で実行**
+
+実行されると：
+1. **マージされたRelease PRの検証**: 24時間以内にマージされたRelease PRを確認
+2. **タグ作成**: `v0.4.1`のようなタグが自動作成
+3. **GitHub Release作成**: リリースノートとともに公開
+4. **ビルド実行**: 各プラットフォーム向けにビルド
    - macOS: `EPUB-Image-Extractor-{version}-arm64.dmg`
    - macOS: `EPUB-Image-Extractor-{version}-x64.dmg`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Setup.exe`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Portable.exe`
-4. **成果物アップロード**: ビルド成果物をGitHub Releaseに自動追加
+5. **成果物アップロード**: ビルド成果物をGitHub Releaseに自動追加
 
 ## 🛠 メンテナンス作業
 
@@ -162,8 +178,11 @@ Release PRには以下が含まれています：
 git commit -m "fix: Critical security vulnerability in file parser"
 git push origin main
 
-# GitHub Actionsで手動実行してRelease PRを作成
-# 作成されたPRをすぐにマージ
+# Stage 1: GitHub Actionsで手動実行してRelease PRを作成
+# PR Checksが完了するのを待つ
+# 作成されたPRをマージ
+
+# Stage 2: GitHub Actionsで「Execute Release」を手動実行
 ```
 
 ### 特定バージョンでのリリース
@@ -180,15 +199,20 @@ BREAKING CHANGE: All UI components have been redesigned with new API"
 ## 🔧 GitHub Actionsワークフロー
 
 ### 1. release-please.yml
-**手動実行専用**のワークフローで、Release PRの作成のみを行います。
+**Stage 1: Release PR作成**用のワークフロー
 - トリガー: `workflow_dispatch`（手動実行のみ）
 - 機能: Release PRの作成（`skip-github-release: true`により、リリースは作成しない）
+- 利点: 作成されたPRは通常のPRとして扱われ、PR Checksが自動実行される
 
-### 2. release-on-merge.yml
-Release PRがマージされた時に自動的にリリースを作成します。
-- トリガー: PRのクローズ時（マージされた場合のみ）
-- 条件: PRタイトルが`chore(main):`で始まる場合
-- 機能: リリース作成、ビルド実行、成果物のアップロード
+### 2. release-execute.yml
+**Stage 2: リリース実行**用のワークフロー
+- トリガー: `workflow_dispatch`（手動実行のみ）
+- 前提条件: Release PRがマージ済みであること（24時間以内）
+- 機能: 
+  - マージされたRelease PRの検証
+  - GitHubリリースの作成
+  - 各プラットフォーム向けビルド
+  - 成果物のアップロード
 
 ### 3. pr-checks.yml
 すべてのPRに対して品質チェックを実行します。
@@ -277,8 +301,15 @@ git push origin main
 
 - [ ] CHANGELOGの内容が正確
 - [ ] バージョン番号が適切
+- [ ] PR Checksがすべて成功している（✅マークを確認）
 - [ ] 重要な変更が含まれている場合、追加のテストを実行
 - [ ] 破壊的変更がある場合、マイグレーションガイドを作成
+
+### リリース実行前
+
+- [ ] Release PRがマージ済みである
+- [ ] mainブランチが最新の状態である
+- [ ] 前回のリリースから24時間以内である（Execute Releaseの制限）
 
 ## 🚨 トラブルシューティング
 
@@ -313,6 +344,17 @@ git push origin main
 
 3. **Node.jsバージョン**
    - Node.js 24.0.0以上を使用していることを確認
+
+### Execute Releaseが失敗する場合
+
+1. **「No recently merged release PR found」エラー**
+   - Release PRがマージされているか確認
+   - マージから24時間以内であるか確認
+   - PRタイトルが「chore(main): release」で始まっているか確認
+
+2. **ビルドが失敗する場合**
+   - `skip_build`オプションをチェックしてリリースのみ実行
+   - 後で手動でビルドを実行
 
 ### 緊急時の手動リリース
 
