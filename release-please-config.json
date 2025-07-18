@@ -5,7 +5,8 @@
   "include-v-in-tags": true,
   "pull-request-title-pattern": "chore: release ${version}",
   "changelog-path": "CHANGELOG.md",
-  "ignore-github-merge-commits": true,
+  "commit-search-depth": 500,
+  "sequential-calls": true,
   "packages": {
     ".": {
       "release-type": "node",
@@ -29,7 +30,9 @@
         "**/*.spec.ts",
         "test/**",
         "tests/**",
-        ".github/**"
+        ".github/**",
+        "**/*.md",
+        "!CHANGELOG.md"
       ],
       "extra-files": [
         {
