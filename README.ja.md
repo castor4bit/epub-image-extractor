@@ -95,12 +95,13 @@ EPUB_Images/
 
 ### 技術スタック
 
-- **フレームワーク**: Electron 28
+- **フレームワーク**: Electron 37
 - **言語**: TypeScript 5
-- **UI**: React 18
-- **ビルドツール**: Vite 5
+- **UI**: React 19
+- **ビルドツール**: Vite 7
 - **EPUBパーサー**: xml2jsを使用したカスタム実装
 - **国際化**: i18next（日本語UI）
+- **ログシステム**: pino（高性能JSONロガー）
 
 ### アーキテクチャ
 
@@ -176,22 +177,16 @@ npm run typecheck
 
 ## トラブルシューティング
 
-### デバッグログの確認
+### ログの確認
 
-アプリケーションはデバッグ情報をファイルに記録しています。問題が発生した場合は、以下の場所でログファイルを確認できます：
+アプリケーションはpinoを使用してログを記録しています。問題が発生した場合は、以下の場所でログファイルを確認できます：
 
-- **Windows**: `%APPDATA%\epub-image-extractor\logs\`
-- **macOS**: `~/Library/Application Support/epub-image-extractor/logs/`
+- **Windows**: `%APPDATA%\epub-image-extractor\app.log`
+- **macOS**: `~/Library/Application Support/epub-image-extractor/app.log`
 
-ログファイル：
-- `error.log` - エラー情報のみ
-- `combined.log` - すべてのログ（情報、警告、エラー）
-- `debug.log` - 詳細なデバッグ情報
-
-開発時にコンソールにデバッグログを表示するには：
+開発時にデバッグログを有効にするには：
 ```bash
-# 環境変数を設定して実行
-LOG_LEVEL=debug npm run dev
+LOG_LEVEL=debug npm run electron:dev
 ```
 
 ### よくある問題

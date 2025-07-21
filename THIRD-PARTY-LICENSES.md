@@ -44,10 +44,15 @@ This project uses the following third-party libraries, all under the MIT License
 - **Copyright**: Copyright (c) 2024 i18next
 - **Repository**: https://github.com/i18next/react-i18next
 
-### winston
+### pino
 - **License**: MIT
-- **Copyright**: Copyright (c) 2010 Charlie Robbins
-- **Repository**: https://github.com/winstonjs/winston
+- **Copyright**: Copyright (c) Matteo Collina and contributors
+- **Repository**: https://github.com/pinojs/pino
+
+### pino-pretty
+- **License**: MIT
+- **Copyright**: Copyright (c) Matteo Collina and contributors
+- **Repository**: https://github.com/pinojs/pino-pretty
 
 ### xml2js
 - **License**: MIT

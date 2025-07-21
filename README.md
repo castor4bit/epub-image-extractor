@@ -143,6 +143,7 @@ EPUB_Images/
 - **Build Tool**: Vite 7
 - **EPUB Parser**: Custom implementation using xml2js
 - **Internationalization**: i18next (Japanese UI)
+- **Logging**: pino (high-performance JSON logger)
 
 ### Architecture
 
@@ -224,6 +225,17 @@ The application uses a custom icon featuring an open book with floating images. 
 2. **Build failures on macOS**: You may need to install Xcode Command Line Tools
 3. **Large EPUB files**: Files with many images may take longer to process. The app will warn if resource limits are reached
 4. **Missing navigation/TOC**: EPUBs without proper navigation will have all images extracted to "001_未分類" folder
+
+### Logging
+
+The application uses pino for logging. Log files are located at:
+- **macOS**: `~/Library/Application Support/epub-image-extractor/app.log`
+- **Windows**: `%APPDATA%\epub-image-extractor\app.log`
+
+To enable debug logging in development:
+```bash
+LOG_LEVEL=debug npm run electron:dev
+```
 
 ## License
 
