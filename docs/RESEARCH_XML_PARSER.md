@@ -59,13 +59,41 @@ While fast-xml-parser shows significant performance gains for simple XML, it per
 - **Risk**: Medium (potential for subtle bugs)
 - **ROI**: Low (limited benefits for the effort)
 
+## ESM (ES Modules) Support Comparison
+
+### xml2js
+- **Type**: CommonJS only
+- **ESM Support**: Via Node.js interop
+- **Package.json**: No `"type": "module"` or `exports` field
+- **Import**: Works with dynamic import and interop
+
+### fast-xml-parser
+- **Type**: Native ESM module
+- **ESM Support**: Full native support
+- **Package.json**: 
+  - `"type": "module"`
+  - Proper `exports` field with ESM configuration
+  - Separate CJS build available (`lib/fxp.cjs`)
+- **Import**: Direct ESM import without interop
+
+### ESM Migration Impact
+For projects migrating to pure ESM:
+- **xml2js**: Requires Node.js CommonJS interop (works but not ideal)
+- **fast-xml-parser**: Native ESM support (cleaner integration)
+
+This is a **significant advantage** for fast-xml-parser in modern ESM-first projects.
+
 ## Recommendation
 
-**Do not migrate at this time**. The current xml2js implementation:
+**Original recommendation stands: Do not migrate at this time**. However, if the project plans to migrate to pure ESM in the future, fast-xml-parser's native ESM support becomes a stronger argument for migration.
+
+The current xml2js implementation:
 - Works reliably without issues
 - Handles EPUB files efficiently
 - Has good test coverage
 - Poses no immediate concerns
+
+**Revised recommendation for ESM projects**: If planning a full ESM migration, consider migrating to fast-xml-parser as part of that effort to avoid CommonJS interop overhead.
 
 ## Future Considerations
 
