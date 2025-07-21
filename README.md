@@ -225,6 +225,7 @@ The application uses a custom icon featuring an open book with floating images. 
 2. **Build failures on macOS**: You may need to install Xcode Command Line Tools
 3. **Large EPUB files**: Files with many images may take longer to process. The app will warn if resource limits are reached
 4. **Missing navigation/TOC**: EPUBs without proper navigation will have all images extracted to "001_未分類" folder
+5. **"Cannot find module 'pino'" error**: This occurs when dependencies are not installed. Run `npm install` to fix this issue
 
 ### Logging
 
