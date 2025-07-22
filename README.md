@@ -17,7 +17,24 @@ A cross-platform desktop application for extracting images from EPUB files, orga
 
 ## Installation
 
-### Prerequisites
+### Download Pre-built Binaries
+
+Download the latest release from the [Releases](../../releases) page.
+
+#### macOS Installation Notes
+
+When running the app for the first time on macOS, you may see a warning:
+
+> "EPUB Image Extractor" cannot be opened because the developer cannot be verified.
+
+To open the app:
+1. Right-click (or Control-click) on the app in Finder
+2. Select "Open" from the context menu
+3. Click "Open" in the dialog that appears
+
+This is only required for the first launch. The app is signed with an ad-hoc signature for basic security.
+
+### Prerequisites (for development)
 
 - Node.js 24.0.0 or higher
 - npm

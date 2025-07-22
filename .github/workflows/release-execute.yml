@@ -97,12 +97,59 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Build application (unsigned)
+    - name: Build application
       run: npm run ${{ matrix.build_cmd }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # コード署名を無効化
+        # コード署名を無効化（後でad-hoc署名を追加）
         CSC_IDENTITY_AUTO_DISCOVERY: false
+    
+    - name: Add ad-hoc signature (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        # DMGファイルを見つける
+        DMG_FILE=$(find release -name "*.dmg" -type f | head -n 1)
+        echo "Found DMG: $DMG_FILE"
+        
+        # 一時ディレクトリを作成
+        TEMP_DIR=$(mktemp -d)
+        echo "Temp directory: $TEMP_DIR"
+        
+        # DMGをマウント
+        hdiutil attach "$DMG_FILE" -nobrowse -mountpoint "$TEMP_DIR/mnt"
+        
+        # アプリケーションを見つける
+        APP_PATH=$(find "$TEMP_DIR/mnt" -name "*.app" -type d | head -n 1)
+        echo "Found app: $APP_PATH"
+        
+        # 作業ディレクトリにコピー
+        cp -R "$APP_PATH" "$TEMP_DIR/app.app"
+        
+        # DMGをアンマウント
+        hdiutil detach "$TEMP_DIR/mnt"
+        
+        # Ad-hoc署名を追加
+        echo "Adding ad-hoc signature..."
+        codesign --force --deep --sign - "$TEMP_DIR/app.app"
+        
+        # 署名を確認
+        echo "Verifying signature..."
+        codesign --verify --verbose "$TEMP_DIR/app.app"
+        
+        # 新しいDMGを作成
+        DMG_NAME=$(basename "$DMG_FILE" .dmg)
+        NEW_DMG="release/${DMG_NAME}-signed.dmg"
+        
+        echo "Creating new DMG: $NEW_DMG"
+        hdiutil create -volname "EPUB Image Extractor" -srcfolder "$TEMP_DIR/app.app" -ov -format UDZO "$NEW_DMG"
+        
+        # 元のDMGを署名済みに置き換え
+        mv "$NEW_DMG" "$DMG_FILE"
+        
+        # クリーンアップ
+        rm -rf "$TEMP_DIR"
+        
+        echo "Ad-hoc signing completed successfully"
     
     - name: Upload macOS artifacts
       if: matrix.os == 'macos-latest'
