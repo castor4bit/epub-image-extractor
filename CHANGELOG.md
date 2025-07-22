@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.5.0...v0.5.1) (2025-07-22)
+
+
+### Features
+
+* Add folder drag-and-drop support ([#28](https://github.com/castor4bit/epub-image-extractor/issues/28)) ([3484805](https://github.com/castor4bit/epub-image-extractor/commit/34848055a52e8ecc1a11bac6a14b8a06067c862a))
+* GitHub ActionsビルドにAd-hoc署名を追加 ([#27](https://github.com/castor4bit/epub-image-extractor/issues/27)) ([ba4d897](https://github.com/castor4bit/epub-image-extractor/commit/ba4d897b4dd036a653ac03aec898652a161b9e13))
+
 ## [0.5.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.4.2...v0.5.0) (2025-07-22)
 
 
