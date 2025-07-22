@@ -11,7 +11,7 @@ import {
 import { AppError, ErrorCode } from '../../shared/error-types';
 import { logger } from '../utils/logger';
 import path from 'path';
-import { parseStringPromise } from 'xml2js';
+import { XMLParser } from 'fast-xml-parser';
 import AdmZip from 'adm-zip';
 
 export interface EpubData {
@@ -42,11 +42,16 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     }
 
     const containerXml = zip.readAsText(containerEntry);
-    const containerData = (await parseStringPromise(containerXml)) as ContainerXml;
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '',
+      textNodeName: '#text'
+    });
+    const containerData = parser.parse(containerXml) as ContainerXml;
 
     // OPFファイルのパスを取得
-    const rootfiles = containerData.container.rootfiles[0].rootfile;
-    const opfPath = rootfiles[0].$['full-path'];
+    const rootfiles = containerData.container.rootfiles.rootfile;
+    const opfPath = Array.isArray(rootfiles) ? rootfiles[0]['full-path'] : rootfiles['full-path'];
     const contentPath = path.dirname(opfPath);
 
     // OPFファイルを読む
@@ -61,34 +66,36 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     }
 
     const opfXml = zip.readAsText(opfEntry);
-    const opfData = (await parseStringPromise(opfXml)) as OpfXml;
+    const opfData = parser.parse(opfXml) as OpfXml;
 
     // manifestとspineを取得
     const manifest: Record<string, ManifestItem> = {};
-    const manifestItems = opfData.package.manifest[0].item || [];
+    const manifestItems = opfData.package.manifest.item || [];
+    const itemArray = Array.isArray(manifestItems) ? manifestItems : [manifestItems];
 
-    manifestItems.forEach((item) => {
-      const id = item.$.id;
+    itemArray.forEach((item) => {
+      const id = item.id;
       manifest[id] = {
         id: id,
-        href: item.$.href,
-        'media-type': item.$['media-type'],
-        properties: item.$.properties,
+        href: item.href,
+        'media-type': item['media-type'],
+        properties: item.properties,
       };
     });
 
     // spine情報を取得
     const spine: SpineItem[] = [];
-    const spineItems = opfData.package.spine[0].itemref || [];
+    const spineItems = opfData.package.spine.itemref || [];
+    const spineArray = Array.isArray(spineItems) ? spineItems : [spineItems];
 
-    spineItems.forEach((item) => {
+    spineArray.forEach((item) => {
       const spineItem: SpineItem = {
-        idref: item.$.idref,
-        linear: item.$.linear || 'yes',
+        idref: item.idref,
+        linear: item.linear || 'yes',
       };
 
       // propertiesから page-spread 情報を抽出
-      const properties = item.$.properties || '';
+      const properties = item.properties || '';
       if (properties.includes('page-spread-left')) {
         spineItem.pageSpread = 'left';
       } else if (properties.includes('page-spread-right')) {
@@ -185,15 +192,27 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
 
   try {
-    const parsed = (await parseStringPromise(ncxContent)) as NcxXml;
-    const navMap = parsed.ncx?.navMap?.[0];
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '',
+      textNodeName: '#text'
+    });
+    const parsed = parser.parse(ncxContent) as NcxXml;
+    const navMap = parsed.ncx?.navMap;
 
     if (navMap?.navPoint) {
       let order = 1;
+      const navPoints = Array.isArray(navMap.navPoint) ? navMap.navPoint : [navMap.navPoint];
 
       const processNavPoint = (navPoint: NavPoint) => {
-        const title = navPoint.navLabel?.[0]?.text?.[0];
-        const href = navPoint.content?.[0]?.$?.src;
+        const navLabel = navPoint.navLabel;
+        let title = '';
+        if (typeof navLabel === 'string') {
+          title = navLabel;
+        } else if (navLabel && typeof navLabel === 'object') {
+          title = navLabel.text || navLabel['#text'] || '';
+        }
+        const href = navPoint.content?.src;
 
         if (title && href) {
           chapters.push({ order: order++, title, href });
@@ -201,11 +220,12 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
 
         // 子navPointも処理
         if (navPoint.navPoint) {
-          navPoint.navPoint.forEach(processNavPoint);
+          const childPoints = Array.isArray(navPoint.navPoint) ? navPoint.navPoint : [navPoint.navPoint];
+          childPoints.forEach(processNavPoint);
         }
       };
 
-      navMap.navPoint.forEach(processNavPoint);
+      navPoints.forEach(processNavPoint);
     }
   } catch (error) {
     logger.warn({ err: error }, 'NCX解析エラー');
