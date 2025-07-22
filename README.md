@@ -141,7 +141,7 @@ EPUB_Images/
 - **Language**: TypeScript 5
 - **UI**: React 19
 - **Build Tool**: Vite 7
-- **EPUB Parser**: Custom implementation using xml2js
+- **EPUB Parser**: Custom implementation using fast-xml-parser
 - **Internationalization**: i18next (Japanese UI)
 - **Logging**: pino (high-performance JSON logger)
 

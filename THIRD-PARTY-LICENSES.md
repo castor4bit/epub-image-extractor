@@ -54,10 +54,10 @@ This project uses the following third-party libraries, all under the MIT License
 - **Copyright**: Copyright (c) Matteo Collina and contributors
 - **Repository**: https://github.com/pinojs/pino-pretty
 
-### xml2js
+### fast-xml-parser
 - **License**: MIT
-- **Copyright**: Copyright 2010, 2011, 2012, 2013. All rights reserved.
-- **Repository**: https://github.com/Leonidas-from-XIV/node-xml2js
+- **Copyright**: Copyright (c) 2017 Amit Kumar Gupta
+- **Repository**: https://github.com/NaturalIntelligence/fast-xml-parser
 
 ---
 

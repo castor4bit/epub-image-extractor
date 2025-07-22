@@ -99,7 +99,7 @@ EPUB_Images/
 - **言語**: TypeScript 5
 - **UI**: React 19
 - **ビルドツール**: Vite 7
-- **EPUBパーサー**: xml2jsを使用したカスタム実装
+- **EPUBパーサー**: fast-xml-parserを使用したカスタム実装
 - **国際化**: i18next（日本語UI）
 - **ログシステム**: pino（高性能JSONロガー）
 
