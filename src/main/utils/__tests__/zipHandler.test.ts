@@ -65,22 +65,22 @@ describe('zipHandler', () => {
   });
 
   describe('validateZipContents', () => {
-    it('should return valid=true for ZIP containing EPUB files', () => {
-      const result = validateZipContents(mockZipPath);
+    it('should return valid=true for ZIP containing EPUB files', async () => {
+      const result = await validateZipContents(mockZipPath);
       expect(result.valid).toBe(true);
       expect(result.errorMessage).toBeUndefined();
     });
 
-    it('should return valid=false for ZIP without EPUB files', () => {
-      const result = validateZipContents(mockZipWithoutEpubPath);
+    it('should return valid=false for ZIP without EPUB files', async () => {
+      const result = await validateZipContents(mockZipWithoutEpubPath);
       expect(result.valid).toBe(false);
       expect(result.errorMessage).toBe(
         'ZIPファイル内にEPUBファイルが見つかりませんでした。EPUBファイルを含むZIPファイルを選択してください',
       );
     });
 
-    it('should return valid=false for invalid ZIP file', () => {
-      const result = validateZipContents('/nonexistent/file.zip');
+    it('should return valid=false for invalid ZIP file', async () => {
+      const result = await validateZipContents('/nonexistent/file.zip');
       expect(result.valid).toBe(false);
       expect(result.errorMessage).toBe('ZIPファイルの展開に失敗しました');
     });
