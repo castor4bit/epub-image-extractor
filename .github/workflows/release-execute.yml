@@ -107,46 +107,73 @@ jobs:
     - name: Add ad-hoc signature (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        # DMGファイルを見つける
-        DMG_FILE=$(find release -name "*.dmg" -type f | head -n 1)
+        # Build architecture-specific DMG filename
+        PRODUCT_NAME="EPUB Image Extractor"
+        VERSION=$(node -p "require('./package.json').version")
+        DMG_FILE="release/${PRODUCT_NAME}-${VERSION}-${{ matrix.arch }}.dmg"
+        
+        echo "Looking for DMG: $DMG_FILE"
+        
+        # Verify DMG exists
+        if [ ! -f "$DMG_FILE" ]; then
+          echo "Error: DMG file not found: $DMG_FILE"
+          exit 1
+        fi
+        
         echo "Found DMG: $DMG_FILE"
         
-        # 一時ディレクトリを作成
+        # Create temporary directory
         TEMP_DIR=$(mktemp -d)
         echo "Temp directory: $TEMP_DIR"
         
-        # DMGをマウント
-        hdiutil attach "$DMG_FILE" -nobrowse -mountpoint "$TEMP_DIR/mnt"
+        # Mount DMG
+        MOUNT_POINT="$TEMP_DIR/mnt"
+        mkdir -p "$MOUNT_POINT"
+        hdiutil attach "$DMG_FILE" -nobrowse -mountpoint "$MOUNT_POINT"
         
-        # アプリケーションを見つける
-        APP_PATH=$(find "$TEMP_DIR/mnt" -name "*.app" -type d | head -n 1)
+        # Find application
+        APP_PATH=$(find "$MOUNT_POINT" -name "*.app" -type d | head -n 1)
         echo "Found app: $APP_PATH"
         
-        # 作業ディレクトリにコピー
-        cp -R "$APP_PATH" "$TEMP_DIR/app.app"
+        # Get original app name
+        APP_NAME=$(basename "$APP_PATH")
+        echo "App name: $APP_NAME"
         
-        # DMGをアンマウント
-        hdiutil detach "$TEMP_DIR/mnt"
+        # Create working directory
+        WORK_DIR="$TEMP_DIR/work"
+        mkdir -p "$WORK_DIR"
         
-        # Ad-hoc署名を追加
-        echo "Adding ad-hoc signature..."
-        codesign --force --deep --sign - "$TEMP_DIR/app.app"
+        # Copy entire DMG contents to preserve layout
+        echo "Copying DMG contents..."
+        cp -R "$MOUNT_POINT/"* "$WORK_DIR/"
         
-        # 署名を確認
+        # Unmount DMG
+        hdiutil detach "$MOUNT_POINT"
+        
+        # Add ad-hoc signature
+        echo "Adding ad-hoc signature to $APP_NAME..."
+        codesign --force --deep --sign - "$WORK_DIR/$APP_NAME"
+        
+        # Verify signature
         echo "Verifying signature..."
-        codesign --verify --verbose "$TEMP_DIR/app.app"
+        codesign --verify --verbose "$WORK_DIR/$APP_NAME"
         
-        # 新しいDMGを作成
+        # Create new DMG with preserved layout
         DMG_NAME=$(basename "$DMG_FILE" .dmg)
         NEW_DMG="release/${DMG_NAME}-signed.dmg"
         
         echo "Creating new DMG: $NEW_DMG"
-        hdiutil create -volname "EPUB Image Extractor" -srcfolder "$TEMP_DIR/app.app" -ov -format UDZO "$NEW_DMG"
+        hdiutil create -volname "$PRODUCT_NAME" \
+          -fs HFS+ \
+          -srcfolder "$WORK_DIR" \
+          -ov \
+          -format UDZO \
+          "$NEW_DMG"
         
-        # 元のDMGを署名済みに置き換え
+        # Replace original DMG with signed version
         mv "$NEW_DMG" "$DMG_FILE"
         
-        # クリーンアップ
+        # Cleanup
         rm -rf "$TEMP_DIR"
         
         echo "Ad-hoc signing completed successfully"
