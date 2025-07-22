@@ -45,14 +45,14 @@
     "adm-zip": "^0.5.16",
     "async-mutex": "^0.5.0",
     "electron-store": "^8.2.0",
+    "fast-xml-parser": "^5.2.5",
     "i18next": "^25.3.2",
     "p-limit": "^3.1.0",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-i18next": "^15.6.0",
-    "xml2js": "^0.6.2"
+    "react-i18next": "^15.6.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -66,7 +66,6 @@
     "@types/node": "^24.0.15",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@types/xml2js": "^0.4.14",
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.36.0",
     "@vitejs/plugin-react": "^4.7.0",

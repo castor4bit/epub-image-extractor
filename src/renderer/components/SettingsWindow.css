@@ -270,22 +270,22 @@
   .settings-window {
     min-width: 95%;
   }
-  
+
   .settings-footer {
     justify-content: center;
   }
-  
+
   .footer-buttons {
     flex: 1;
     justify-content: flex-end;
   }
-  
+
   .reset-button {
     order: 1;
     flex: 1;
     text-align: center;
   }
-  
+
   .footer-buttons {
     order: 2;
   }

@@ -131,7 +131,7 @@ export async function organizeByChapters(
       } catch (error) {
         logger.error(
           { err: error instanceof Error ? error : new Error(String(error)), imageSrc: image.src },
-          '画像保存エラー'
+          '画像保存エラー',
         );
       }
     }

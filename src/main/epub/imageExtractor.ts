@@ -15,11 +15,14 @@ export async function extractImages(
   let totalImageCount = 0;
 
   try {
-    logger.debug({
-      spineLength: epubData.spine.length,
-      manifestSize: Object.keys(epubData.manifest).length,
-      hasParser: !!epubData.parser,
-    }, '画像抽出開始');
+    logger.debug(
+      {
+        spineLength: epubData.spine.length,
+        manifestSize: Object.keys(epubData.manifest).length,
+        hasParser: !!epubData.parser,
+      },
+      '画像抽出開始',
+    );
 
     // チャプターとページのマッピングを作成
     const chapterPageMapping = createChapterPageMapping(epubData);
@@ -88,8 +91,11 @@ export async function extractImages(
         }
       } catch (contentError) {
         logger.error(
-          { err: contentError instanceof Error ? contentError : new Error(String(contentError)), contentPath },
-          'コンテンツ取得エラー'
+          {
+            err: contentError instanceof Error ? contentError : new Error(String(contentError)),
+            contentPath,
+          },
+          'コンテンツ取得エラー',
         );
         continue;
       }
@@ -191,7 +197,10 @@ async function extractImagesFromHTML(
       }
     }
   } catch (error) {
-    logger.error({ err: error instanceof Error ? error : new Error(String(error)) }, 'HTML解析エラー');
+    logger.error(
+      { err: error instanceof Error ? error : new Error(String(error)) },
+      'HTML解析エラー',
+    );
   }
 
   return images;
@@ -289,12 +298,15 @@ function createChapterPageMapping(epubData: EpubData): Map<number, number> {
   }
 
   // デバッグ情報を出力
-  logger.debug({
-    navigationCount: epubData.navigation.length,
-    spineCount: epubData.spine.length,
-    chapterStartPositions: chapterStartIndices.slice(0, 10),
-    mappingSample: Array.from(mapping.entries()).slice(0, 10),
-  }, 'チャプターページマッピング');
+  logger.debug(
+    {
+      navigationCount: epubData.navigation.length,
+      spineCount: epubData.spine.length,
+      chapterStartPositions: chapterStartIndices.slice(0, 10),
+      mappingSample: Array.from(mapping.entries()).slice(0, 10),
+    },
+    'チャプターページマッピング',
+  );
 
   // 特定チャプターの詳細情報
   const chapter3Info = chapterStartIndices.find((c) => c.chapterOrder === 3);
@@ -303,20 +315,26 @@ function createChapterPageMapping(epubData: EpubData): Map<number, number> {
   const chapter7Info = chapterStartIndices.find((c) => c.chapterOrder === 7);
 
   if (chapter3Info && chapter4Info) {
-    logger.debug({
-      chapter: '巻頭特集',
-      startSpine: chapter3Info.spineIndex,
-      endSpine: chapter4Info.spineIndex - 1,
-      pageCount: chapter4Info.spineIndex - chapter3Info.spineIndex
-    }, 'チャプター範囲');
+    logger.debug(
+      {
+        chapter: '巻頭特集',
+        startSpine: chapter3Info.spineIndex,
+        endSpine: chapter4Info.spineIndex - 1,
+        pageCount: chapter4Info.spineIndex - chapter3Info.spineIndex,
+      },
+      'チャプター範囲',
+    );
   }
   if (chapter6Info && chapter7Info) {
-    logger.debug({
-      chapter: '勇者は魔王が好きらしい',
-      startSpine: chapter6Info.spineIndex,
-      endSpine: chapter7Info.spineIndex - 1,
-      pageCount: chapter7Info.spineIndex - chapter6Info.spineIndex
-    }, 'チャプター範囲');
+    logger.debug(
+      {
+        chapter: '勇者は魔王が好きらしい',
+        startSpine: chapter6Info.spineIndex,
+        endSpine: chapter7Info.spineIndex - 1,
+        pageCount: chapter7Info.spineIndex - chapter6Info.spineIndex,
+      },
+      'チャプター範囲',
+    );
   }
 
   return mapping;

@@ -8,7 +8,8 @@ interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean; // 元のファイル名を含めるか
   includePageSpread: boolean; // 左右情報を含めるか
-  windowBounds?: { // ウィンドウのサイズと位置
+  windowBounds?: {
+    // ウィンドウのサイズと位置
     width: number;
     height: number;
     x?: number;

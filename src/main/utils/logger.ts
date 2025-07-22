@@ -37,7 +37,7 @@ export function createLogger(): pino.Logger {
   }
 
   const logPath = getLogPath();
-  
+
   // デバッグ用
   console.log('[Logger] Creating logger instance', {
     logPath,
@@ -49,17 +49,19 @@ export function createLogger(): pino.Logger {
   const isTest = process.env.NODE_ENV === 'test';
 
   // テスト環境：トランスポートなし、開発環境：コンソール出力、本番環境：ファイル出力
-  const transport = isTest || isDevelopment
-    ? undefined
-    : {
-        target: 'pino/file',
-        options: {
-          destination: path.join(logPath, 'app.log'),
-          mkdir: true,
-        },
-      };
+  const transport =
+    isTest || isDevelopment
+      ? undefined
+      : {
+          target: 'pino/file',
+          options: {
+            destination: path.join(logPath, 'app.log'),
+            mkdir: true,
+          },
+        };
 
-  const pinoOptions: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+  const pinoOptions: any = {
+    // eslint-disable-line @typescript-eslint/no-explicit-any
     level: logLevel,
     timestamp: pino.stdTimeFunctions.isoTime,
     // 開発環境では人間が読みやすい形式に
@@ -84,11 +86,13 @@ export function createLogger(): pino.Logger {
           userMessage: e.userMessage,
           context: e.context,
           stack: e.stack,
-          originalError: e.originalError ? {
-            type: e.originalError.constructor?.name || 'Unknown',
-            message: e.originalError.message,
-            stack: e.originalError.stack,
-          } : undefined,
+          originalError: e.originalError
+            ? {
+                type: e.originalError.constructor?.name || 'Unknown',
+                message: e.originalError.message,
+                stack: e.originalError.stack,
+              }
+            : undefined,
         };
       },
     },

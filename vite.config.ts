@@ -19,7 +19,7 @@ export default defineConfig({
                 'jsdom',
                 'canvas',
                 'ws',
-                'xml2js',
+                'fast-xml-parser',
                 'adm-zip',
                 'winston',
                 'p-limit'
