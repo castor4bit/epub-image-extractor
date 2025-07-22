@@ -2,6 +2,7 @@ import pino from 'pino';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import { AppError } from '../../shared/error-types';
 
 // ログファイルのパスを取得（Electronが利用できない場合は一時ディレクトリを使用）
 function getLogPath(): string {
@@ -37,13 +38,6 @@ export function createLogger(): pino.Logger {
   }
 
   const logPath = getLogPath();
-
-  // デバッグ用
-  console.log('[Logger] Creating logger instance', {
-    logPath,
-    NODE_ENV: process.env.NODE_ENV,
-    LOG_LEVEL: process.env.LOG_LEVEL,
-  });
   const logLevel = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'test' ? 'error' : 'info');
   const isDevelopment = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
   const isTest = process.env.NODE_ENV === 'test';
@@ -60,8 +54,7 @@ export function createLogger(): pino.Logger {
           },
         };
 
-  const pinoOptions: any = {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  const pinoOptions: pino.LoggerOptions & { transport?: pino.TransportSingleOptions } = {
     level: logLevel,
     timestamp: pino.stdTimeFunctions.isoTime,
     // 開発環境では人間が読みやすい形式に
@@ -78,7 +71,7 @@ export function createLogger(): pino.Logger {
       // AppError用のカスタムシリアライザー
       appError: (error: unknown) => {
         // 型ガード
-        const e = error as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        const e = error as AppError;
         return {
           type: e.constructor?.name || 'Unknown',
           code: e.code,
