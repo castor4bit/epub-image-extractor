@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.4.2...v0.5.0) (2025-07-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* XML parsing now uses fast-xml-parser instead of xml2js. This improves performance and reduces bundle size.
+
+### Features
+
+* Implement two-stage manual release workflow ([9fc7db7](https://github.com/castor4bit/epub-image-extractor/commit/9fc7db70a7243089256c04697ed8a14b8c13cb77))
+* Implement two-stage manual release workflow ([139a899](https://github.com/castor4bit/epub-image-extractor/commit/139a899fedf97e79bcc15d70e5caec2b081b6f2f))
+
+
+### Bug Fixes
+
+* ESLintの警告を解決 ([#25](https://github.com/castor4bit/epub-image-extractor/issues/25)) ([2bf5dd1](https://github.com/castor4bit/epub-image-extractor/commit/2bf5dd1eb9ef66c0042d895dee31faa780ca1bb9))
+* Resolve pino logger errors in Electron environment ([1f6b988](https://github.com/castor4bit/epub-image-extractor/commit/1f6b9889de793da1b6a2a6721102e51899849feb))
+
+
+### Documentation
+
+* Update README files to reflect pino logging system ([#21](https://github.com/castor4bit/epub-image-extractor/issues/21)) ([88debe1](https://github.com/castor4bit/epub-image-extractor/commit/88debe1e27e11fb82ee484183f093531b8a2126a))
+
+
+### Code Refactoring
+
+* Migrate from winston to pino for logging ([5f362c9](https://github.com/castor4bit/epub-image-extractor/commit/5f362c9a11a85291e116df92fda2cb41bbf3fda1))
+* Migrate from winston to pino for logging ([1d2c4cb](https://github.com/castor4bit/epub-image-extractor/commit/1d2c4cb5ef6c047a34980835b3ece89e2f6d9f42))
+* Migrate from xml2js to fast-xml-parser ([#24](https://github.com/castor4bit/epub-image-extractor/issues/24)) ([56a4a95](https://github.com/castor4bit/epub-image-extractor/commit/56a4a95cbc1c513b9c43204e3529b76903a6db54))
+
 ## [0.4.2](https://github.com/castor4bit/epub-image-extractor/compare/v0.4.1...v0.4.2) (2025-07-17)
 
 
