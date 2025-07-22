@@ -78,8 +78,11 @@ describe('App Component', () => {
     }
   });
 
-  it('EPUB以外のファイルをドロップするとアラートを表示する', () => {
+  it('EPUB以外のファイルをドロップするとアラートを表示する', async () => {
     window.alert = jest.fn();
+    // getDroppedFilePathsが空の配列を返すようにモック
+    mockElectronAPI.getDroppedFilePaths.mockReturnValue([]);
+
     render(<App />);
     const dropZone = screen.getByText('EPUBファイルをドロップ').closest('.drop-zone');
 
@@ -89,10 +92,16 @@ describe('App Component', () => {
       fireEvent.drop(dropZone, {
         dataTransfer: {
           files: [mockFile],
+          items: [],
+          types: ['Files'],
         },
       });
 
-      expect(window.alert).toHaveBeenCalledWith('無効なファイル形式です');
+      await waitFor(() => {
+        expect(window.alert).toHaveBeenCalledWith(
+          expect.stringContaining('ファイル処理中にエラーが発生しました'),
+        );
+      });
     }
   });
 
@@ -110,6 +119,11 @@ describe('App Component', () => {
       },
     );
 
+    // getDroppedFilePathsのモックを設定
+    mockElectronAPI.getDroppedFilePaths.mockReturnValue([
+      { path: '/test/path/test.epub', name: 'test.epub', size: 1000, type: 'application/epub+zip' },
+    ]);
+
     render(<App />);
 
     const dropZone = screen.getByText('EPUBファイルをドロップ').closest('.drop-zone');
@@ -121,6 +135,8 @@ describe('App Component', () => {
       fireEvent.drop(dropZone, {
         dataTransfer: {
           files: [mockFile],
+          items: [],
+          types: ['Files'],
         },
       });
 

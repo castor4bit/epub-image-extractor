@@ -115,6 +115,11 @@ describe('IPC Handlers', () => {
       (processEpubFiles as jest.Mock).mockResolvedValue(mockResults);
       (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
 
+      // fs.statをモック - EPUBファイルとして認識させる
+      (fs.stat as jest.Mock).mockResolvedValue({
+        isDirectory: () => false,
+      });
+
       const handler = handlers.get('epub:process');
       const result = await handler(null, filePaths);
 
@@ -145,6 +150,11 @@ describe('IPC Handlers', () => {
       (processEpubFiles as jest.Mock).mockResolvedValue(mockResults);
       (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
 
+      // fs.statをモック - ZIPファイルとして認識させる
+      (fs.stat as jest.Mock).mockResolvedValue({
+        isDirectory: () => false,
+      });
+
       const handler = handlers.get('epub:process');
       const result = await handler(null, filePaths);
 
@@ -174,6 +184,11 @@ describe('IPC Handlers', () => {
         { fileName: 'valid.epub', status: 'completed', imageCount: 5 },
       ]);
       (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
+
+      // fs.statをモック
+      (fs.stat as jest.Mock).mockResolvedValue({
+        isDirectory: () => false,
+      });
 
       const handler = handlers.get('epub:process');
       const result = await handler(null, filePaths);
@@ -218,6 +233,11 @@ describe('IPC Handlers', () => {
         return [{ fileName: 'book.epub', status: 'completed', imageCount: 10 }];
       });
 
+      // fs.statをモック
+      (fs.stat as jest.Mock).mockResolvedValue({
+        isDirectory: () => false,
+      });
+
       const handler = handlers.get('epub:process');
       await handler(null, filePaths);
 
@@ -238,6 +258,11 @@ describe('IPC Handlers', () => {
       (isZipFile as jest.Mock).mockReturnValue(false);
       (processEpubFiles as jest.Mock).mockRejectedValue(error);
       (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
+
+      // fs.statをモック
+      (fs.stat as jest.Mock).mockResolvedValue({
+        isDirectory: () => false,
+      });
 
       const handler = handlers.get('epub:process');
       const result = await handler(null, filePaths);

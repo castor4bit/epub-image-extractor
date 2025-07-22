@@ -92,7 +92,15 @@ function App() {
         }
       } catch (error) {
         console.error('処理エラー:', error);
-        alert(t('errors.fileProcessing'));
+        // より詳細なエラーメッセージを表示
+        let errorMessage = t('errors.fileProcessing');
+        if (error instanceof Error) {
+          errorMessage += `\n\n詳細: ${error.message}`;
+          if (error.stack) {
+            console.error('Stack trace:', error.stack);
+          }
+        }
+        alert(errorMessage);
         setIsProcessing(false);
       }
     },
@@ -123,18 +131,12 @@ function App() {
       e.stopPropagation();
       setIsDragging(false);
 
+      // ドロップされたファイルを取得
       const droppedFiles = Array.from(e.dataTransfer.files);
-      const validFiles = droppedFiles.filter(
-        (file) =>
-          file.name.toLowerCase().endsWith('.epub') ||
-          file.name.toLowerCase().endsWith('.zip') ||
-          file.type === 'application/epub+zip' ||
-          file.type === 'application/zip',
-      );
 
-      if (validFiles.length > 0) {
-        setFiles(validFiles);
-        processFiles(validFiles);
+      if (droppedFiles.length > 0) {
+        setFiles(droppedFiles);
+        processFiles(droppedFiles);
       } else {
         alert(t('errors.invalidFile'));
       }

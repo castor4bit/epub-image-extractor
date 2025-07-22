@@ -5,6 +5,8 @@ import path from 'path';
 import fs from 'fs/promises';
 import { settingsStore } from '../store/settings';
 import { extractEpubsFromZip, cleanupTempFiles, isZipFile } from '../utils/zipHandler';
+import { scanMultipleFoldersForEpubs } from '../utils/folderScanner';
+import { logger } from '../utils/logger';
 import { WINDOW_SIZES } from '../constants/window';
 
 // 出力ディレクトリ選択
@@ -28,20 +30,62 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   ipcMain.handle('epub:process', async (_event, filePaths: string[]) => {
     const tempFiles: string[] = [];
 
+    logger.debug(
+      {
+        filePaths,
+        count: filePaths.length,
+        types: filePaths.map((p) => typeof p),
+      },
+      '受信したファイルパス',
+    );
+
     try {
       // 設定から出力先を取得
       const outputDir = settingsStore.getOutputDirectory();
       await fs.mkdir(outputDir, { recursive: true });
 
-      // EPUBファイルとZIPファイルを分離
+      // ファイルパスを分類
       const epubPaths: string[] = [];
       const zipPaths: string[] = [];
+      const folderPaths: string[] = [];
 
+      // 各パスをチェックして分類
       for (const filePath of filePaths) {
-        if (isZipFile(filePath)) {
-          zipPaths.push(filePath);
-        } else {
-          epubPaths.push(filePath);
+        try {
+          logger.debug({ filePath }, 'パスを確認中');
+          const stats = await fs.stat(filePath);
+          if (stats.isDirectory()) {
+            logger.debug({ filePath }, 'フォルダとして分類');
+            folderPaths.push(filePath);
+          } else if (isZipFile(filePath)) {
+            logger.debug({ filePath }, 'ZIPファイルとして分類');
+            zipPaths.push(filePath);
+          } else if (filePath.toLowerCase().endsWith('.epub')) {
+            logger.debug({ filePath }, 'EPUBファイルとして分類');
+            epubPaths.push(filePath);
+          } else {
+            logger.debug({ filePath }, '未対応のファイル形式');
+          }
+        } catch (error) {
+          logger.error(
+            { err: error instanceof Error ? error : new Error(String(error)), filePath },
+            'パスの確認エラー',
+          );
+        }
+      }
+
+      // フォルダ内のEPUBファイルをスキャン
+      if (folderPaths.length > 0) {
+        logger.debug({ folderPaths }, 'フォルダ内のEPUBファイルをスキャン開始');
+        const scannedEpubs = await scanMultipleFoldersForEpubs(folderPaths, 3);
+        logger.debug({ scannedCount: scannedEpubs.length }, 'スキャン完了');
+        // スキャンされたファイルを分類
+        for (const scannedPath of scannedEpubs) {
+          if (isZipFile(scannedPath)) {
+            zipPaths.push(scannedPath);
+          } else {
+            epubPaths.push(scannedPath);
+          }
         }
       }
 
@@ -52,7 +96,10 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
           epubPaths.push(...extractedEpubs);
           tempFiles.push(...extractedEpubs);
         } catch (error) {
-          console.error(`ZIP展開エラー (${zipPath}):`, error);
+          logger.error(
+            { err: error instanceof Error ? error : new Error(String(error)), zipPath },
+            'ZIP展開エラー',
+          );
           // ZIPエラーは個別に通知してスキップ
           const progress: ProcessingProgress = {
             fileId: `zip-${Date.now()}`,
@@ -82,10 +129,29 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
       // エラー時も一時ファイルをクリーンアップ
       await cleanupTempFiles(tempFiles);
 
-      console.error('EPUB処理エラー:', error);
+      logger.error(
+        {
+          err: error instanceof Error ? error : new Error(String(error)),
+          stack: error instanceof Error ? error.stack : 'No stack trace',
+        },
+        'EPUB処理エラー',
+      );
+
+      // より詳細なエラー情報を返す
+      let errorMessage = '不明なエラーが発生しました';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // ファイルパス関連のエラーの場合、より具体的なメッセージを追加
+        if (error.message.includes('ENOENT') || error.message.includes('no such file')) {
+          errorMessage = `ファイルが見つかりません: ${error.message}`;
+        } else if (error.message.includes('EACCES') || error.message.includes('permission')) {
+          errorMessage = `ファイルへのアクセス権限がありません: ${error.message}`;
+        }
+      }
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : '不明なエラーが発生しました',
+        error: errorMessage,
       };
     }
   });
