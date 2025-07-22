@@ -5,7 +5,7 @@
   },
   "dropZone": {
     "title": "Drop EPUB files here",
-    "subtitle": "or ZIP files containing multiple EPUBs",
+    "subtitle": "Folders or ZIP files containing EPUBs also supported",
     "or": "or",
     "selectFiles": "Select files"
   },

@@ -5,7 +5,7 @@
   },
   "dropZone": {
     "title": "EPUBファイルをドロップ",
-    "subtitle": "または複数のEPUBを含むZIPファイル",
+    "subtitle": "フォルダ、またはEPUBを含むZIPファイルも可",
     "or": "または",
     "selectFiles": "ファイルを選択"
   },
