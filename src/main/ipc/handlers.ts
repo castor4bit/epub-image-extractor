@@ -121,13 +121,13 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   // ウィンドウサイズのクリア
   ipcMain.handle('settings:clearWindowBounds', async () => {
     settingsStore.setWindowBounds(undefined);
-    
+
     // デフォルトサイズに即座にリサイズ
     if (mainWindow) {
       mainWindow.setSize(WINDOW_SIZES.default.width, WINDOW_SIZES.default.height);
       mainWindow.center(); // 画面中央に配置
     }
-    
+
     return { success: true };
   });
 

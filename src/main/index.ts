@@ -63,7 +63,7 @@ function createWindow() {
   let saveTimer: ReturnType<typeof setTimeout> | null = null;
   const saveBounds = () => {
     if (!mainWindow) return;
-    
+
     const bounds = mainWindow.getBounds();
     settingsStore.setWindowBounds(bounds);
   };

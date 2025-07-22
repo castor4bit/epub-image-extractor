@@ -11,10 +11,13 @@ export function handleError(error: Error | unknown, context: string): string {
       : wrapError(error, ErrorCode.UNKNOWN_ERROR, { operation: context });
 
   // ログに記録
-  logger.error({
-    appError,
-    operation: context,
-  }, appError.message);
+  logger.error(
+    {
+      appError,
+      operation: context,
+    },
+    appError.message,
+  );
 
   // ユーザー向けのエラーメッセージを返す
   return appError.userMessage;

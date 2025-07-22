@@ -11,7 +11,7 @@ import {
 import { AppError, ErrorCode } from '../../shared/error-types';
 import { logger } from '../utils/logger';
 import path from 'path';
-import { parseStringPromise } from 'xml2js';
+import { parseStringPromise } from '../utils/xmlParser';
 import AdmZip from 'adm-zip';
 
 export interface EpubData {
@@ -99,12 +99,15 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     });
 
     // デバッグ情報をログに記録
-    logger.debug({
-      hasManifest: !!manifest,
-      hasSpine: !!spine,
-      manifestKeys: Object.keys(manifest).length,
-      spineLength: spine.length,
-    }, 'パーサー実行完了');
+    logger.debug(
+      {
+        hasManifest: !!manifest,
+        hasSpine: !!spine,
+        manifestKeys: Object.keys(manifest).length,
+        spineLength: spine.length,
+      },
+      'パーサー実行完了',
+    );
 
     // ナビゲーション情報を取得（目次）
     const navigation = await extractNavigationFromZip(zip, opfPath, manifest);

@@ -16,62 +16,57 @@ export interface SpineItem {
 
 export interface ContainerXml {
   container: {
-    rootfiles: {
-      rootfile: {
-        'full-path': string;
-        'media-type': string;
-      } | Array<{
-        'full-path': string;
-        'media-type': string;
+    rootfiles: Array<{
+      rootfile: Array<{
+        $: {
+          'full-path': string;
+          'media-type': string;
+        };
       }>;
-    };
+    }>;
   };
 }
 
 export interface OpfXml {
   package: {
-    manifest: {
-      item?: {
-        id: string;
-        href: string;
-        'media-type': string;
-        properties?: string;
-      } | Array<{
-        id: string;
-        href: string;
-        'media-type': string;
-        properties?: string;
+    manifest: Array<{
+      item?: Array<{
+        $: {
+          id: string;
+          href: string;
+          'media-type': string;
+          properties?: string;
+        };
       }>;
-    };
-    spine: {
-      itemref?: {
-        idref: string;
-        linear?: string;
-        properties?: string;
-      } | Array<{
-        idref: string;
-        linear?: string;
-        properties?: string;
+    }>;
+    spine: Array<{
+      itemref?: Array<{
+        $: {
+          idref: string;
+          linear?: string;
+          properties?: string;
+        };
       }>;
-    };
+    }>;
   };
 }
 
 export interface NcxXml {
   ncx?: {
-    navMap?: {
-      navPoint?: NavPoint | NavPoint[];
-    };
+    navMap?: Array<{
+      navPoint?: Array<NavPoint>;
+    }>;
   };
 }
 
 export interface NavPoint {
-  navLabel?: {
-    text?: string;
-    '#text'?: string;
-  } | string;
-  content?: {
-    src?: string;
-  };
-  navPoint?: NavPoint | NavPoint[];
+  navLabel?: Array<{
+    text?: string[];
+  }>;
+  content?: Array<{
+    $?: {
+      src?: string;
+    };
+  }>;
+  navPoint?: NavPoint[];
 }

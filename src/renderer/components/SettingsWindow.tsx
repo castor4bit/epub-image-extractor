@@ -63,12 +63,12 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       }
 
       await window.electronAPI.saveSettings(settings);
-      
+
       // リセット後の保存の場合、ウィンドウサイズもデフォルトに戻す
       if (wasReset) {
         await window.electronAPI.clearWindowBounds();
       }
-      
+
       onClose();
     } catch (error) {
       console.error('設定の保存に失敗しました:', error);
