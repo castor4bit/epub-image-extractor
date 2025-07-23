@@ -27,7 +27,8 @@
     "pending_text": "Pending",
     "openFolder": "Open Folder",
     "clear": "Clear",
-    "alreadyProcessing": "Currently processing. Please wait until completion."
+    "alreadyProcessing": "Currently processing. Please wait until completion.",
+    "no_images": "No images"
   },
   "settings": {
     "title": "Settings",

@@ -167,9 +167,15 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
             {item.status === 'completed' && (
               <div className="completion-info">
                 <div className="result-text">
-                  {item.totalImages}
-                  {t('units.images')}
-                  {item.chapters ? `, ${item.chapters}${t('units.chapters')}` : ''}
+                  {item.totalImages && item.totalImages > 0 ? (
+                    <>
+                      {item.totalImages}
+                      {t('units.images')}
+                      {item.chapters ? `, ${item.chapters}${t('units.chapters')}` : ''}
+                    </>
+                  ) : (
+                    t('processing.no_images')
+                  )}
                 </div>
                 {item.outputPath && (
                   <button

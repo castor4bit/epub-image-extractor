@@ -27,7 +27,8 @@
     "pending_text": "待機中",
     "openFolder": "フォルダを開く",
     "clear": "クリア",
-    "alreadyProcessing": "現在処理中です。完了までお待ちください。"
+    "alreadyProcessing": "現在処理中です。完了までお待ちください。",
+    "no_images": "画像なし"
   },
   "settings": {
     "title": "設定",
