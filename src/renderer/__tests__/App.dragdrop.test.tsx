@@ -140,7 +140,7 @@ describe('App - ドラッグ&ドロップ機能', () => {
       alertSpy.mockRestore();
     });
 
-    it('処理中に追加のファイルをドロップした場合は警告を表示', async () => {
+    it('処理中に追加のファイルをドロップした場合はブロックされる', async () => {
       // 最初のファイル処理を開始（未解決のPromise）
       let resolveProcess: any;
       const processPromise = new Promise((resolve) => {
@@ -150,8 +150,6 @@ describe('App - ドラッグ&ドロップ機能', () => {
       mockGetDroppedFilePaths.mockReturnValue([
         { path: '/test/book.epub', name: 'book.epub', size: 1000, type: 'application/epub+zip' },
       ]);
-
-      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
       render(<App />);
 
@@ -176,17 +174,27 @@ describe('App - ドラッグ&ドロップ機能', () => {
         .getByText('追加のEPUBファイルをドロップ')
         .closest('.compact-drop-zone');
 
-      // 2回目のドロップ（処理中）
+      // compact-drop-zoneがdisabledクラスを持っていることを確認
+      expect(compactDropZone).toHaveClass('disabled');
+
+      // processEpubFilesが最初の1回しか呼ばれていないことを確認
+      expect(mockProcessEpubFiles).toHaveBeenCalledTimes(1);
+
+      // 2回目のドロップ（処理中）- ブロックされる
       fireEvent.drop(compactDropZone!, { dataTransfer });
 
+      // 追加の処理が開始されないことを確認
       await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith('現在処理中です。完了までお待ちください。');
+        expect(mockProcessEpubFiles).toHaveBeenCalledTimes(1);
       });
 
       // 処理を完了させる
       resolveProcess({ success: true, results: [] });
 
-      alertSpy.mockRestore();
+      // 処理完了後はdisabledクラスが削除されることを確認
+      await waitFor(() => {
+        expect(compactDropZone).not.toHaveClass('disabled');
+      });
     });
   });
 
