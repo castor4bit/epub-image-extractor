@@ -3,7 +3,7 @@ import { ImageInfo, ChapterInfo } from '@shared/types';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
 
 describe('chapterOrganizer - ファイル名オプション', () => {
   let tempDir: string;
@@ -14,10 +14,12 @@ describe('chapterOrganizer - ファイル名オプション', () => {
     testEpubPath = path.join(tempDir, 'test.epub');
 
     // テスト用のEPUBファイルを作成
-    const zip = new AdmZip();
-    zip.addFile('images/cover.jpg', Buffer.from('fake jpg data'));
-    zip.addFile('images/page_001.png', Buffer.from('fake png data'));
-    await fs.writeFile(testEpubPath, zip.toBuffer());
+    const files: Record<string, Uint8Array> = {
+      'images/cover.jpg': strToU8('fake jpg data'),
+      'images/page_001.png': strToU8('fake png data'),
+    };
+    const zipped = zipSync(files);
+    await fs.writeFile(testEpubPath, Buffer.from(zipped));
   });
 
   afterEach(async () => {

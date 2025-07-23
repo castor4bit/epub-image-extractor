@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import fs from 'fs/promises';
 import path from 'path';
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
 import { extractEpubsFromZip, validateZipContents, isZipFile } from '../zipHandler';
 
 // Electronのappモックを設定
@@ -27,18 +27,22 @@ describe('zipHandler', () => {
 
     // EPUBファイルを含むZIPファイルを作成
     mockZipPath = path.join(testDir, 'test-with-epub.zip');
-    const zipWithEpub = new AdmZip();
-    zipWithEpub.addFile('test-book.epub', Buffer.from('mock epub content'));
-    zipWithEpub.addFile('image.jpg', Buffer.from('mock image'));
-    zipWithEpub.writeZip(mockZipPath);
+    const filesWithEpub = {
+      'test-book.epub': strToU8('mock epub content'),
+      'image.jpg': strToU8('mock image'),
+    };
+    const zipWithEpub = zipSync(filesWithEpub);
+    await fs.writeFile(mockZipPath, Buffer.from(zipWithEpub));
 
     // EPUBファイルを含まないZIPファイルを作成
     mockZipWithoutEpubPath = path.join(testDir, 'test-without-epub.zip');
-    const zipWithoutEpub = new AdmZip();
-    zipWithoutEpub.addFile('image1.jpg', Buffer.from('mock image 1'));
-    zipWithoutEpub.addFile('image2.png', Buffer.from('mock image 2'));
-    zipWithoutEpub.addFile('document.pdf', Buffer.from('mock pdf'));
-    zipWithoutEpub.writeZip(mockZipWithoutEpubPath);
+    const filesWithoutEpub = {
+      'image1.jpg': strToU8('mock image 1'),
+      'image2.png': strToU8('mock image 2'),
+      'document.pdf': strToU8('mock pdf'),
+    };
+    const zipWithoutEpub = zipSync(filesWithoutEpub);
+    await fs.writeFile(mockZipWithoutEpubPath, Buffer.from(zipWithoutEpub));
   });
 
   afterEach(async () => {
@@ -65,22 +69,22 @@ describe('zipHandler', () => {
   });
 
   describe('validateZipContents', () => {
-    it('should return valid=true for ZIP containing EPUB files', () => {
-      const result = validateZipContents(mockZipPath);
+    it('should return valid=true for ZIP containing EPUB files', async () => {
+      const result = await validateZipContents(mockZipPath);
       expect(result.valid).toBe(true);
       expect(result.errorMessage).toBeUndefined();
     });
 
-    it('should return valid=false for ZIP without EPUB files', () => {
-      const result = validateZipContents(mockZipWithoutEpubPath);
+    it('should return valid=false for ZIP without EPUB files', async () => {
+      const result = await validateZipContents(mockZipWithoutEpubPath);
       expect(result.valid).toBe(false);
       expect(result.errorMessage).toBe(
         'ZIPファイル内にEPUBファイルが見つかりませんでした。EPUBファイルを含むZIPファイルを選択してください',
       );
     });
 
-    it('should return valid=false for invalid ZIP file', () => {
-      const result = validateZipContents('/nonexistent/file.zip');
+    it('should return valid=false for invalid ZIP file', async () => {
+      const result = await validateZipContents('/nonexistent/file.zip');
       expect(result.valid).toBe(false);
       expect(result.errorMessage).toBe('ZIPファイルの展開に失敗しました');
     });

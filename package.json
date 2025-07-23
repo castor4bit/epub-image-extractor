@@ -42,10 +42,10 @@
     "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
   },
   "dependencies": {
-    "adm-zip": "^0.5.16",
     "async-mutex": "^0.5.0",
     "electron-store": "^8.2.0",
     "fast-xml-parser": "^5.2.5",
+    "fflate": "^0.8.2",
     "i18next": "^25.3.2",
     "p-limit": "^3.1.0",
     "pino": "^9.7.0",
@@ -61,7 +61,6 @@
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/adm-zip": "^0.5.7",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.15",
     "@types/react": "^19.1.8",

@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll } from '@jest/globals';
 import path from 'path';
 import fs from 'fs/promises';
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
 import { parseEpub } from '../../src/main/epub/parser';
 import { extractImages } from '../../src/main/epub/imageExtractor';
 import { organizeByChapters } from '../../src/main/epub/chapterOrganizer';
@@ -203,10 +203,10 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 async function createTestEpub(outputPath: string): Promise<void> {
-  const zip = new AdmZip();
+  const files: Record<string, Uint8Array | [Uint8Array, any]> = {};
   
   // mimetype
-  zip.addFile('mimetype', Buffer.from('application/epub+zip'), '', 0);
+  files['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];
   
   // META-INF/container.xml
   const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -215,7 +215,7 @@ async function createTestEpub(outputPath: string): Promise<void> {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-  zip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+  files['META-INF/container.xml'] = strToU8(containerXml);
   
   // OEBPS/content.opf
   const contentOpf = `<?xml version="1.0" encoding="UTF-8"?>
@@ -235,7 +235,7 @@ async function createTestEpub(outputPath: string): Promise<void> {
     <itemref idref="ch1"/>
   </spine>
 </package>`;
-  zip.addFile('OEBPS/content.opf', Buffer.from(contentOpf));
+  files['OEBPS/content.opf'] = strToU8(contentOpf);
   
   // ナビゲーション
   const navXhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -250,7 +250,7 @@ async function createTestEpub(outputPath: string): Promise<void> {
   </nav>
 </body>
 </html>`;
-  zip.addFile('OEBPS/nav.xhtml', Buffer.from(navXhtml));
+  files['OEBPS/nav.xhtml'] = strToU8(navXhtml);
   
   // コンテンツ
   const ch1Xhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -262,10 +262,10 @@ async function createTestEpub(outputPath: string): Promise<void> {
   <img src="images/test.png" alt="テスト画像"/>
 </body>
 </html>`;
-  zip.addFile('OEBPS/ch1.xhtml', Buffer.from(ch1Xhtml));
+  files['OEBPS/ch1.xhtml'] = strToU8(ch1Xhtml);
   
   // テスト画像（1x1 PNG）
-  const pngData = Buffer.from([
+  const pngData = new Uint8Array([
     0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
     0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
@@ -276,9 +276,11 @@ async function createTestEpub(outputPath: string): Promise<void> {
     0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
     0xAE, 0x42, 0x60, 0x82
   ]);
-  zip.addFile('OEBPS/images/test.png', pngData);
+  files['OEBPS/images/test.png'] = pngData;
   
-  zip.writeZip(outputPath);
+  // ZIPファイルを作成
+  const zipped = zipSync(files, { mtime: new Date('2024-01-01') });
+  await fs.writeFile(outputPath, zipped);
 }
 
 async function createTestZipWithEpub(outputPath: string): Promise<void> {
@@ -286,10 +288,14 @@ async function createTestZipWithEpub(outputPath: string): Promise<void> {
   const tempEpubPath = path.join(path.dirname(outputPath), 'temp-test.epub');
   await createTestEpub(tempEpubPath);
   
-  // ZIPに追加
-  const zip = new AdmZip();
-  zip.addLocalFile(tempEpubPath, '', 'test-in-zip.epub');
-  zip.writeZip(outputPath);
+  // EPUBファイルを読み込んでZIPに追加
+  const epubData = await fs.readFile(tempEpubPath);
+  const files: Record<string, Uint8Array> = {
+    'test-in-zip.epub': new Uint8Array(epubData)
+  };
+  
+  const zipped = zipSync(files, { mtime: new Date('2024-01-01') });
+  await fs.writeFile(outputPath, zipped);
   
   // 一時ファイルを削除
   await fs.unlink(tempEpubPath);

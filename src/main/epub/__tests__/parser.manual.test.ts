@@ -24,7 +24,7 @@ describe('parseEpub - 手動解析実装', () => {
       expect(result.basePath).toBe(testEpubPath);
       expect(result.contentPath).toBeDefined();
       expect(result.parser).toBeDefined();
-      // AdmZipインスタンスが正しく返されるか確認
+      // ZIPリーダーインスタンスが正しく返されるか確認
       expect(typeof result.parser.getEntries).toBe('function');
     });
 

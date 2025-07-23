@@ -1,10 +1,61 @@
 import { extractImages } from '../imageExtractor';
 import { EpubData } from '../parser';
-import AdmZip from 'adm-zip';
+import { IZipReader, ZipEntry } from '../../utils/zip-reader/types';
 
 describe('extractImages - 手動解析実装', () => {
+  // モックZIPリーダーの作成
+  class MockZipReader implements IZipReader {
+    private files: Map<string, Buffer> = new Map();
+
+    addFile(path: string, content: Buffer): void {
+      this.files.set(path, content);
+    }
+
+    async open(filePath: string): Promise<void> {
+      // Mock implementation
+    }
+
+    getEntry(path: string): ZipEntry | null {
+      if (this.files.has(path)) {
+        return {
+          name: path,
+          isDirectory: false,
+          size: this.files.get(path)!.length,
+          compressedSize: this.files.get(path)!.length,
+        };
+      }
+      return null;
+    }
+
+    getEntries(): ZipEntry[] {
+      return Array.from(this.files.keys()).map((path) => ({
+        name: path,
+        isDirectory: false,
+        size: this.files.get(path)!.length,
+        compressedSize: this.files.get(path)!.length,
+      }));
+    }
+
+    readAsText(entry: ZipEntry): string {
+      const buffer = this.files.get(entry.name);
+      return buffer ? buffer.toString('utf-8') : '';
+    }
+
+    readAsBuffer(entry: ZipEntry): Buffer {
+      return this.files.get(entry.name) || Buffer.alloc(0);
+    }
+
+    async extractTo(entry: ZipEntry, outputPath: string): Promise<void> {
+      // Mock implementation
+    }
+
+    close(): void {
+      // Mock implementation
+    }
+  }
+
   // モックデータの作成
-  const createMockEpubData = (zip: AdmZip): EpubData => ({
+  const createMockEpubData = (reader: IZipReader): EpubData => ({
     manifest: {
       page1: {
         id: 'page1',
@@ -21,13 +72,13 @@ describe('extractImages - 手動解析実装', () => {
     navigation: [],
     basePath: '/test/path/test.epub',
     contentPath: 'OEBPS',
-    parser: zip,
+    parser: reader,
   });
 
   describe('画像パス解決', () => {
     test('相対パス（../形式）を正しく解決できること', () => {
       // resolveImagePath関数は内部関数なので、extractImagesの結果で確認
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       // HTMLコンテンツにSVG内の画像を含める
       const htmlContent = `
@@ -55,7 +106,7 @@ describe('extractImages - 手動解析実装', () => {
     });
 
     test('絶対パス（/開始）を正しく解決できること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       const htmlContent = `
         <html>
@@ -77,7 +128,7 @@ describe('extractImages - 手動解析実装', () => {
     });
 
     test('同一ディレクトリの相対パスを正しく解決できること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       const htmlContent = `
         <html>
@@ -101,7 +152,7 @@ describe('extractImages - 手動解析実装', () => {
 
   describe('画像抽出', () => {
     test('img要素から画像を抽出できること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       const htmlContent = `
         <html>
@@ -124,7 +175,7 @@ describe('extractImages - 手動解析実装', () => {
     });
 
     test('SVG内のimage要素から画像を抽出できること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       const htmlContent = `
         <html>
@@ -149,7 +200,7 @@ describe('extractImages - 手動解析実装', () => {
     });
 
     test('CSS背景画像を抽出できること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       const htmlContent = `
         <html>
@@ -172,7 +223,7 @@ describe('extractImages - 手動解析実装', () => {
     });
 
     test('data URLはスキップされること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       const htmlContent = `
         <html>
@@ -197,7 +248,7 @@ describe('extractImages - 手動解析実装', () => {
 
   describe('エラーハンドリング', () => {
     test('エントリーが見つからない場合も処理を継続すること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
 
       // page1.xhtmlが存在しない状態でテスト
       const epubData = createMockEpubData(mockZip);
@@ -208,7 +259,7 @@ describe('extractImages - 手動解析実装', () => {
     });
 
     test('進捗コールバックが正しく呼ばれること', () => {
-      const mockZip = new AdmZip();
+      const mockZip = new MockZipReader();
       const progressCallback = jest.fn();
 
       mockZip.addFile('OEBPS/page1.xhtml', Buffer.from('<html><body></body></html>'));

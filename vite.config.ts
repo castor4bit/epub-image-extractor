@@ -20,7 +20,6 @@ export default defineConfig({
                 'canvas',
                 'ws',
                 'fast-xml-parser',
-                'adm-zip',
                 'winston',
                 'p-limit'
               ],

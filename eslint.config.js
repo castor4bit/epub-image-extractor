@@ -19,7 +19,17 @@ module.exports = [
       '**/*.test.ts',
       '**/*.test.tsx',
       '**/__tests__/**',
-      'e2e/**'
+      'e2e/**',
+      '.tmp/**',
+      'tmp/**',
+      'temp/**',
+      'test-*.js',
+      'test.epub',
+      'build/**',
+      'release/**',
+      'test-output*/**',
+      'test-epubs/**',
+      'THIRD-PARTY-LICENSES.md'
     ]
   },
   

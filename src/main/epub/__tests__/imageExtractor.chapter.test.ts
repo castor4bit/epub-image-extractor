@@ -1,6 +1,7 @@
 import { extractImages } from '../imageExtractor';
 import { EpubData } from '../parser';
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
+import { createZipReader } from '../../utils/zip-reader';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -10,23 +11,18 @@ describe('画像抽出のチャプター判定', () => {
   beforeAll(async () => {
     // テスト用EPUBファイルを作成
     testEpubPath = path.join(__dirname, 'test-chapter-mapping.epub');
-    const zip = new AdmZip();
+    const files: Record<string, Uint8Array> = {};
 
     // コンテナファイル
-    zip.addFile(
-      'META-INF/container.xml',
-      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    files['META-INF/container.xml'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
-</container>`),
-    );
+</container>`);
 
     // OPFファイル
-    zip.addFile(
-      'OEBPS/content.opf',
-      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    files['OEBPS/content.opf'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
   <metadata>
     <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">チャプターマッピングテスト</dc:title>
@@ -54,13 +50,10 @@ describe('画像抽出のチャプター判定', () => {
     <itemref idref="p019"/>
     <itemref idref="p020"/>
   </spine>
-</package>`),
-    );
+</package>`);
 
     // ナビゲーションドキュメント
-    zip.addFile(
-      'OEBPS/nav.xhtml',
-      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    files['OEBPS/nav.xhtml'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
 <head><title>目次</title></head>
 <body>
@@ -72,45 +65,39 @@ describe('画像抽出のチャプター判定', () => {
     </ol>
   </nav>
 </body>
-</html>`),
-    );
+</html>`);
 
     // 各ページのコンテンツ（画像付き）
-    zip.addFile(
-      'OEBPS/p-001.xhtml',
-      Buffer.from(`<html><body><img src="images/img001.jpg"/></body></html>`),
+    files['OEBPS/p-001.xhtml'] = strToU8(
+      `<html><body><img src="images/img001.jpg"/></body></html>`,
     );
-    zip.addFile(
-      'OEBPS/p-002.xhtml',
-      Buffer.from(`<html><body><img src="images/img002.jpg"/></body></html>`),
+    files['OEBPS/p-002.xhtml'] = strToU8(
+      `<html><body><img src="images/img002.jpg"/></body></html>`,
     );
-    zip.addFile(
-      'OEBPS/p-003.xhtml',
-      Buffer.from(`<html><body><img src="images/img003.jpg"/></body></html>`),
+    files['OEBPS/p-003.xhtml'] = strToU8(
+      `<html><body><img src="images/img003.jpg"/></body></html>`,
     );
-    zip.addFile(
-      'OEBPS/p-004.xhtml',
-      Buffer.from(`<html><body><img src="images/img004.jpg"/></body></html>`),
+    files['OEBPS/p-004.xhtml'] = strToU8(
+      `<html><body><img src="images/img004.jpg"/></body></html>`,
     );
-    zip.addFile(
-      'OEBPS/p-019.xhtml',
-      Buffer.from(`<html><body><img src="images/img019.jpg"/></body></html>`),
+    files['OEBPS/p-019.xhtml'] = strToU8(
+      `<html><body><img src="images/img019.jpg"/></body></html>`,
     );
-    zip.addFile(
-      'OEBPS/p-020.xhtml',
-      Buffer.from(`<html><body><img src="images/img020.jpg"/></body></html>`),
+    files['OEBPS/p-020.xhtml'] = strToU8(
+      `<html><body><img src="images/img020.jpg"/></body></html>`,
     );
 
     // ダミー画像データ
-    const dummyImage = Buffer.from([0xff, 0xd8, 0xff, 0xe0]); // JPEG header
-    zip.addFile('OEBPS/images/img001.jpg', dummyImage);
-    zip.addFile('OEBPS/images/img002.jpg', dummyImage);
-    zip.addFile('OEBPS/images/img003.jpg', dummyImage);
-    zip.addFile('OEBPS/images/img004.jpg', dummyImage);
-    zip.addFile('OEBPS/images/img019.jpg', dummyImage);
-    zip.addFile('OEBPS/images/img020.jpg', dummyImage);
+    const dummyImage = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]); // JPEG header
+    files['OEBPS/images/img001.jpg'] = dummyImage;
+    files['OEBPS/images/img002.jpg'] = dummyImage;
+    files['OEBPS/images/img003.jpg'] = dummyImage;
+    files['OEBPS/images/img004.jpg'] = dummyImage;
+    files['OEBPS/images/img019.jpg'] = dummyImage;
+    files['OEBPS/images/img020.jpg'] = dummyImage;
 
-    zip.writeZip(testEpubPath);
+    const zipped = zipSync(files);
+    await fs.writeFile(testEpubPath, Buffer.from(zipped));
   });
 
   afterAll(async () => {
@@ -118,6 +105,10 @@ describe('画像抽出のチャプター判定', () => {
   });
 
   test('チャプターに基づいて画像が正しく分類される', async () => {
+    // ZIPリーダーを作成して開く
+    const reader = createZipReader();
+    await reader.open(testEpubPath);
+
     // テスト用のEpubData
     const epubData: EpubData = {
       basePath: testEpubPath,
@@ -144,7 +135,7 @@ describe('画像抽出のチャプター判定', () => {
         { order: 2, title: '巻頭特集', href: 'p-003.xhtml' },
         { order: 3, title: 'とりまご', href: 'p-019.xhtml' },
       ],
-      parser: new AdmZip(testEpubPath),
+      parser: reader,
     };
 
     const images = await extractImages(epubData);
@@ -172,9 +163,16 @@ describe('画像抽出のチャプター判定', () => {
 
     expect(images[5].src).toContain('img020.jpg');
     expect(images[5].chapterOrder).toBe(3);
+
+    // クリーンアップ
+    reader.close();
   });
 
   test('ナビゲーションがない場合はすべてチャプター1に分類', async () => {
+    // ZIPリーダーを作成して開く
+    const reader = createZipReader();
+    await reader.open(testEpubPath);
+
     const epubDataNoNav: EpubData = {
       basePath: testEpubPath,
       contentPath: 'OEBPS',
@@ -188,7 +186,7 @@ describe('画像抽出のチャプター判定', () => {
         { idref: 'p002', linear: 'yes' },
       ],
       navigation: [], // ナビゲーションなし
-      parser: new AdmZip(testEpubPath),
+      parser: reader,
     };
 
     const images = await extractImages(epubDataNoNav);
@@ -196,5 +194,8 @@ describe('画像抽出のチャプター判定', () => {
     // すべての画像がチャプター1
     expect(images[0].chapterOrder).toBe(1);
     expect(images[1].chapterOrder).toBe(1);
+
+    // クリーンアップ
+    reader.close();
   });
 });

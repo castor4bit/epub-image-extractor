@@ -2,7 +2,7 @@ import { parseEpub } from '../parser';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
 
 describe('parseEpub - page-spread プロパティの抽出', () => {
   let tempDir: string;
@@ -19,23 +19,18 @@ describe('parseEpub - page-spread プロパティの抽出', () => {
 
   test('itemrefのpropertiesからpage-spread-leftとpage-spread-rightを抽出できる', async () => {
     // page-spreadプロパティを含むEPUBを作成
-    const zip = new AdmZip();
+    const files: Record<string, Uint8Array> = {};
 
     // container.xml
-    zip.addFile(
-      'META-INF/container.xml',
-      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    files['META-INF/container.xml'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
-</container>`),
-    );
+</container>`);
 
     // content.opf with page-spread properties
-    zip.addFile(
-      'OEBPS/content.opf',
-      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    files['OEBPS/content.opf'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:title>Test Book</dc:title>
@@ -53,22 +48,19 @@ describe('parseEpub - page-spread プロパティの抽出', () => {
     <itemref idref="page3"/>
     <itemref idref="page4" properties="page-spread-left rendition:layout-pre-paginated"/>
   </spine>
-</package>`),
-    );
+</package>`);
 
     // ページファイルを追加
     for (let i = 1; i <= 4; i++) {
-      zip.addFile(
-        `OEBPS/page${i}.xhtml`,
-        Buffer.from(`<!DOCTYPE html>
+      files[`OEBPS/page${i}.xhtml`] = strToU8(`<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><title>Page ${i}</title></head>
 <body><p>Page ${i} content</p></body>
-</html>`),
-      );
+</html>`);
     }
 
-    await fs.writeFile(testEpubPath, zip.toBuffer());
+    const zipped = zipSync(files);
+    await fs.writeFile(testEpubPath, Buffer.from(zipped));
 
     // EPUBを解析
     const epubData = await parseEpub(testEpubPath);
@@ -83,21 +75,16 @@ describe('parseEpub - page-spread プロパティの抽出', () => {
 
   test('propertiesが存在しない場合はpageSpreadが設定されない', async () => {
     // propertiesなしのEPUBを作成
-    const zip = new AdmZip();
+    const files: Record<string, Uint8Array> = {};
 
-    zip.addFile(
-      'META-INF/container.xml',
-      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    files['META-INF/container.xml'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
-</container>`),
-    );
+</container>`);
 
-    zip.addFile(
-      'OEBPS/content.opf',
-      Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    files['OEBPS/content.opf'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:title>Test Book</dc:title>
@@ -111,22 +98,19 @@ describe('parseEpub - page-spread プロパティの抽出', () => {
     <itemref idref="page1"/>
     <itemref idref="page2"/>
   </spine>
-</package>`),
-    );
+</package>`);
 
     // ページファイルを追加
     for (let i = 1; i <= 2; i++) {
-      zip.addFile(
-        `OEBPS/page${i}.xhtml`,
-        Buffer.from(`<!DOCTYPE html>
+      files[`OEBPS/page${i}.xhtml`] = strToU8(`<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><title>Page ${i}</title></head>
 <body><p>Page ${i} content</p></body>
-</html>`),
-      );
+</html>`);
     }
 
-    await fs.writeFile(testEpubPath, zip.toBuffer());
+    const zipped = zipSync(files);
+    await fs.writeFile(testEpubPath, Buffer.from(zipped));
 
     // EPUBを解析
     const epubData = await parseEpub(testEpubPath);

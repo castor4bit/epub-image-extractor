@@ -1,23 +1,21 @@
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
 
 /**
  * テスト用のEPUBファイルを動的に生成するヘルパー
  */
 export class EpubGenerator {
-  private zip: AdmZip;
+  private entries: Map<string, Buffer> = new Map();
   private chapters: Array<{ id: string; title: string; content: string }> = [];
   private images: Array<{ id: string; href: string; data: Buffer }> = [];
 
-  constructor() {
-    this.zip = new AdmZip();
-  }
+  constructor() {}
 
   /**
    * 基本的なEPUB構造を作成
    */
   private createBasicStructure() {
     // mimetype
-    this.zip.addFile('mimetype', Buffer.from('application/epub+zip'));
+    this.entries.set('mimetype', Buffer.from('application/epub+zip'));
 
     // META-INF/container.xml
     const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -26,7 +24,7 @@ export class EpubGenerator {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-    this.zip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+    this.entries.set('META-INF/container.xml', Buffer.from(containerXml));
   }
 
   /**
@@ -74,8 +72,13 @@ export class EpubGenerator {
 
   /**
    * EPUBファイルを生成
+   * 注: このメソッドは実際のZIPファイルを作成しません。
+   * 代わりに、メモリ内のエントリマップを返します。
+   * 実際のZIP作成は、別途ZIP作成ライブラリを使用する必要があります。
    */
   generate(): Buffer {
+    const files: Record<string, Uint8Array | [Uint8Array, { level?: number }]> = {};
+    
     this.createBasicStructure();
 
     // OPFファイルを生成
@@ -109,8 +112,6 @@ export class EpubGenerator {
   </spine>
 </package>`;
 
-    this.zip.addFile('OEBPS/content.opf', Buffer.from(opf));
-
     // ナビゲーションファイルを生成
     const navItems = this.chapters.map(ch => 
       `<li><a href="${ch.id}.xhtml">${ch.title}</a></li>`
@@ -131,19 +132,31 @@ export class EpubGenerator {
 </body>
 </html>`;
 
-    this.zip.addFile('OEBPS/nav.xhtml', Buffer.from(nav));
+    // エントリーをfilesに追加
+    this.entries.forEach((data, path) => {
+      if (path === 'mimetype') {
+        files[path] = [new Uint8Array(data), { level: 0 }];
+      } else {
+        files[path] = new Uint8Array(data);
+      }
+    });
+    
+    files['OEBPS/content.opf'] = strToU8(opf);
+    files['OEBPS/nav.xhtml'] = strToU8(nav);
 
     // チャプターファイルを追加
     this.chapters.forEach(ch => {
-      this.zip.addFile(`OEBPS/${ch.id}.xhtml`, Buffer.from(ch.content));
+      files[`OEBPS/${ch.id}.xhtml`] = strToU8(ch.content);
     });
 
     // 画像ファイルを追加
     this.images.forEach(img => {
-      this.zip.addFile(`OEBPS/${img.href}`, img.data);
+      files[`OEBPS/${img.href}`] = new Uint8Array(img.data);
     });
 
-    return this.zip.toBuffer();
+    // ZIPファイルを作成
+    const zipped = zipSync(files, { mtime: new Date('2024-01-01') });
+    return Buffer.from(zipped);
   }
 }
 

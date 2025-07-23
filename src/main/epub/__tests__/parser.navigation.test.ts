@@ -1,5 +1,5 @@
 import { parseEpub } from '../parser';
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
 import path from 'path';
 import fs from 'fs';
 
@@ -7,7 +7,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
   describe('EPUB3 Navigation Document', () => {
     test('navigation-documents.xhtmlから章情報を抽出できること', async () => {
       // テスト用のEPUBをモック
-      const mockZip = new AdmZip();
+      const files: Record<string, Uint8Array> = {};
 
       // container.xml
       const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -16,7 +16,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     <rootfile full-path="item/standard.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-      mockZip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+      files['META-INF/container.xml'] = strToU8(containerXml);
 
       // OPFファイル
       const opfXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -34,7 +34,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     <itemref idref="p2"/>
   </spine>
 </package>`;
-      mockZip.addFile('item/standard.opf', Buffer.from(opfXml));
+      files['item/standard.opf'] = strToU8(opfXml);
 
       // Navigation Document
       const navXhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -53,11 +53,12 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </nav>
 </body>
 </html>`;
-      mockZip.addFile('item/navigation-documents.xhtml', Buffer.from(navXhtml));
+      files['item/navigation-documents.xhtml'] = strToU8(navXhtml);
 
       // EPUBをファイルに書き出し
       const tempPath = path.join(__dirname, 'test-nav.epub');
-      mockZip.writeZip(tempPath);
+      const zipped = zipSync(files);
+      fs.writeFileSync(tempPath, Buffer.from(zipped));
 
       try {
         const result = await parseEpub(tempPath);
@@ -82,7 +83,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     });
 
     test('propertiesがnavのアイテムを識別できること', async () => {
-      const mockZip = new AdmZip();
+      const files: Record<string, Uint8Array> = {};
 
       const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -90,7 +91,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-      mockZip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+      files['META-INF/container.xml'] = strToU8(containerXml);
 
       const opfXml = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
@@ -105,7 +106,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     <itemref idref="nav"/>
   </spine>
 </package>`;
-      mockZip.addFile('OEBPS/content.opf', Buffer.from(opfXml));
+      files['OEBPS/content.opf'] = strToU8(opfXml);
 
       const navXhtml = `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -117,10 +118,11 @@ describe('parseEpub - ナビゲーション抽出', () => {
   </nav>
 </body>
 </html>`;
-      mockZip.addFile('OEBPS/nav.xhtml', Buffer.from(navXhtml));
+      files['OEBPS/nav.xhtml'] = strToU8(navXhtml);
 
       const tempPath = path.join(__dirname, 'test-nav-properties.epub');
-      mockZip.writeZip(tempPath);
+      const zipped = zipSync(files);
+      fs.writeFileSync(tempPath, Buffer.from(zipped));
 
       try {
         const result = await parseEpub(tempPath);
@@ -136,7 +138,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
 
   describe('EPUB2 NCX', () => {
     test('NCXファイルから章情報を抽出できること', async () => {
-      const mockZip = new AdmZip();
+      const files: Record<string, Uint8Array> = {};
 
       const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -144,7 +146,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-      mockZip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+      files['META-INF/container.xml'] = strToU8(containerXml);
 
       const opfXml = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
@@ -159,7 +161,7 @@ describe('parseEpub - ナビゲーション抽出', () => {
     <itemref idref="page1"/>
   </spine>
 </package>`;
-      mockZip.addFile('OEBPS/content.opf', Buffer.from(opfXml));
+      files['OEBPS/content.opf'] = strToU8(opfXml);
 
       const ncxXml = `<?xml version="1.0" encoding="UTF-8"?>
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
@@ -172,10 +174,11 @@ describe('parseEpub - ナビゲーション抽出', () => {
     </navPoint>
   </navMap>
 </ncx>`;
-      mockZip.addFile('OEBPS/toc.ncx', Buffer.from(ncxXml));
+      files['OEBPS/toc.ncx'] = strToU8(ncxXml);
 
       const tempPath = path.join(__dirname, 'test-ncx.epub');
-      mockZip.writeZip(tempPath);
+      const zipped = zipSync(files);
+      fs.writeFileSync(tempPath, Buffer.from(zipped));
 
       try {
         const result = await parseEpub(tempPath);

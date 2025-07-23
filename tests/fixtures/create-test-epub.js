@@ -1,12 +1,13 @@
-const AdmZip = require('adm-zip');
 const path = require('path');
+const fs = require('fs');
+const { zipSync, strToU8 } = require('fflate');
 
 // テスト用EPUBファイルを作成
 function createTestEpub() {
-  const zip = new AdmZip();
-
+  const files = {};
+  
   // mimetype (圧縮なし)
-  zip.addFile('mimetype', Buffer.from('application/epub+zip'), '', 0);
+  files['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];
 
   // META-INF/container.xml
   const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -15,7 +16,7 @@ function createTestEpub() {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-  zip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+  files['META-INF/container.xml'] = strToU8(containerXml);
 
   // OEBPS/content.opf
   const contentOpf = `<?xml version="1.0" encoding="UTF-8"?>
@@ -38,7 +39,7 @@ function createTestEpub() {
     <itemref idref="page2" linear="yes"/>
   </spine>
 </package>`;
-  zip.addFile('OEBPS/content.opf', Buffer.from(contentOpf));
+  files['OEBPS/content.opf'] = strToU8(contentOpf);
 
   // OEBPS/nav.xhtml
   const navXhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -56,7 +57,7 @@ function createTestEpub() {
   </nav>
 </body>
 </html>`;
-  zip.addFile('OEBPS/nav.xhtml', Buffer.from(navXhtml));
+  files['OEBPS/nav.xhtml'] = strToU8(navXhtml);
 
   // OEBPS/toc.ncx
   const tocNcx = `<?xml version="1.0" encoding="UTF-8"?>
@@ -83,7 +84,7 @@ function createTestEpub() {
     </navPoint>
   </navMap>
 </ncx>`;
-  zip.addFile('OEBPS/toc.ncx', Buffer.from(tocNcx));
+  files['OEBPS/toc.ncx'] = strToU8(tocNcx);
 
   // OEBPS/page1.xhtml
   const page1Xhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -98,7 +99,7 @@ function createTestEpub() {
   <img src="images/test1.jpg" alt="Test Image 1"/>
 </body>
 </html>`;
-  zip.addFile('OEBPS/page1.xhtml', Buffer.from(page1Xhtml));
+  files['OEBPS/page1.xhtml'] = strToU8(page1Xhtml);
 
   // OEBPS/page2.xhtml
   const page2Xhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -113,14 +114,14 @@ function createTestEpub() {
   <img src="images/test2.png" alt="Test Image 2"/>
 </body>
 </html>`;
-  zip.addFile('OEBPS/page2.xhtml', Buffer.from(page2Xhtml));
+  files['OEBPS/page2.xhtml'] = strToU8(page2Xhtml);
 
   // ダミー画像を追加
-  const dummyJpg = Buffer.from([
+  const dummyJpg = new Uint8Array([
     0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
     0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0xFF, 0xD9
   ]);
-  const dummyPng = Buffer.from([
+  const dummyPng = new Uint8Array([
     0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
     0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
     0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00,
@@ -128,14 +129,18 @@ function createTestEpub() {
     0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
   ]);
 
-  zip.addFile('OEBPS/images/test1.jpg', dummyJpg);
-  zip.addFile('OEBPS/images/test2.png', dummyPng);
+  files['OEBPS/images/test1.jpg'] = dummyJpg;
+  files['OEBPS/images/test2.png'] = dummyPng;
 
+  // ZIPファイルを作成
+  const zipped = zipSync(files, { mtime: new Date('2024-01-01') });
+  
   // EPUBファイルを保存
   const outputPath = path.join(__dirname, 'test.epub');
-  zip.writeZip(outputPath);
+  fs.writeFileSync(outputPath, zipped);
   
-  console.warn(`テスト用EPUBファイルを作成しました: ${outputPath}`);
+  // eslint-disable-next-line no-console
+  console.log(`テスト用EPUBファイルを作成しました: ${outputPath}`);
 }
 
 createTestEpub();
