@@ -1,7 +1,7 @@
 import { processEpubFiles } from '../../src/main/epub/processor';
 import path from 'path';
 import fs from 'fs/promises';
-import AdmZip from 'adm-zip';
+import { zipSync, strToU8 } from 'fflate';
 
 describe('重複出力先の処理', () => {
   const outputDir = path.join(__dirname, 'test-duplicate-output');
@@ -16,14 +16,15 @@ describe('重複出力先の処理', () => {
     await fs.mkdir(path.dirname(testEpub2), { recursive: true });
     
     // テスト用EPUB 1を作成
-    const mockZip1 = new AdmZip();
+    const files1: Record<string, Uint8Array | [Uint8Array, any]> = {};
     const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-    mockZip1.addFile('META-INF/container.xml', Buffer.from(containerXml));
+    files1['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];
+    files1['META-INF/container.xml'] = strToU8(containerXml);
     
     const opfXml1 = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
@@ -38,14 +39,17 @@ describe('重複出力先の処理', () => {
     <itemref idref="page1"/>
   </spine>
 </package>`;
-    mockZip1.addFile('OEBPS/content.opf', Buffer.from(opfXml1));
-    mockZip1.addFile('OEBPS/page1.xhtml', Buffer.from('<html><body><img src="image1.jpg"/></body></html>'));
-    mockZip1.addFile('OEBPS/image1.jpg', Buffer.from('image from book 1'));
-    mockZip1.writeZip(testEpub1);
+    files1['OEBPS/content.opf'] = strToU8(opfXml1);
+    files1['OEBPS/page1.xhtml'] = strToU8('<html><body><img src="image1.jpg"/></body></html>');
+    files1['OEBPS/image1.jpg'] = strToU8('image from book 1');
+    
+    const zipped1 = zipSync(files1, { mtime: new Date('2024-01-01') });
+    await fs.writeFile(testEpub1, Buffer.from(zipped1));
     
     // テスト用EPUB 2を作成（同じファイル名、異なる内容）
-    const mockZip2 = new AdmZip();
-    mockZip2.addFile('META-INF/container.xml', Buffer.from(containerXml));
+    const files2: Record<string, Uint8Array | [Uint8Array, any]> = {};
+    files2['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];
+    files2['META-INF/container.xml'] = strToU8(containerXml);
     
     const opfXml2 = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
@@ -60,10 +64,12 @@ describe('重複出力先の処理', () => {
     <itemref idref="page1"/>
   </spine>
 </package>`;
-    mockZip2.addFile('OEBPS/content.opf', Buffer.from(opfXml2));
-    mockZip2.addFile('OEBPS/page1.xhtml', Buffer.from('<html><body><img src="image2.png"/></body></html>'));
-    mockZip2.addFile('OEBPS/image2.png', Buffer.from('image from book 2'));
-    mockZip2.writeZip(testEpub2);
+    files2['OEBPS/content.opf'] = strToU8(opfXml2);
+    files2['OEBPS/page1.xhtml'] = strToU8('<html><body><img src="image2.png"/></body></html>');
+    files2['OEBPS/image2.png'] = strToU8('image from book 2');
+    
+    const zipped2 = zipSync(files2, { mtime: new Date('2024-01-01') });
+    await fs.writeFile(testEpub2, Buffer.from(zipped2));
   });
   
   afterAll(async () => {
@@ -119,14 +125,15 @@ describe('重複出力先の処理', () => {
     const testEpub3 = path.join(epubDir, 'subfolder/test-book.epub');
     await fs.mkdir(path.dirname(testEpub3), { recursive: true });
     
-    const mockZip3 = new AdmZip();
-    mockZip3.addFile('META-INF/container.xml', Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+    const files3: Record<string, Uint8Array | [Uint8Array, any]> = {};
+    files3['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];
+    files3['META-INF/container.xml'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
-</container>`));
-    mockZip3.addFile('OEBPS/content.opf', Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
+</container>`);
+    files3['OEBPS/content.opf'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
   <metadata>
     <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Test Book 3</dc:title>
@@ -137,9 +144,11 @@ describe('重複出力先の処理', () => {
   <spine>
     <itemref idref="page1"/>
   </spine>
-</package>`));
-    mockZip3.addFile('OEBPS/page1.xhtml', Buffer.from('<html><body>Book 3</body></html>'));
-    mockZip3.writeZip(testEpub3);
+</package>`);
+    files3['OEBPS/page1.xhtml'] = strToU8('<html><body>Book 3</body></html>');
+    
+    const zipped3 = zipSync(files3, { mtime: new Date('2024-01-01') });
+    await fs.writeFile(testEpub3, Buffer.from(zipped3));
     
     // 3つのEPUBを並列処理
     const results = await processEpubFiles(

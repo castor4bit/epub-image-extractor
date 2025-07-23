@@ -18,7 +18,7 @@ import { AppError, ErrorCode } from '../../../shared/error-types';
 import { handleError } from '../../utils/errorHandler';
 import path from 'path';
 import fs from 'fs/promises';
-import AdmZip from 'adm-zip';
+import { createZipReader } from '../../utils/zip-reader';
 
 // モックの設定
 jest.mock('../parser');
@@ -70,7 +70,7 @@ describe('processEpubFiles', () => {
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip(),
+        parser: createZipReader(),
       });
 
       (extractImages as jest.Mock).mockResolvedValue([
@@ -119,7 +119,7 @@ describe('processEpubFiles', () => {
         navigation: [],
         basePath: '',
         contentPath: 'OEBPS',
-        parser: new AdmZip(),
+        parser: createZipReader(),
       });
 
       (extractImages as jest.Mock).mockResolvedValue([
@@ -148,7 +148,7 @@ describe('processEpubFiles', () => {
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip(),
+        parser: createZipReader(),
       });
 
       (extractImages as jest.Mock).mockResolvedValue([]);
@@ -202,7 +202,7 @@ describe('processEpubFiles', () => {
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip(),
+        parser: createZipReader(),
       });
 
       (extractImages as jest.Mock).mockRejectedValue(
@@ -230,7 +230,7 @@ describe('processEpubFiles', () => {
           navigation: [],
           basePath: filePaths[0],
           contentPath: 'OEBPS',
-          parser: new AdmZip(),
+          parser: createZipReader(),
         })
         .mockRejectedValueOnce(
           new AppError(ErrorCode.EPUB_PARSE_ERROR, 'Invalid format', 'フォーマットエラー'),
@@ -241,7 +241,7 @@ describe('processEpubFiles', () => {
           navigation: [],
           basePath: filePaths[2],
           contentPath: 'OEBPS',
-          parser: new AdmZip(),
+          parser: createZipReader(),
         });
 
       (extractImages as jest.Mock).mockResolvedValue([]);
@@ -271,7 +271,7 @@ describe('processEpubFiles', () => {
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip(),
+        parser: createZipReader(),
       });
 
       (extractImages as jest.Mock).mockImplementation(async (_epubData, onProgress) => {
@@ -318,7 +318,7 @@ describe('processEpubFiles', () => {
         navigation: [],
         basePath: '',
         contentPath: 'OEBPS',
-        parser: new AdmZip(),
+        parser: createZipReader(),
       });
 
       (extractImages as jest.Mock).mockResolvedValue([]);
@@ -353,7 +353,7 @@ describe('processEpubFiles', () => {
         navigation: [],
         basePath: filePaths[0],
         contentPath: 'OEBPS',
-        parser: new AdmZip(),
+        parser: createZipReader(),
       });
 
       (extractImages as jest.Mock).mockResolvedValue([

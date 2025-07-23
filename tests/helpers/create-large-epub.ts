@@ -1,9 +1,6 @@
-// Note: This file is used to create test fixtures and still depends on adm-zip
-// because it needs to CREATE zip files, not just read them.
-// The abstraction layer is only for reading ZIP files.
-const AdmZip = require('adm-zip');
 import * as path from 'path';
 import * as fs from 'fs';
+import { zipSync, strToU8 } from 'fflate';
 
 /**
  * 大きなテスト用EPUBファイルを生成
@@ -16,10 +13,10 @@ export function createLargeTestEpub(
   imagesPerChapter: number = 20,
   imageSize: number = 100 * 1024 // 100KB
 ): Buffer {
-  const zip = new AdmZip();
+  const files: Record<string, Uint8Array | [Uint8Array, any]> = {};
 
   // mimetype
-  zip.addFile('mimetype', Buffer.from('application/epub+zip'), '', 0);
+  files['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];
 
   // META-INF/container.xml
   const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -28,7 +25,7 @@ export function createLargeTestEpub(
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-  zip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+  files['META-INF/container.xml'] = strToU8(containerXml);
 
   // 章とマニフェストアイテムを生成
   const manifestItems: string[] = [];
@@ -61,7 +58,7 @@ export function createLargeTestEpub(
       
       // ダミー画像データを生成（指定サイズのJPEG）
       const imageData = createDummyJpeg(imageSize);
-      zip.addFile(`OEBPS/${imagePath}`, imageData);
+      files[`OEBPS/${imagePath}`] = new Uint8Array(imageData);
     }
 
     // 章のXHTML
@@ -77,7 +74,7 @@ export function createLargeTestEpub(
   ${imageRefs.join('\n  ')}
 </body>
 </html>`;
-    zip.addFile(`OEBPS/${chapterId}.xhtml`, Buffer.from(chapterXhtml));
+    files[`OEBPS/${chapterId}.xhtml`] = strToU8(chapterXhtml);
   }
 
   // OPFファイルを生成
@@ -96,7 +93,7 @@ export function createLargeTestEpub(
     ${spineItems.join('\n    ')}
   </spine>
 </package>`;
-  zip.addFile('OEBPS/content.opf', Buffer.from(contentOpf));
+  files['OEBPS/content.opf'] = strToU8(contentOpf);
 
   // ナビゲーションファイルを生成
   const navXhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -114,9 +111,11 @@ export function createLargeTestEpub(
   </nav>
 </body>
 </html>`;
-  zip.addFile('OEBPS/nav.xhtml', Buffer.from(navXhtml));
+  files['OEBPS/nav.xhtml'] = strToU8(navXhtml);
 
-  return zip.toBuffer();
+  // ZIPファイルを作成
+  const zipped = zipSync(files, { mtime: new Date('2024-01-01') });
+  return Buffer.from(zipped);
 }
 
 /**

@@ -1,15 +1,14 @@
-// Note: This file is used to create test fixtures and still depends on adm-zip
-// because it needs to CREATE zip files, not just read them.
-// The abstraction layer is only for reading ZIP files.
 const path = require('path');
-const AdmZip = require('adm-zip');
+const fs = require('fs');
+const { zipSync, strToU8 } = require('fflate');
 
 // テスト用EPUBファイルを作成
 function createTestEpub() {
-  const zip = new AdmZip();
-
-  // mimetype
-  zip.addFile('mimetype', Buffer.from('application/epub+zip'), '', 0);
+  const files = {};
+  
+  // mimetype (圧縮なしで最初に追加する必要がある)
+  // EPUB仕様: mimetypeは圧縮なし（level: 0）
+  files['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];
 
   // META-INF/container.xml
   const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -18,7 +17,7 @@ function createTestEpub() {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-  zip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+  files['META-INF/container.xml'] = strToU8(containerXml);
 
   // OEBPS/content.opf
   const contentOpf = `<?xml version="1.0" encoding="UTF-8"?>
@@ -45,7 +44,7 @@ function createTestEpub() {
     <itemref idref="chapter2"/>
   </spine>
 </package>`;
-  zip.addFile('OEBPS/content.opf', Buffer.from(contentOpf));
+  files['OEBPS/content.opf'] = strToU8(contentOpf);
 
   // OEBPS/navigation.xhtml
   const navigationXhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -65,7 +64,7 @@ function createTestEpub() {
   </nav>
 </body>
 </html>`;
-  zip.addFile('OEBPS/navigation.xhtml', Buffer.from(navigationXhtml));
+  files['OEBPS/navigation.xhtml'] = strToU8(navigationXhtml);
 
   // OEBPS/cover.xhtml
   const coverXhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -79,7 +78,7 @@ function createTestEpub() {
   <img src="images/image1.png" alt="表紙画像"/>
 </body>
 </html>`;
-  zip.addFile('OEBPS/cover.xhtml', Buffer.from(coverXhtml));
+  files['OEBPS/cover.xhtml'] = strToU8(coverXhtml);
 
   // OEBPS/chapter1.xhtml
   const chapter1Xhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -95,7 +94,7 @@ function createTestEpub() {
   <p>画像が正しく抽出されることを確認します。</p>
 </body>
 </html>`;
-  zip.addFile('OEBPS/chapter1.xhtml', Buffer.from(chapter1Xhtml));
+  files['OEBPS/chapter1.xhtml'] = strToU8(chapter1Xhtml);
 
   // OEBPS/chapter2.xhtml
   const chapter2Xhtml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -111,12 +110,12 @@ function createTestEpub() {
   <p>複数の章に分かれていることを確認します。</p>
 </body>
 </html>`;
-  zip.addFile('OEBPS/chapter2.xhtml', Buffer.from(chapter2Xhtml));
+  files['OEBPS/chapter2.xhtml'] = strToU8(chapter2Xhtml);
 
   // テスト画像を作成（シンプルなPNG画像）
   // 1x1ピクセルの赤、緑、青の画像
   const createSimplePng = (r, g, b) => {
-    const png = Buffer.from([
+    return new Uint8Array([
       0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
       0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
       0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
@@ -127,20 +126,22 @@ function createTestEpub() {
       0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
       0xAE, 0x42, 0x60, 0x82
     ]);
-    return png;
   };
 
   // 画像を追加
-  zip.addFile('OEBPS/images/image1.png', createSimplePng(0xF8, 0x00, 0x00)); // 赤
-  zip.addFile('OEBPS/images/image2.jpg', createSimplePng(0x00, 0xF8, 0x00)); // 緑（実際はPNGだが拡張子はJPG）
-  zip.addFile('OEBPS/images/image3.png', createSimplePng(0x00, 0x00, 0xF8)); // 青
+  files['OEBPS/images/image1.png'] = createSimplePng(0xF8, 0x00, 0x00); // 赤
+  files['OEBPS/images/image2.jpg'] = createSimplePng(0x00, 0xF8, 0x00); // 緑（実際はPNGだが拡張子はJPG）
+  files['OEBPS/images/image3.png'] = createSimplePng(0x00, 0x00, 0xF8); // 青
 
+  // ZIPファイルを作成
+  const zipped = zipSync(files, { mtime: new Date('2024-01-01') });
+  
   // EPUBファイルを保存
   const outputDir = path.join(__dirname, '..');
   const outputPath = path.join(outputDir, 'test.epub');
-  zip.writeZip(outputPath);
+  fs.writeFileSync(outputPath, zipped);
   
-  console.warn(`テストEPUBファイルを作成しました: ${outputPath}`);
+  console.log(`テストEPUBファイルを作成しました: ${outputPath}`);
 }
 
 createTestEpub();

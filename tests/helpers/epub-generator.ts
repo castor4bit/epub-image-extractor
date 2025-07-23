@@ -1,5 +1,6 @@
 import { createZipReader, IZipReader } from '../../src/main/utils/zip-reader';
 import { ZipEntry } from '../../src/main/utils/zip-reader/types';
+import { zipSync, strToU8 } from 'fflate';
 
 /**
  * テスト用のEPUBファイルを動的に生成するヘルパー
@@ -78,11 +79,7 @@ export class EpubGenerator {
    * 実際のZIP作成は、別途ZIP作成ライブラリを使用する必要があります。
    */
   generate(): Buffer {
-    // 注: テストヘルパーは読み取り専用なので、ZIP作成機能は別途実装が必要
-    // 現在は既存のadm-zipに依存しているテストコードが動作するように、
-    // 一時的にadm-zipを使用します
-    const AdmZip = require('adm-zip');
-    const zip = new AdmZip();
+    const files: Record<string, Uint8Array | [Uint8Array, any]> = {};
     
     this.createBasicStructure();
 
@@ -137,25 +134,31 @@ export class EpubGenerator {
 </body>
 </html>`;
 
-    // エントリーをzipに追加
+    // エントリーをfilesに追加
     this.entries.forEach((data, path) => {
-      zip.addFile(path, data);
+      if (path === 'mimetype') {
+        files[path] = [new Uint8Array(data), { level: 0 }];
+      } else {
+        files[path] = new Uint8Array(data);
+      }
     });
     
-    zip.addFile('OEBPS/content.opf', Buffer.from(opf));
-    zip.addFile('OEBPS/nav.xhtml', Buffer.from(nav));
+    files['OEBPS/content.opf'] = strToU8(opf);
+    files['OEBPS/nav.xhtml'] = strToU8(nav);
 
     // チャプターファイルを追加
     this.chapters.forEach(ch => {
-      zip.addFile(`OEBPS/${ch.id}.xhtml`, Buffer.from(ch.content));
+      files[`OEBPS/${ch.id}.xhtml`] = strToU8(ch.content);
     });
 
     // 画像ファイルを追加
     this.images.forEach(img => {
-      zip.addFile(`OEBPS/${img.href}`, img.data);
+      files[`OEBPS/${img.href}`] = new Uint8Array(img.data);
     });
 
-    return zip.toBuffer();
+    // ZIPファイルを作成
+    const zipped = zipSync(files, { mtime: new Date('2024-01-01') });
+    return Buffer.from(zipped);
   }
 }
 
