@@ -3,6 +3,8 @@ import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
 import { WINDOW_SIZES } from './constants/window';
+import { getTranslation } from './i18n/translations';
+import { LanguageCode } from '../shared/constants/languages';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -69,16 +71,16 @@ function createWindow() {
       event.preventDefault();
       
       const settings = settingsStore.get();
-      const isJapanese = settings.language === 'ja';
+      const lang = (settings.language || 'ja') as LanguageCode;
+      const t = getTranslation(lang);
       
       const choice = dialog.showMessageBoxSync(mainWindow!, {
         type: 'question',
-        buttons: isJapanese ? ['終了', 'キャンセル'] : ['Quit', 'Cancel'],
+        buttons: [t.exitDialog.buttons.quit, t.exitDialog.buttons.cancel],
         defaultId: 1,
-        message: isJapanese ? '処理中のファイルがあります' : 'Files are being processed',
-        detail: isJapanese
-          ? '処理を中断して終了してもよろしいですか？'
-          : 'Are you sure you want to quit and interrupt the processing?',
+        title: t.exitDialog.title,
+        message: t.exitDialog.message,
+        detail: t.exitDialog.detail,
       });
       
       if (choice === 0) {
