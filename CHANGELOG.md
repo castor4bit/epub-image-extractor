@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.2](https://github.com/castor4bit/epub-image-extractor/compare/v0.5.1...v0.5.2) (2025-07-23)
+
+
+### Bug Fixes
+
+* Fix ad-hoc signing issues in GitHub Actions workflow ([#30](https://github.com/castor4bit/epub-image-extractor/issues/30)) ([a33862f](https://github.com/castor4bit/epub-image-extractor/commit/a33862f3d38bbc7faf07d8ffbeb2c8c0536437ff))
+
 ## [0.5.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.5.0...v0.5.1) (2025-07-22)
 
 
