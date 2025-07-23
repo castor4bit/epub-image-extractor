@@ -8,15 +8,16 @@ import { FflateReader } from './FflateReader';
 
 /**
  * 使用するZIPリーダーの実装
- * 環境変数やfeature flagで切り替え可能
+ * デフォルトはFflateReader（より高速でメモリ効率的）
+ * 互換性のためにUSE_ADM_ZIP環境変数で切り替え可能
  */
 export function createZipReader(): IZipReader {
-  // 将来的にはfeature flagや環境変数で切り替える
-  const useFflate = process.env.USE_FFLATE === 'true';
+  // 互換性のための環境変数
+  const useAdmZip = process.env.USE_ADM_ZIP === 'true';
   
-  if (useFflate) {
-    return new FflateReader();
+  if (useAdmZip) {
+    return new AdmZipReader();
   }
   
-  return new AdmZipReader();
+  return new FflateReader();
 }

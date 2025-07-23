@@ -1,23 +1,22 @@
-import AdmZip from 'adm-zip';
+import { createZipReader, IZipReader } from '../../src/main/utils/zip-reader';
+import { ZipEntry } from '../../src/main/utils/zip-reader/types';
 
 /**
  * テスト用のEPUBファイルを動的に生成するヘルパー
  */
 export class EpubGenerator {
-  private zip: AdmZip;
+  private entries: Map<string, Buffer> = new Map();
   private chapters: Array<{ id: string; title: string; content: string }> = [];
   private images: Array<{ id: string; href: string; data: Buffer }> = [];
 
-  constructor() {
-    this.zip = new AdmZip();
-  }
+  constructor() {}
 
   /**
    * 基本的なEPUB構造を作成
    */
   private createBasicStructure() {
     // mimetype
-    this.zip.addFile('mimetype', Buffer.from('application/epub+zip'));
+    this.entries.set('mimetype', Buffer.from('application/epub+zip'));
 
     // META-INF/container.xml
     const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -26,7 +25,7 @@ export class EpubGenerator {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>`;
-    this.zip.addFile('META-INF/container.xml', Buffer.from(containerXml));
+    this.entries.set('META-INF/container.xml', Buffer.from(containerXml));
   }
 
   /**
@@ -74,8 +73,17 @@ export class EpubGenerator {
 
   /**
    * EPUBファイルを生成
+   * 注: このメソッドは実際のZIPファイルを作成しません。
+   * 代わりに、メモリ内のエントリマップを返します。
+   * 実際のZIP作成は、別途ZIP作成ライブラリを使用する必要があります。
    */
   generate(): Buffer {
+    // 注: テストヘルパーは読み取り専用なので、ZIP作成機能は別途実装が必要
+    // 現在は既存のadm-zipに依存しているテストコードが動作するように、
+    // 一時的にadm-zipを使用します
+    const AdmZip = require('adm-zip');
+    const zip = new AdmZip();
+    
     this.createBasicStructure();
 
     // OPFファイルを生成
@@ -109,8 +117,6 @@ export class EpubGenerator {
   </spine>
 </package>`;
 
-    this.zip.addFile('OEBPS/content.opf', Buffer.from(opf));
-
     // ナビゲーションファイルを生成
     const navItems = this.chapters.map(ch => 
       `<li><a href="${ch.id}.xhtml">${ch.title}</a></li>`
@@ -131,19 +137,25 @@ export class EpubGenerator {
 </body>
 </html>`;
 
-    this.zip.addFile('OEBPS/nav.xhtml', Buffer.from(nav));
+    // エントリーをzipに追加
+    this.entries.forEach((data, path) => {
+      zip.addFile(path, data);
+    });
+    
+    zip.addFile('OEBPS/content.opf', Buffer.from(opf));
+    zip.addFile('OEBPS/nav.xhtml', Buffer.from(nav));
 
     // チャプターファイルを追加
     this.chapters.forEach(ch => {
-      this.zip.addFile(`OEBPS/${ch.id}.xhtml`, Buffer.from(ch.content));
+      zip.addFile(`OEBPS/${ch.id}.xhtml`, Buffer.from(ch.content));
     });
 
     // 画像ファイルを追加
     this.images.forEach(img => {
-      this.zip.addFile(`OEBPS/${img.href}`, img.data);
+      zip.addFile(`OEBPS/${img.href}`, img.data);
     });
 
-    return this.zip.toBuffer();
+    return zip.toBuffer();
   }
 }
 

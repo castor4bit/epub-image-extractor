@@ -1,3 +1,6 @@
+// Note: This file is used to create test fixtures and still depends on adm-zip
+// because it needs to CREATE zip files, not just read them.
+// The abstraction layer is only for reading ZIP files.
 const path = require('path');
 const AdmZip = require('adm-zip');
 

@@ -65,7 +65,12 @@ export class AdmZipReader implements IZipReader {
       throw new Error(`Entry not found: ${entry.name}`);
     }
     
-    return this.zip.readFile(admEntry);
+    const data = this.zip.readFile(admEntry);
+    if (!data) {
+      throw new Error(`Failed to read data from entry: ${entry.name}`);
+    }
+    
+    return data;
   }
   
   async extractTo(entry: ZipEntry, outputPath: string): Promise<void> {
@@ -84,6 +89,10 @@ export class AdmZipReader implements IZipReader {
     
     // ファイルを展開
     const buffer = this.zip.readFile(admEntry);
+    if (!buffer) {
+      throw new Error(`Failed to read data from entry: ${entry.name}`);
+    }
+    
     await fs.writeFile(outputPath, buffer);
   }
   

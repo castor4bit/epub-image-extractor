@@ -42,10 +42,10 @@
     "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
   },
   "dependencies": {
-    "adm-zip": "^0.5.16",
     "async-mutex": "^0.5.0",
     "electron-store": "^8.2.0",
     "fast-xml-parser": "^5.2.5",
+    "fflate": "^0.8.2",
     "i18next": "^25.3.2",
     "p-limit": "^3.1.0",
     "pino": "^9.7.0",
@@ -69,6 +69,7 @@
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.36.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "adm-zip": "^0.5.16",
     "concurrently": "^9.2.0",
     "conventional-commits-parser": "^6.2.0",
     "electron": "^37.2.3",
@@ -77,7 +78,6 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "fflate": "^0.8.2",
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
     "prettier": "^3.1.1",
