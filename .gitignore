@@ -59,7 +59,6 @@ tmp/
 **/test-epubs/
 test-*.js
 test.epub
-test-fflate-create.js
 
 # Electron
 electron-builder.yml
