@@ -3,11 +3,11 @@ import { AppError, ErrorCode } from '../../shared/error-types';
 import { logger } from '../utils/logger';
 import path from 'path';
 import fs from 'fs/promises';
-import AdmZip from 'adm-zip';
 import {
   sanitizeFileName as secureSanitizeFileName,
   checkResourceLimits,
 } from '../utils/pathSecurity';
+import { createZipReader } from '../utils/zip-reader';
 
 export interface FilenamingOptions {
   includeOriginalFilename: boolean;
@@ -21,22 +21,25 @@ export async function organizeByChapters(
   epubPath: string,
   options: FilenamingOptions = { includeOriginalFilename: true, includePageSpread: true },
 ): Promise<number> {
-  const zip = new AdmZip(epubPath);
-  const chapterMap = new Map<number, ChapterInfo>();
+  const reader = createZipReader();
+  await reader.open(epubPath);
+  
+  try {
+    const chapterMap = new Map<number, ChapterInfo>();
 
-  // ナビゲーション情報がある場合
-  if (navigation.length > 0) {
-    navigation.forEach((chapter) => {
-      chapterMap.set(chapter.order, chapter);
-    });
-  } else {
-    // ナビゲーションがない場合は「未分類」として処理
-    chapterMap.set(1, {
-      order: 1,
-      title: '未分類',
-      href: '',
-    });
-  }
+    // ナビゲーション情報がある場合
+    if (navigation.length > 0) {
+      navigation.forEach((chapter) => {
+        chapterMap.set(chapter.order, chapter);
+      });
+    } else {
+      // ナビゲーションがない場合は「未分類」として処理
+      chapterMap.set(1, {
+        order: 1,
+        title: '未分類',
+        href: '',
+      });
+    }
 
   // 章ごとに画像を整理
   const imagesByChapter = new Map<number, ImageInfo[]>();
@@ -81,12 +84,12 @@ export async function organizeByChapters(
     for (const image of chapterImages) {
       try {
         // EPUBから画像データを取得
-        const imageEntry = zip.getEntry(image.src);
+        const imageEntry = reader.getEntry(image.src);
         if (!imageEntry) {
           logger.warn({ imageSrc: image.src }, '画像エントリーが見つかりません');
           continue;
         }
-        const imageBuffer = zip.readFile(imageEntry);
+        const imageBuffer = reader.readAsBuffer(imageEntry);
         if (!imageBuffer) {
           logger.warn({ imageSrc: image.src }, '画像データが読み取れません');
           continue;
@@ -140,6 +143,9 @@ export async function organizeByChapters(
   }
 
   return processedChapters;
+  } finally {
+    reader.close();
+  }
 }
 
 // 画像の拡張子を決定

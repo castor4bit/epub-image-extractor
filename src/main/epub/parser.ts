@@ -12,7 +12,7 @@ import { AppError, ErrorCode } from '../../shared/error-types';
 import { logger } from '../utils/logger';
 import path from 'path';
 import { parseStringPromise } from '../utils/xmlParser';
-import AdmZip from 'adm-zip';
+import { createZipReader, IZipReader } from '../utils/zip-reader';
 
 export interface EpubData {
   manifest: Record<string, ManifestItem>;
@@ -20,19 +20,23 @@ export interface EpubData {
   navigation: ChapterInfo[];
   basePath: string;
   contentPath: string;
-  parser?: AdmZip; // パーサーインスタンスを保持
+  parser?: IZipReader; // パーサーインスタンスを保持
 }
 
 export async function parseEpub(epubPath: string): Promise<EpubData> {
+  let reader: IZipReader | undefined;
+  
   try {
     logger.debug({ epubPath }, 'EPUB解析開始');
 
     // 手動でEPUBを解析
-    const zip = new AdmZip(epubPath);
+    reader = createZipReader();
+    await reader.open(epubPath);
 
     // container.xmlを読む
-    const containerEntry = zip.getEntry('META-INF/container.xml');
+    const containerEntry = reader.getEntry('META-INF/container.xml');
     if (!containerEntry) {
+      reader.close();
       throw new AppError(
         ErrorCode.EPUB_INVALID_FORMAT,
         'container.xml not found',
@@ -41,7 +45,7 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
       );
     }
 
-    const containerXml = zip.readAsText(containerEntry);
+    const containerXml = reader.readAsText(containerEntry);
     const containerData = (await parseStringPromise(containerXml)) as ContainerXml;
 
     // OPFファイルのパスを取得
@@ -50,8 +54,9 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     const contentPath = path.dirname(opfPath);
 
     // OPFファイルを読む
-    const opfEntry = zip.getEntry(opfPath);
+    const opfEntry = reader.getEntry(opfPath);
     if (!opfEntry) {
+      reader.close();
       throw new AppError(
         ErrorCode.EPUB_INVALID_FORMAT,
         'OPF file not found',
@@ -60,7 +65,7 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
       );
     }
 
-    const opfXml = zip.readAsText(opfEntry);
+    const opfXml = reader.readAsText(opfEntry);
     const opfData = (await parseStringPromise(opfXml)) as OpfXml;
 
     // manifestとspineを取得
@@ -110,7 +115,7 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
     );
 
     // ナビゲーション情報を取得（目次）
-    const navigation = await extractNavigationFromZip(zip, opfPath, manifest);
+    const navigation = await extractNavigationFromZip(reader, opfPath, manifest);
 
     return {
       manifest,
@@ -118,9 +123,12 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
       navigation,
       basePath: epubPath,
       contentPath,
-      parser: zip, // zipインスタンスを保持
+      parser: reader, // readerインスタンスを保持
     };
   } catch (error) {
+    if (reader) {
+      reader.close();
+    }
     throw new AppError(
       ErrorCode.EPUB_PARSE_ERROR,
       error instanceof Error ? error.message : '不明なエラー',
@@ -132,7 +140,7 @@ export async function parseEpub(epubPath: string): Promise<EpubData> {
 }
 
 async function extractNavigationFromZip(
-  zip: AdmZip,
+  reader: IZipReader,
   opfPath: string,
   manifest: Record<string, ManifestItem>,
 ): Promise<ChapterInfo[]> {
@@ -157,10 +165,10 @@ async function extractNavigationFromZip(
     if (tocItem) {
       const contentPath = path.dirname(opfPath);
       const tocPath = path.join(contentPath, tocItem.href).replace(/\\/g, '/');
-      const tocEntry = zip.getEntry(tocPath);
+      const tocEntry = reader.getEntry(tocPath);
 
       if (tocEntry) {
-        const tocContent = zip.readAsText(tocEntry);
+        const tocContent = reader.readAsText(tocEntry);
         logger.debug({ tocPath }, 'ナビゲーションファイル発見');
 
         if (tocItem['media-type'] === 'application/x-dtbncx+xml') {

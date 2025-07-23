@@ -3,15 +3,21 @@ import { EpubData } from './parser';
 import { AppError, ErrorCode } from '../../shared/error-types';
 import { logger } from '../utils/logger';
 import path from 'path';
-import AdmZip from 'adm-zip';
 import { checkResourceLimits } from '../utils/pathSecurity';
+import { createZipReader } from '../utils/zip-reader';
 
 export async function extractImages(
   epubData: EpubData,
   onProgress?: (processed: number, total: number) => void,
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
-  const zip = (epubData.parser as AdmZip) || new AdmZip(epubData.basePath);
+  const reader = epubData.parser || createZipReader();
+  
+  // parserがない場合は新規作成してEPUBを開く
+  if (!epubData.parser) {
+    await reader.open(epubData.basePath);
+  }
+  
   let totalImageCount = 0;
 
   try {
@@ -50,13 +56,13 @@ export async function extractImages(
       logger.debug({ contentPath }, 'コンテンツ取得');
 
       try {
-        const contentEntry = zip.getEntry(contentPath);
+        const contentEntry = reader.getEntry(contentPath);
         if (!contentEntry) {
           logger.warn({ contentPath }, 'エントリーが見つかりません');
           continue;
         }
 
-        const contentString = zip.readAsText(contentEntry);
+        const contentString = reader.readAsText(contentEntry);
         logger.debug({ contentSize: contentString.length }, 'コンテンツサイズ');
 
         // HTMLを解析して画像を抽出
@@ -128,6 +134,11 @@ export async function extractImages(
 
     logger.error({ err: appError }, '画像抽出エラー');
     throw appError;
+  } finally {
+    // parserがない場合に作成したreaderをクリーンアップ
+    if (!epubData.parser) {
+      reader.close();
+    }
   }
 }
 
