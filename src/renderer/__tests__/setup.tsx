@@ -45,6 +45,7 @@ testI18n.use(initReactI18next).init({
           openFolder: 'フォルダを開く',
           clear: 'クリア',
           alreadyProcessing: '現在処理中です。完了までお待ちください。',
+          no_images: '画像なし',
         },
         settings: {
           title: '設定',
@@ -131,6 +132,7 @@ testI18n.use(initReactI18next).init({
           openFolder: 'Open Folder',
           clear: 'Clear',
           alreadyProcessing: 'Currently processing. Please wait until completion.',
+          no_images: 'No images',
         },
         settings: {
           title: 'Settings',

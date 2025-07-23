@@ -138,25 +138,31 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
               <span className="file-name">{item.fileName}</span>
             </div>
 
-            {item.status === 'processing' && item.totalImages && item.totalImages > 0 && (
+            {item.status === 'processing' && (
               <>
-                <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{
-                      width: `${
-                        item.phase === 'organizing'
-                          ? '95%'
-                          : `${Math.min(95, ((item.processedImages || 0) / item.totalImages) * 100)}%`
-                      }`,
-                    }}
-                  />
-                </div>
-                <div className="progress-text">
-                  {item.phase === 'organizing'
-                    ? `${t('processing.organizing')} (${item.totalImages}${t('units.images')})`
-                    : `${t('processing.extracting')}: ${item.processedImages || 0} / ${item.totalImages}`}
-                </div>
+                {item.totalImages && item.totalImages > 0 ? (
+                  <>
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{
+                          width: `${
+                            item.phase === 'organizing'
+                              ? '95%'
+                              : `${Math.min(95, ((item.processedImages || 0) / item.totalImages) * 100)}%`
+                          }`,
+                        }}
+                      />
+                    </div>
+                    <div className="progress-text">
+                      {item.phase === 'organizing'
+                        ? `${t('processing.organizing')} (${item.totalImages}${t('units.images')})`
+                        : `${t('processing.extracting')}: ${item.processedImages || 0} / ${item.totalImages}`}
+                    </div>
+                  </>
+                ) : (
+                  <div className="progress-text">{t('processing.extracting')}</div>
+                )}
               </>
             )}
 
@@ -167,9 +173,15 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
             {item.status === 'completed' && (
               <div className="completion-info">
                 <div className="result-text">
-                  {item.totalImages}
-                  {t('units.images')}
-                  {item.chapters ? `, ${item.chapters}${t('units.chapters')}` : ''}
+                  {item.totalImages && item.totalImages > 0 ? (
+                    <>
+                      {item.totalImages}
+                      {t('units.images')}
+                      {item.chapters ? `, ${item.chapters}${t('units.chapters')}` : ''}
+                    </>
+                  ) : (
+                    t('processing.no_images')
+                  )}
                 </div>
                 {item.outputPath && (
                   <button
