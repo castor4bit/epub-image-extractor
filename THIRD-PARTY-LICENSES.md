@@ -4,11 +4,6 @@ This project uses the following third-party libraries, all under the MIT License
 
 ## Direct Dependencies
 
-### adm-zip
-- **License**: MIT
-- **Copyright**: Copyright (c) 2012 Another-D-Mention Software and other contributors
-- **Repository**: https://github.com/cthackers/adm-zip
-
 ### async-mutex
 - **License**: MIT
 - **Copyright**: Copyright (c) 2016 Christian Speckner
@@ -58,6 +53,11 @@ This project uses the following third-party libraries, all under the MIT License
 - **License**: MIT
 - **Copyright**: Copyright (c) 2017 Amit Kumar Gupta
 - **Repository**: https://github.com/NaturalIntelligence/fast-xml-parser
+
+### fflate
+- **License**: MIT
+- **Copyright**: Copyright (c) 2020 Arjun Barrett
+- **Repository**: https://github.com/101arrowz/fflate
 
 ---
 
