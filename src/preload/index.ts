@@ -42,6 +42,10 @@ const electronAPI = {
   resetSettings: () => ipcRenderer.invoke('settings:reset'),
   clearWindowBounds: () => ipcRenderer.invoke('settings:clearWindowBounds'),
   openFolder: (path: string) => ipcRenderer.invoke('file:openFolder', path),
+  // 処理状態の更新
+  updateProcessingState: (isProcessing: boolean) => {
+    ipcRenderer.send('app:updateProcessingState', isProcessing);
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

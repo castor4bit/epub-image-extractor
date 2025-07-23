@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
+import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain } from 'electron';
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
@@ -54,6 +54,39 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../../dist/index.html'));
   }
+
+  // 処理状態を保持する変数
+  let isProcessing = false;
+
+  // 処理状態の更新を受信
+  ipcMain.on('app:updateProcessingState', (_event, processing: boolean) => {
+    isProcessing = processing;
+  });
+
+  // 終了確認ダイアログ
+  mainWindow.on('close', (event) => {
+    if (isProcessing) {
+      event.preventDefault();
+      
+      const settings = settingsStore.get();
+      const isJapanese = settings.language === 'ja';
+      
+      const choice = dialog.showMessageBoxSync(mainWindow!, {
+        type: 'question',
+        buttons: isJapanese ? ['終了', 'キャンセル'] : ['Quit', 'Cancel'],
+        defaultId: 1,
+        message: isJapanese ? '処理中のファイルがあります' : 'Files are being processed',
+        detail: isJapanese
+          ? '処理を中断して終了してもよろしいですか？'
+          : 'Are you sure you want to quit and interrupt the processing?',
+      });
+      
+      if (choice === 0) {
+        // 終了を選択
+        mainWindow?.destroy();
+      }
+    }
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;

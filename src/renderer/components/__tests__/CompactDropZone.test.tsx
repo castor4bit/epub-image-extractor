@@ -17,6 +17,7 @@ describe('CompactDropZone', () => {
     render(
       <CompactDropZone
         isDragging={false}
+        isProcessing={false}
         onDragEnter={mockOnDragEnter}
         onDragOver={mockOnDragOver}
         onDragLeave={mockOnDragLeave}
@@ -37,6 +38,7 @@ describe('CompactDropZone', () => {
     const { container } = render(
       <CompactDropZone
         isDragging={true}
+        isProcessing={false}
         onDragEnter={mockOnDragEnter}
         onDragOver={mockOnDragOver}
         onDragLeave={mockOnDragLeave}
@@ -53,6 +55,7 @@ describe('CompactDropZone', () => {
     const { container } = render(
       <CompactDropZone
         isDragging={false}
+        isProcessing={false}
         onDragEnter={mockOnDragEnter}
         onDragOver={mockOnDragOver}
         onDragLeave={mockOnDragLeave}
@@ -84,6 +87,7 @@ describe('CompactDropZone', () => {
     render(
       <CompactDropZone
         isDragging={false}
+        isProcessing={false}
         onDragEnter={mockOnDragEnter}
         onDragOver={mockOnDragOver}
         onDragLeave={mockOnDragLeave}

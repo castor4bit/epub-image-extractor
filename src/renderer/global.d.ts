@@ -21,6 +21,7 @@ interface ElectronAPI {
   resetSettings: () => Promise<import('@shared/types').Settings>;
   clearWindowBounds: () => Promise<{ success: boolean }>;
   openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
+  updateProcessingState: (isProcessing: boolean) => void;
 }
 
 interface Window {
