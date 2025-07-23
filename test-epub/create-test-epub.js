@@ -141,6 +141,7 @@ function createTestEpub() {
   const outputPath = path.join(outputDir, 'test.epub');
   fs.writeFileSync(outputPath, zipped);
   
+  // eslint-disable-next-line no-console
   console.log(`テストEPUBファイルを作成しました: ${outputPath}`);
 }
 
