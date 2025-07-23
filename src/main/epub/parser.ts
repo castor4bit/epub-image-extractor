@@ -25,7 +25,7 @@ export interface EpubData {
 
 export async function parseEpub(epubPath: string): Promise<EpubData> {
   let reader: IZipReader | undefined;
-  
+
   try {
     logger.debug({ epubPath }, 'EPUB解析開始');
 

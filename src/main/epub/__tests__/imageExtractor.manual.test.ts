@@ -28,7 +28,7 @@ describe('extractImages - 手動解析実装', () => {
     }
 
     getEntries(): ZipEntry[] {
-      return Array.from(this.files.keys()).map(path => ({
+      return Array.from(this.files.keys()).map((path) => ({
         name: path,
         isDirectory: false,
         size: this.files.get(path)!.length,

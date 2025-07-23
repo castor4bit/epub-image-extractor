@@ -25,41 +25,41 @@ export interface IZipReader {
    * @param filePath ZIPファイルのパス
    */
   open(filePath: string): Promise<void>;
-  
+
   /**
    * 特定のエントリを取得
    * @param path エントリのパス
    * @returns エントリ情報（存在しない場合はnull）
    */
   getEntry(path: string): ZipEntry | null;
-  
+
   /**
    * すべてのエントリを取得
    * @returns エントリのリスト
    */
   getEntries(): ZipEntry[];
-  
+
   /**
    * エントリをテキストとして読み取る
    * @param entry 読み取るエントリ
    * @returns テキスト内容
    */
   readAsText(entry: ZipEntry): string;
-  
+
   /**
    * エントリをバッファとして読み取る
    * @param entry 読み取るエントリ
    * @returns バイナリデータ
    */
   readAsBuffer(entry: ZipEntry): Buffer;
-  
+
   /**
    * エントリをファイルとして展開
    * @param entry 展開するエントリ
    * @param outputPath 出力先パス
    */
   extractTo(entry: ZipEntry, outputPath: string): Promise<void>;
-  
+
   /**
    * リソースをクリーンアップ
    */

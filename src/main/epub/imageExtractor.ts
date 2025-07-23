@@ -12,12 +12,12 @@ export async function extractImages(
 ): Promise<ImageInfo[]> {
   const images: ImageInfo[] = [];
   const reader = epubData.parser || createZipReader();
-  
+
   // parserがない場合は新規作成してEPUBを開く
   if (!epubData.parser) {
     await reader.open(epubData.basePath);
   }
-  
+
   let totalImageCount = 0;
 
   try {

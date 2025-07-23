@@ -68,12 +68,24 @@ describe('画像抽出のチャプター判定', () => {
 </html>`);
 
     // 各ページのコンテンツ（画像付き）
-    files['OEBPS/p-001.xhtml'] = strToU8(`<html><body><img src="images/img001.jpg"/></body></html>`);
-    files['OEBPS/p-002.xhtml'] = strToU8(`<html><body><img src="images/img002.jpg"/></body></html>`);
-    files['OEBPS/p-003.xhtml'] = strToU8(`<html><body><img src="images/img003.jpg"/></body></html>`);
-    files['OEBPS/p-004.xhtml'] = strToU8(`<html><body><img src="images/img004.jpg"/></body></html>`);
-    files['OEBPS/p-019.xhtml'] = strToU8(`<html><body><img src="images/img019.jpg"/></body></html>`);
-    files['OEBPS/p-020.xhtml'] = strToU8(`<html><body><img src="images/img020.jpg"/></body></html>`);
+    files['OEBPS/p-001.xhtml'] = strToU8(
+      `<html><body><img src="images/img001.jpg"/></body></html>`,
+    );
+    files['OEBPS/p-002.xhtml'] = strToU8(
+      `<html><body><img src="images/img002.jpg"/></body></html>`,
+    );
+    files['OEBPS/p-003.xhtml'] = strToU8(
+      `<html><body><img src="images/img003.jpg"/></body></html>`,
+    );
+    files['OEBPS/p-004.xhtml'] = strToU8(
+      `<html><body><img src="images/img004.jpg"/></body></html>`,
+    );
+    files['OEBPS/p-019.xhtml'] = strToU8(
+      `<html><body><img src="images/img019.jpg"/></body></html>`,
+    );
+    files['OEBPS/p-020.xhtml'] = strToU8(
+      `<html><body><img src="images/img020.jpg"/></body></html>`,
+    );
 
     // ダミー画像データ
     const dummyImage = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]); // JPEG header

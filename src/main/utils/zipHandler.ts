@@ -102,7 +102,9 @@ export function isZipFile(filePath: string): boolean {
 /**
  * ZIPファイル内にEPUBファイルが含まれているかを検証
  */
-export async function validateZipContents(zipPath: string): Promise<{ valid: boolean; errorMessage?: string }> {
+export async function validateZipContents(
+  zipPath: string,
+): Promise<{ valid: boolean; errorMessage?: string }> {
   const reader = createZipReader();
 
   // ZIPファイルの読み込み

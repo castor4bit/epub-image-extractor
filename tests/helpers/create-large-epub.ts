@@ -1,4 +1,3 @@
-import * as path from 'path';
 import * as fs from 'fs';
 import { zipSync, strToU8 } from 'fflate';
 
@@ -13,7 +12,7 @@ export function createLargeTestEpub(
   imagesPerChapter: number = 20,
   imageSize: number = 100 * 1024 // 100KB
 ): Buffer {
-  const files: Record<string, Uint8Array | [Uint8Array, any]> = {};
+  const files: Record<string, Uint8Array | [Uint8Array, { level?: number }]> = {};
 
   // mimetype
   files['mimetype'] = [strToU8('application/epub+zip'), { level: 0 }];

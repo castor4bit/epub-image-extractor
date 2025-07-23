@@ -1,5 +1,3 @@
-import { createZipReader, IZipReader } from '../../src/main/utils/zip-reader';
-import { ZipEntry } from '../../src/main/utils/zip-reader/types';
 import { zipSync, strToU8 } from 'fflate';
 
 /**
@@ -79,7 +77,7 @@ export class EpubGenerator {
    * 実際のZIP作成は、別途ZIP作成ライブラリを使用する必要があります。
    */
   generate(): Buffer {
-    const files: Record<string, Uint8Array | [Uint8Array, any]> = {};
+    const files: Record<string, Uint8Array | [Uint8Array, { level?: number }]> = {};
     
     this.createBasicStructure();
 
