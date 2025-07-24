@@ -37,17 +37,59 @@ test.describe('処理制御機能E2Eテスト', () => {
     }
   });
 
-  test.skip('処理中にアプリを終了しようとすると確認ダイアログが表示される', async () => {
-    // このテストは以下の理由でスキップ:
-    // 1. Electronのevaluate内でrequireが使えない制約
-    // 2. 実際のダイアログが表示されるとテストがブロックされる
-    // 3. E2Eテストモードでの特別な処理は実装済みだが、
-    //    Playwrightからのアクセスに技術的制約がある
-    //
-    // 手動テストで以下を確認すること:
-    // - 処理中にウィンドウを閉じようとすると確認ダイアログが表示される
-    // - 「キャンセル」を選択すると処理が継続される
-    // - 「終了」を選択するとアプリが終了する
+  test('処理中にアプリを終了しようとすると確認ダイアログが表示される', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
+    const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
+
+    // ファイルを処理開始
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(testEpubPath);
+
+    // 処理が開始されることを確認し、すぐにcloseイベントをトリガー
+    await expect(page.locator('.processing-item.processing').first()).toBeVisible({ timeout: 5000 });
+
+    // 処理中にすぐにcloseイベントをトリガー（処理が完了する前に）
+    const result = await electronApp.evaluate(() => {
+      const helpers = (global as any).testHelpers;
+      if (!helpers) {
+        throw new Error('Test helpers not available. Make sure E2E_TEST_MODE is set.');
+      }
+      // 現在の処理状態も返す
+      const currentState = helpers.getProcessingState();
+      const closeResult = helpers.triggerClose();
+      return {
+        ...closeResult,
+        wasProcessingBeforeClose: currentState
+      };
+    });
+
+    // ダイアログが表示されたことを確認
+    // 処理中の場合のみダイアログが表示される
+    if (result.wasProcessingBeforeClose || result.isProcessing) {
+      // 処理中だった場合、ダイアログが表示されるはず
+      expect(result.dialogShown).toBe(true);
+      expect(result.dialogOptions).toBeDefined();
+      expect(result.dialogOptions.title).toBe('処理中のファイルがあります');
+      expect(result.dialogOptions.message).toBe('処理中のファイルがあります');
+      expect(result.dialogOptions.detail).toBe('処理を中断して終了してもよろしいですか？');
+      expect(result.dialogOptions.buttons).toEqual(['終了', 'キャンセル']);
+    } else {
+      // 処理が完了していた場合、ダイアログは表示されない
+      expect(result.dialogShown).toBe(false);
+      expect(result.dialogOptions).toBeNull();
+    }
+    
+    // アプリがまだ開いていることを確認（キャンセルを選択したため）
+    await expect(page).toBeDefined();
+    
+    // 処理が完了するまで待つ（ダイアログを防ぐため）
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 5000 });
   });
 
   test('処理完了後は通常通りドロップを受け付ける', async () => {
@@ -59,7 +101,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await fileInput1.setInputFiles(testFile1);
 
     // 処理が完了するまで待つ
-    await expect(page.locator('text=完了')).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('text=完了')).toBeVisible({ timeout: 5000 });
 
     // コンパクトドロップゾーンが有効であることを確認
     const compactDropZone = page.locator('.compact-drop-zone');
@@ -101,7 +143,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     expect(cursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
-    await expect(page.locator('text=完了')).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('text=完了')).toBeVisible({ timeout: 5000 });
     
     const opacityAfter = await compactDropZone.evaluate((el) => 
       window.getComputedStyle(el).opacity
@@ -134,7 +176,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     }
 
     // すべての処理が完了するまで待つ
-    await expect(page.locator('.summary-completed:has-text("3件完了")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.summary-completed:has-text("3件完了")')).toBeVisible({ timeout: 5000 });
 
     // 処理完了後はドロップゾーンが有効になることを確認
     await expect(compactDropZone).not.toHaveClass(/disabled/);

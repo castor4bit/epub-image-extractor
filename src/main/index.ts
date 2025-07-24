@@ -102,6 +102,41 @@ function createWindow() {
     mainWindow = null;
   });
 
+  // E2Eテスト用のヘルパー関数を設定
+  if (process.env.E2E_TEST_MODE === 'true') {
+    (global as any).testHelpers = {
+      triggerClose: () => {
+        // ダイアログ情報を保存するための変数
+        let dialogOptions: any = null;
+        
+        // dialog.showMessageBoxSyncをモック
+        const originalShowMessageBoxSync = dialog.showMessageBoxSync;
+        (dialog as any).showMessageBoxSync = function(...args: any[]) {
+          // 引数が1つの場合と2つの場合の両方に対応
+          dialogOptions = args.length === 1 ? args[0] : args[1];
+          // キャンセルを選択（1）
+          return 1;
+        };
+        
+        // closeイベントを発火
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          const event = { preventDefault: () => {} };
+          mainWindow.emit('close', event);
+        }
+        
+        // モックを元に戻す
+        dialog.showMessageBoxSync = originalShowMessageBoxSync;
+        
+        return {
+          dialogShown: dialogOptions !== null,
+          dialogOptions: dialogOptions,
+          isProcessing: isProcessing
+        };
+      },
+      getProcessingState: () => isProcessing
+    };
+  }
+
   // ウィンドウサイズと位置の変更を保存
   const saveBounds = () => {
     if (!mainWindow) return;

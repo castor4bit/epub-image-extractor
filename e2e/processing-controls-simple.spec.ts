@@ -64,7 +64,7 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.summary-completed').or(page.locator('text=処理中'))).toBeVisible({ timeout: 5000 });
     
     // 処理が完了するまで待つ
-    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 5000 });
   });
 
   test('処理制御のCSSクラスが正しく適用される', async () => {
@@ -99,7 +99,7 @@ test.describe('処理制御機能の基本動作', () => {
     expect(classList).toMatch(/compact-drop-zone/);
     
     // 処理が完了するまで待つ
-    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 5000 });
   });
 
   test('複数ファイル選択で処理が開始される', async () => {
@@ -127,7 +127,7 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.processing-item:has-text("test2.epub")')).toBeVisible({ timeout: 5000 });
     
     // 処理が完了するまで待つ（ダイアログを防ぐため）
-    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible({ timeout: 5000 });
   });
 
   test('設定画面を開いても処理は継続される', async () => {
@@ -164,6 +164,6 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.processing-item:has-text("test.epub")')).toBeVisible({ timeout: 5000 });
     
     // 処理が完了するまで待つ
-    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 5000 });
   });
 });

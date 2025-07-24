@@ -48,7 +48,7 @@ test.describe('処理制御の最終テスト', () => {
     expect(wasDisabled).toBe(true);
     
     // 処理完了を待つ
-    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 5000 });
     
     // 処理完了後は有効になっていることを確認
     await expect(compactDropZone).not.toHaveClass(/disabled/);
