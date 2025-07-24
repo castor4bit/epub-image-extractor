@@ -13,6 +13,7 @@ import { settingsStore } from './store/settings';
 import { WINDOW_SIZES } from './constants/window';
 import { getTranslation } from './i18n/translations';
 import { LanguageCode } from '../shared/constants/languages';
+import { isE2ETestMode } from './utils/testMode';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -111,7 +112,7 @@ function createWindow() {
   });
 
   // E2Eテスト用のヘルパー関数を設定
-  if (process.env.E2E_TEST_MODE === 'true') {
+  if (isE2ETestMode()) {
     (global as Record<string, unknown>).testHelpers = {
       triggerClose: () => {
         // ダイアログ情報を保存するための変数
@@ -119,7 +120,7 @@ function createWindow() {
 
         // dialog.showMessageBoxSyncをモック
         const originalShowMessageBoxSync = dialog.showMessageBoxSync;
-        (dialog as Record<string, unknown>).showMessageBoxSync = function (...args: unknown[]) {
+        (dialog as unknown as Record<string, unknown>).showMessageBoxSync = function (...args: unknown[]) {
           // 引数が1つの場合と2つの場合の両方に対応
           dialogOptions =
             args.length === 1
