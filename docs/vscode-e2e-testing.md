@@ -109,7 +109,8 @@ npm run test:e2e -- -g "@smoke"
 
 ### タイムアウトエラーが発生する場合
 - テスト実行前に必ず `npm run build` を実行
-- `playwright.config.ts` でタイムアウト時間を調整
+- デフォルトタイムアウトは5秒に設定されています
+- 特定の要素を待つ場合は Playwright の expect API を使用してください
 
 ### Electronアプリが起動しない場合
 - `dist-electron` ディレクトリが存在することを確認
