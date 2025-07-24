@@ -130,30 +130,51 @@ test.describe('処理制御機能E2Eテスト', () => {
   });
 
   test('処理中の視覚的フィードバックが正しく表示される', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
 
     // 初期状態の確認
     const dropZone = page.locator('.drop-zone');
+    await expect(dropZone).toBeVisible();
     await expect(dropZone).not.toHaveClass(/disabled/);
 
     // ファイルを処理開始
     const fileInputVis = page.locator('input[type="file"]');
     await fileInputVis.setInputFiles(testEpubPath);
 
-    // 処理中の視覚的状態を確認
+    // 処理中の視覚的状態を確認（処理開始直後）
     const compactDropZone = page.locator('.compact-drop-zone');
     await expect(compactDropZone).toBeVisible();
-    await expect(compactDropZone).toHaveClass(/disabled/);
-
-    // CSSスタイルが適用されていることを確認
-    const opacity = await compactDropZone.evaluate((el) => window.getComputedStyle(el).opacity);
-    expect(parseFloat(opacity)).toBeLessThan(1); // 半透明になっている
-
-    const cursor = await compactDropZone.evaluate((el) => window.getComputedStyle(el).cursor);
-    expect(cursor).toBe('not-allowed');
+    
+    // 処理中の状態をキャプチャ（10回チェック）
+    let wasDisabled = false;
+    let capturedOpacity = '1';
+    let capturedCursor = 'auto';
+    
+    for (let i = 0; i < 10; i++) {
+      const hasDisabledClass = await compactDropZone.evaluate(el => el.classList.contains('disabled'));
+      if (hasDisabledClass) {
+        wasDisabled = true;
+        capturedOpacity = await compactDropZone.evaluate((el) => window.getComputedStyle(el).opacity);
+        capturedCursor = await compactDropZone.evaluate((el) => window.getComputedStyle(el).cursor);
+        break;
+      }
+      await page.waitForTimeout(50);
+    }
+    
+    // 処理中の状態が観測されたことを確認
+    expect(wasDisabled).toBe(true);
+    expect(parseFloat(capturedOpacity)).toBeLessThan(1); // 半透明になっている
+    expect(capturedCursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
-    await expect(page.locator('text=完了')).toBeVisible();
+    await expect(page.locator('.summary-completed')).toBeVisible();
 
     const opacityAfter = await compactDropZone.evaluate(
       (el) => window.getComputedStyle(el).opacity,
