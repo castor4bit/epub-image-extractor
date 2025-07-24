@@ -26,7 +26,6 @@ test.describe('処理制御機能の基本動作', () => {
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
 
-    // localStorageをクリアして初期状態にする
     await clearLocalStorage(electronApp);
   });
 
@@ -41,7 +40,6 @@ test.describe('処理制御機能の基本動作', () => {
   });
 
   test('@smoke ドロップゾーンの初期状態と処理後の状態を確認', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     // 初期状態: ドロップゾーンが有効であることを確認
@@ -63,12 +61,10 @@ test.describe('処理制御機能の基本動作', () => {
     // 処理が完了することを確認（高速なので即座に完了する可能性あり）
     await expect(page.locator('.summary-completed').or(page.locator('text=処理中'))).toBeVisible();
 
-    // 処理が完了するまで待つ
     await waitForProcessingComplete(page);
   });
 
   test('処理制御のCSSクラスが正しく適用される', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     // 処理開始前の状態を確認
@@ -94,12 +90,10 @@ test.describe('処理制御機能の基本動作', () => {
     // クラス自体が正しく設定されていることのみ確認
     expect(classList).toMatch(/compact-drop-zone/);
 
-    // 処理が完了するまで待つ
     await waitForProcessingComplete(page);
   });
 
   test('複数ファイル選択で処理が開始される', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const testFiles = [
@@ -123,7 +117,6 @@ test.describe('処理制御機能の基本動作', () => {
   });
 
   test('設定画面を開いても処理は継続される', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     // ファイルを処理開始
@@ -153,7 +146,6 @@ test.describe('処理制御機能の基本動作', () => {
     // 処理結果が表示されていることを確認
     await expect(page.locator('.processing-item:has-text("test.epub")')).toBeVisible();
 
-    // 処理が完了するまで待つ
     await waitForProcessingComplete(page);
   });
 });

@@ -27,7 +27,6 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
 
-    // localStorageをクリアして初期状態にする
     await clearLocalStorage(electronApp);
   });
 
@@ -52,7 +51,6 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
   });
 
   test('@smoke EPUBファイルをドラッグ&ドロップで処理できる', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     // テスト用EPUBファイルのパス
@@ -70,12 +68,10 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     // 処理が開始されることを確認
     await expect(page.locator('text=処理中')).toBeVisible();
 
-    // 処理が完了することを確認
     await expect(page.locator('text=完了')).toBeVisible();
   });
 
   test('複数のEPUBファイルを同時に処理できる', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const testFiles = [
@@ -119,7 +115,6 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
   });
 
   test('処理完了後に追加のファイルをドロップできる', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
@@ -155,7 +150,6 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
   });
 
   test('ドラッグ中はドロップゾーンがハイライトされる', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const dropZone = page.locator('.drop-zone');

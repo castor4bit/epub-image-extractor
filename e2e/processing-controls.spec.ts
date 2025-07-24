@@ -27,7 +27,6 @@ test.describe('処理制御機能E2Eテスト', () => {
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
 
-    // localStorageをクリアして初期状態にする
     await clearLocalStorage(electronApp);
   });
 
@@ -42,7 +41,6 @@ test.describe('処理制御機能E2Eテスト', () => {
   });
 
   test('処理中にアプリを終了しようとすると確認ダイアログが表示される', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
@@ -93,7 +91,6 @@ test.describe('処理制御機能E2Eテスト', () => {
   });
 
   test('処理完了後は通常通りドロップを受け付ける', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
@@ -122,7 +119,6 @@ test.describe('処理制御機能E2Eテスト', () => {
   });
 
   test('処理中の視覚的フィードバックが正しく表示される', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
@@ -167,7 +163,6 @@ test.describe('処理制御機能E2Eテスト', () => {
   });
 
   test('複数ファイル処理中も適切に制御される', async () => {
-    // 既存の結果をクリア
     await clearExistingResults(page);
 
     const testFiles = [

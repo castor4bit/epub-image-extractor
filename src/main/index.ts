@@ -23,7 +23,7 @@ if (process.platform === 'darwin' && app.dock) {
     const iconPath = join(__dirname, '../../public/icon.png');
     app.dock.setIcon(iconPath);
   } catch {
-    // アイコンファイルが存在しない場合は無視
+    // アイコン設定に失敗しても動作に影響ないため、エラーは無視
   }
 }
 
