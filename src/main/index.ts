@@ -104,10 +104,6 @@ function createWindow() {
 
   // E2Eテスト用のヘルパー関数を設定
   if (process.env.E2E_TEST_MODE === 'true') {
-    const fs = require('fs').promises;
-    const path = require('path');
-    const os = require('os');
-    
     (global as any).testHelpers = {
       triggerClose: () => {
         // ダイアログ情報を保存するための変数
@@ -137,17 +133,7 @@ function createWindow() {
           isProcessing: isProcessing
         };
       },
-      getProcessingState: () => isProcessing,
-      // E2Eテスト用の一時ディレクトリをクリーンアップ
-      cleanupTestData: async () => {
-        const testDir = path.join(os.tmpdir(), 'epub-extractor-e2e');
-        try {
-          await fs.rm(testDir, { recursive: true, force: true });
-          return { success: true };
-        } catch (error) {
-          return { success: false, error: error instanceof Error ? error.message : String(error) };
-        }
-      }
+      getProcessingState: () => isProcessing
     };
   }
 
