@@ -93,6 +93,13 @@ test.describe('処理制御機能E2Eテスト', () => {
   });
 
   test('処理完了後は通常通りドロップを受け付ける', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
     const testFile2 = path.join(__dirname, 'fixtures', 'test2.epub');
 
@@ -100,8 +107,8 @@ test.describe('処理制御機能E2Eテスト', () => {
     const fileInput1 = page.locator('input[type="file"]');
     await fileInput1.setInputFiles(testFile1);
 
-    // 処理が完了するまで待つ
-    await expect(page.locator('text=完了')).toBeVisible();
+    // 1つ目のファイルの処理が完了するまで待つ
+    await expect(page.locator('.summary-completed:has-text("1件完了")')).toBeVisible();
 
     // コンパクトドロップゾーンが有効であることを確認
     const compactDropZone = page.locator('.compact-drop-zone');
@@ -113,6 +120,9 @@ test.describe('処理制御機能E2Eテスト', () => {
 
     // 2つ目のファイルが処理リストに追加されることを確認
     await expect(page.locator('text=test2.epub')).toBeVisible();
+    
+    // 2つ目のファイルの処理も完了するまで待つ（ダイアログを防ぐため）
+    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible();
   });
 
   test('処理中の視覚的フィードバックが正しく表示される', async () => {
