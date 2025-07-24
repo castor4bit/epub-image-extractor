@@ -137,9 +137,6 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     // ドロップゾーンが有効になっていることを確認（処理状態がクリアされている）
     await expect(compactDropZone).not.toHaveClass(/disabled/);
 
-    // 少し待機して状態が安定するのを待つ
-    await page.waitForTimeout(500);
-
     // 処理完了後、追加のファイルをドロップ
     const fileInput2 = page.locator('.compact-drop-zone input[type="file"]');
     await fileInput2.setInputFiles(testFile2);
@@ -153,12 +150,8 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
   });
 
   test('ドラッグ中はドロップゾーンがハイライトされる', async () => {
-    // 既存の結果をクリアして初期状態にする
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    // 既存の結果をクリア
+    await clearExistingResults(page);
 
     const dropZone = page.locator('.drop-zone');
     await expect(dropZone).toBeVisible();

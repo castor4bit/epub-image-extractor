@@ -33,21 +33,9 @@ test.describe('処理制御の最終テスト', () => {
     const compactDropZone = page.locator('.compact-drop-zone');
     await expect(compactDropZone).toBeVisible();
 
-    // 少なくとも一度は無効化されることを確認（10回チェック）
-    let wasDisabled = false;
-    for (let i = 0; i < 10; i++) {
-      const hasDisabledClass = await compactDropZone.evaluate((el) =>
-        el.classList.contains('disabled'),
-      );
-      if (hasDisabledClass) {
-        wasDisabled = true;
-        console.log('Drop zone disabled detected at check', i + 1);
-        break;
-      }
-      await page.waitForTimeout(50);
-    }
-
-    expect(wasDisabled).toBe(true);
+    // 無効化されることを確認（Playwrightの標準機能を使用）
+    await expect(compactDropZone).toHaveClass(/disabled/, { timeout: 1000 });
+    console.log('Drop zone disabled detected');
 
     // 処理完了を待つ
     await waitForProcessingComplete(page);

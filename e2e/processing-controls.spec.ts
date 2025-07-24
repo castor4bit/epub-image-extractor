@@ -135,33 +135,23 @@ test.describe('処理制御機能E2Eテスト', () => {
     const compactDropZone = page.locator('.compact-drop-zone');
     await expect(compactDropZone).toBeVisible();
 
-    // 処理中の状態をキャプチャ（10回チェック）
-    let wasDisabled = false;
-    let capturedOpacity = '1';
-    let capturedCursor = 'auto';
+    // 処理中の状態を確認（Playwrightの標準機能を使用）
+    await expect(compactDropZone).toHaveClass(/disabled/, { timeout: 1000 });
 
-    for (let i = 0; i < 10; i++) {
-      const hasDisabledClass = await compactDropZone.evaluate((el) =>
-        el.classList.contains('disabled'),
-      );
-      if (hasDisabledClass) {
-        wasDisabled = true;
-        capturedOpacity = await compactDropZone.evaluate(
-          (el) => window.getComputedStyle(el).opacity,
-        );
-        capturedCursor = await compactDropZone.evaluate((el) => window.getComputedStyle(el).cursor);
-        break;
-      }
-      await page.waitForTimeout(50);
-    }
-
-    // 処理中の状態が観測されたことを確認
-    expect(wasDisabled).toBe(true);
+    // disabled状態でのスタイルを確認
+    const capturedOpacity = await compactDropZone.evaluate(
+      (el) => window.getComputedStyle(el).opacity,
+    );
+    const capturedCursor = await compactDropZone.evaluate((el) => window.getComputedStyle(el).cursor);
+    
     expect(parseFloat(capturedOpacity)).toBeLessThan(1); // 半透明になっている
     expect(capturedCursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
     await waitForProcessingComplete(page);
+    
+    // disabledクラスが削除されることを確認
+    await expect(compactDropZone).not.toHaveClass(/disabled/);
 
     const opacityAfter = await compactDropZone.evaluate(
       (el) => window.getComputedStyle(el).opacity,
