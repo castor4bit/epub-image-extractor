@@ -58,7 +58,9 @@ tmp/
 **/test-output*/
 **/test-epubs/
 test-*.js
-test.epub
+# テストEPUBファイル（E2E fixturesは除外）
+*.epub
+!e2e/fixtures/*.epub
 test-results/
 playwright-report/
 
