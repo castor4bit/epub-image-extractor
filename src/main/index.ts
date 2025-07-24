@@ -1,4 +1,12 @@
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  MenuItemConstructorOptions,
+  dialog,
+  ipcMain,
+  MessageBoxSyncOptions,
+} from 'electron';
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
@@ -65,7 +73,7 @@ function createWindow() {
   ipcMain.on('app:updateProcessingState', (_event, processing: boolean) => {
     isProcessing = processing;
     // グローバル変数に設定（E2Eテスト用）
-    (global as any).isProcessing = processing;
+    (global as Record<string, unknown>).isProcessing = processing;
   });
 
   // 終了確認ダイアログ
@@ -104,16 +112,19 @@ function createWindow() {
 
   // E2Eテスト用のヘルパー関数を設定
   if (process.env.E2E_TEST_MODE === 'true') {
-    (global as any).testHelpers = {
+    (global as Record<string, unknown>).testHelpers = {
       triggerClose: () => {
         // ダイアログ情報を保存するための変数
-        let dialogOptions: any = null;
+        let dialogOptions: MessageBoxSyncOptions | null = null;
 
         // dialog.showMessageBoxSyncをモック
         const originalShowMessageBoxSync = dialog.showMessageBoxSync;
-        (dialog as any).showMessageBoxSync = function (...args: any[]) {
+        (dialog as Record<string, unknown>).showMessageBoxSync = function (...args: unknown[]) {
           // 引数が1つの場合と2つの場合の両方に対応
-          dialogOptions = args.length === 1 ? args[0] : args[1];
+          dialogOptions =
+            args.length === 1
+              ? (args[0] as MessageBoxSyncOptions)
+              : (args[1] as MessageBoxSyncOptions);
           // キャンセルを選択（1）
           return 1;
         };
