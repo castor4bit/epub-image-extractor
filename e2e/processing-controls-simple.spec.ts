@@ -1,5 +1,6 @@
 import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
+import { clearLocalStorage, clearExistingResults, waitForProcessingComplete, waitForFileInProcessingList } from './helpers/test-helpers';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -21,13 +22,7 @@ test.describe('処理制御機能の基本動作', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // localStorageをクリアして初期状態にする
-    await electronApp.evaluate(() => {
-      const helpers = (global as any).testHelpers;
-      if (helpers && helpers.clearLocalStorage) {
-        return helpers.clearLocalStorage();
-      }
-      return { success: false, error: 'Test helpers not available' };
-    });
+    await clearLocalStorage(electronApp);
   });
 
   test.afterEach(async () => {
@@ -42,11 +37,7 @@ test.describe('処理制御機能の基本動作', () => {
 
   test('@smoke ドロップゾーンの初期状態と処理後の状態を確認', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500); // クリア処理を待つ
-    }
+    await clearExistingResults(page);
 
     // 初期状態: ドロップゾーンが有効であることを確認
     const dropZone = page.locator('.drop-zone');
@@ -68,16 +59,12 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.summary-completed').or(page.locator('text=処理中'))).toBeVisible();
 
     // 処理が完了するまで待つ
-    await expect(page.locator('.summary-completed')).toBeVisible();
+    await waitForProcessingComplete(page);
   });
 
   test('処理制御のCSSクラスが正しく適用される', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     // 処理開始前の状態を確認
     const initialDropZone = page.locator('.drop-zone');
@@ -103,16 +90,12 @@ test.describe('処理制御機能の基本動作', () => {
     expect(classList).toMatch(/compact-drop-zone/);
 
     // 処理が完了するまで待つ
-    await expect(page.locator('.summary-completed')).toBeVisible();
+    await waitForProcessingComplete(page);
   });
 
   test('複数ファイル選択で処理が開始される', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
@@ -131,16 +114,12 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.processing-item:has-text("test2.epub")')).toBeVisible();
 
     // 処理が完了するまで待つ（ダイアログを防ぐため）
-    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible();
+    await waitForProcessingComplete(page, '2件完了');
   });
 
   test('設定画面を開いても処理は継続される', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     // ファイルを処理開始
     const testFile = path.join(__dirname, 'fixtures', 'test.epub');
@@ -170,6 +149,6 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.processing-item:has-text("test.epub")')).toBeVisible();
 
     // 処理が完了するまで待つ
-    await expect(page.locator('.summary-completed')).toBeVisible();
+    await waitForProcessingComplete(page);
   });
 });

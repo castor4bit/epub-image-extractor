@@ -1,6 +1,7 @@
 import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
 import fs from 'fs/promises';
+import { clearLocalStorage, clearExistingResults, waitForProcessingComplete, waitForFileInProcessingList } from './helpers/test-helpers';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -22,13 +23,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // localStorageをクリアして初期状態にする
-    await electronApp.evaluate(() => {
-      const helpers = (global as any).testHelpers;
-      if (helpers && helpers.clearLocalStorage) {
-        return helpers.clearLocalStorage();
-      }
-      return { success: false, error: 'Test helpers not available' };
-    });
+    await clearLocalStorage(electronApp);
   });
 
   test.afterEach(async () => {
@@ -43,11 +38,7 @@ test.describe('処理制御機能E2Eテスト', () => {
 
   test('処理中にアプリを終了しようとすると確認ダイアログが表示される', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
 
@@ -93,16 +84,12 @@ test.describe('処理制御機能E2Eテスト', () => {
     await expect(page).toBeDefined();
 
     // 処理が完了するまで待つ（ダイアログを防ぐため）
-    await expect(page.locator('.summary-completed')).toBeVisible();
+    await waitForProcessingComplete(page);
   });
 
   test('処理完了後は通常通りドロップを受け付ける', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
     const testFile2 = path.join(__dirname, 'fixtures', 'test2.epub');
@@ -112,7 +99,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await fileInput1.setInputFiles(testFile1);
 
     // 1つ目のファイルの処理が完了するまで待つ
-    await expect(page.locator('.summary-completed:has-text("1件完了")')).toBeVisible();
+    await waitForProcessingComplete(page, '1件完了');
 
     // コンパクトドロップゾーンが有効であることを確認
     const compactDropZone = page.locator('.compact-drop-zone');
@@ -126,16 +113,12 @@ test.describe('処理制御機能E2Eテスト', () => {
     await expect(page.locator('text=test2.epub')).toBeVisible();
 
     // 2つ目のファイルの処理も完了するまで待つ（ダイアログを防ぐため）
-    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible();
+    await waitForProcessingComplete(page, '2件完了');
   });
 
   test('処理中の視覚的フィードバックが正しく表示される', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
 
@@ -178,7 +161,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     expect(capturedCursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
-    await expect(page.locator('.summary-completed')).toBeVisible();
+    await waitForProcessingComplete(page);
 
     const opacityAfter = await compactDropZone.evaluate(
       (el) => window.getComputedStyle(el).opacity,
@@ -188,11 +171,7 @@ test.describe('処理制御機能E2Eテスト', () => {
 
   test('複数ファイル処理中も適切に制御される', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
@@ -218,7 +197,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     }
 
     // すべての処理が完了するまで待つ
-    await expect(page.locator('.summary-completed:has-text("3件完了")')).toBeVisible();
+    await waitForProcessingComplete(page, '3件完了');
 
     // 処理完了後はドロップゾーンが有効になることを確認
     await expect(compactDropZone).not.toHaveClass(/disabled/);

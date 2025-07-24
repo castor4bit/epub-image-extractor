@@ -1,6 +1,7 @@
 import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
 import fs from 'fs/promises';
+import { clearLocalStorage, clearExistingResults, waitForProcessingComplete, waitForFileInProcessingList } from './helpers/test-helpers';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -22,13 +23,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // localStorageをクリアして初期状態にする
-    await electronApp.evaluate(() => {
-      const helpers = (global as any).testHelpers;
-      if (helpers && helpers.clearLocalStorage) {
-        return helpers.clearLocalStorage();
-      }
-      return { success: false, error: 'Test helpers not available' };
-    });
+    await clearLocalStorage(electronApp);
   });
 
   test.afterEach(async ({}, testInfo) => {
@@ -53,11 +48,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
 
   test('@smoke EPUBファイルをドラッグ&ドロップで処理できる', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible()) {
-      await clearButton.click();
-      await page.waitForTimeout(500); // クリア処理を待つ
-    }
+    await clearExistingResults(page);
 
     // テスト用EPUBファイルのパス
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
@@ -80,11 +71,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
 
   test('複数のEPUBファイルを同時に処理できる', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
@@ -128,11 +115,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
 
   test('処理完了後に追加のファイルをドロップできる', async () => {
     // 既存の結果をクリア
-    const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible({ timeout: 1000 })) {
-      await clearButton.click();
-      await page.waitForTimeout(500);
-    }
+    await clearExistingResults(page);
 
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
     const testFile2 = path.join(__dirname, 'fixtures', 'test2.epub');
