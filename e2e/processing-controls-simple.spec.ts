@@ -1,4 +1,4 @@
-import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
+import { test, expect, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
 import {
   clearLocalStorage,
@@ -6,6 +6,7 @@ import {
   waitForProcessingComplete,
   waitForFileInProcessingList,
 } from './helpers/test-helpers';
+import { launchElectron } from './helpers/electron-launch';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -13,14 +14,7 @@ let page: Page;
 test.describe('処理制御機能の基本動作', () => {
   test.beforeEach(async () => {
     // Electronアプリケーションを起動（E2Eテストモードを有効化）
-    electronApp = await electron.launch({
-      args: [path.join(__dirname, '..', 'dist-electron', 'main', 'index.js')],
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-        E2E_TEST_MODE: 'true',
-      },
-    });
+    electronApp = await launchElectron();
 
     // メインウィンドウを取得
     page = await electronApp.firstWindow();

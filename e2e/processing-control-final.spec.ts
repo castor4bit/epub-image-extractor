@@ -1,6 +1,7 @@
-import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
+import { test, expect, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
 import { waitForProcessingComplete } from './helpers/test-helpers';
+import { launchElectron } from './helpers/electron-launch';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -8,14 +9,7 @@ let page: Page;
 test.describe('処理制御の最終テスト', () => {
   test('@smoke 処理中の無効化が正しく動作する', async () => {
     // Electronアプリケーションを起動（最小限の遅延でE2Eテストモード）
-    electronApp = await electron.launch({
-      args: [path.join(__dirname, '..', 'dist-electron', 'main', 'index.js')],
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-        E2E_TEST_MODE: 'true',
-      },
-    });
+    electronApp = await launchElectron();
 
     // メインウィンドウを取得
     page = await electronApp.firstWindow();
@@ -33,7 +27,6 @@ test.describe('処理制御の最終テスト', () => {
     const compactDropZone = page.locator('.compact-drop-zone');
     await expect(compactDropZone).toBeVisible();
 
-    // 無効化されることを確認（Playwrightの標準機能を使用）
     await expect(compactDropZone).toHaveClass(/disabled/, { timeout: 1000 });
     console.log('Drop zone disabled detected');
 

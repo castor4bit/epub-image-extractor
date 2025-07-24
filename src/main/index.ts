@@ -11,6 +11,11 @@ import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
+// CI環境でのサンドボックス対応
+if (process.env.CI && process.platform === 'linux') {
+  app.commandLine.appendSwitch('no-sandbox');
+}
+
 // アプリケーション名を設定
 // メニューバーには英語、アプリ内は日本語を使用
 app.name = 'EPUB Image Extractor';

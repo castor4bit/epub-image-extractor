@@ -1,4 +1,4 @@
-import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
+import { test, expect, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
 import fs from 'fs/promises';
 import {
@@ -7,6 +7,7 @@ import {
   waitForProcessingComplete,
   waitForFileInProcessingList,
 } from './helpers/test-helpers';
+import { launchElectron } from './helpers/electron-launch';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -14,14 +15,7 @@ let page: Page;
 test.describe('処理制御機能E2Eテスト', () => {
   test.beforeEach(async () => {
     // Electronアプリケーションを起動（E2Eテストモードを有効化）
-    electronApp = await electron.launch({
-      args: [path.join(__dirname, '..', 'dist-electron', 'main', 'index.js')],
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-        E2E_TEST_MODE: 'true',
-      },
-    });
+    electronApp = await launchElectron();
 
     // メインウィンドウを取得
     page = await electronApp.firstWindow();
@@ -78,7 +72,6 @@ test.describe('処理制御機能E2Eテスト', () => {
       expect(result.dialogOptions.detail).toBe('処理を中断して終了してもよろしいですか？');
       expect(result.dialogOptions.buttons).toEqual(['終了', 'キャンセル']);
     } else {
-      // 処理が完了していた場合、ダイアログは表示されない
       expect(result.dialogShown).toBe(false);
       expect(result.dialogOptions).toBeNull();
     }
@@ -136,7 +129,6 @@ test.describe('処理制御機能E2Eテスト', () => {
     const compactDropZone = page.locator('.compact-drop-zone');
     await expect(compactDropZone).toBeVisible();
 
-    // 処理中の状態を確認（Playwrightの標準機能を使用）
     await expect(compactDropZone).toHaveClass(/disabled/, { timeout: 1000 });
 
     // disabled状態でのスタイルを確認
@@ -153,7 +145,6 @@ test.describe('処理制御機能E2Eテスト', () => {
     // 処理完了後は通常の表示に戻ることを確認
     await waitForProcessingComplete(page);
 
-    // disabledクラスが削除されることを確認
     await expect(compactDropZone).not.toHaveClass(/disabled/);
 
     const opacityAfter = await compactDropZone.evaluate(
