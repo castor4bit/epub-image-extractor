@@ -1,12 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  Menu,
-  MenuItemConstructorOptions,
-  dialog,
-  ipcMain,
-  MessageBoxSyncOptions,
-} from 'electron';
+import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain } from 'electron';
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
@@ -14,6 +6,7 @@ import { WINDOW_SIZES } from './constants/window';
 import { getTranslation } from './i18n/translations';
 import { LanguageCode } from '../shared/constants/languages';
 import { isE2ETestMode } from './utils/testMode';
+import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2e-helpers';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -73,8 +66,10 @@ function createWindow() {
   // 処理状態の更新を受信
   ipcMain.on('app:updateProcessingState', (_event, processing: boolean) => {
     isProcessing = processing;
-    // グローバル変数に設定（E2Eテスト用）
-    (global as Record<string, unknown>).isProcessing = processing;
+    // E2Eテスト用にグローバル状態を更新
+    if (isE2ETestMode()) {
+      setGlobalProcessingState(processing);
+    }
   });
 
   // 終了確認ダイアログ
@@ -111,49 +106,9 @@ function createWindow() {
     mainWindow = null;
   });
 
-  // E2Eテスト用のヘルパー関数を設定
+  // E2Eテスト用のヘルパーを設定
   if (isE2ETestMode()) {
-    (global as Record<string, unknown>).testHelpers = {
-      triggerClose: () => {
-        // ダイアログ情報を保存するための変数
-        let dialogOptions: MessageBoxSyncOptions | null = null;
-
-        // dialog.showMessageBoxSyncをモック
-        const originalShowMessageBoxSync = dialog.showMessageBoxSync;
-        (dialog as unknown as Record<string, unknown>).showMessageBoxSync = function (...args: unknown[]) {
-          // 引数が1つの場合と2つの場合の両方に対応
-          dialogOptions =
-            args.length === 1
-              ? (args[0] as MessageBoxSyncOptions)
-              : (args[1] as MessageBoxSyncOptions);
-          // キャンセルを選択（1）
-          return 1;
-        };
-
-        // closeイベントを発火
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          const event = { preventDefault: () => {} };
-          mainWindow.emit('close', event);
-        }
-
-        // モックを元に戻す
-        dialog.showMessageBoxSync = originalShowMessageBoxSync;
-
-        return {
-          dialogShown: dialogOptions !== null,
-          dialogOptions: dialogOptions,
-          isProcessing: isProcessing,
-        };
-      },
-      getProcessingState: () => isProcessing,
-      clearLocalStorage: async () => {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          await mainWindow.webContents.executeJavaScript('localStorage.clear()');
-          return { success: true };
-        }
-        return { success: false, error: 'Window not available' };
-      },
-    };
+    setupE2ETestHelpers(mainWindow, () => isProcessing);
   }
 
   // ウィンドウサイズと位置の変更を保存

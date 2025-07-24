@@ -1,7 +1,12 @@
 import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
 import fs from 'fs/promises';
-import { clearLocalStorage, clearExistingResults, waitForProcessingComplete, waitForFileInProcessingList } from './helpers/test-helpers';
+import {
+  clearLocalStorage,
+  clearExistingResults,
+  waitForProcessingComplete,
+  waitForFileInProcessingList,
+} from './helpers/test-helpers';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -142,14 +147,16 @@ test.describe('処理制御機能E2Eテスト', () => {
     const capturedOpacity = await compactDropZone.evaluate(
       (el) => window.getComputedStyle(el).opacity,
     );
-    const capturedCursor = await compactDropZone.evaluate((el) => window.getComputedStyle(el).cursor);
-    
+    const capturedCursor = await compactDropZone.evaluate(
+      (el) => window.getComputedStyle(el).cursor,
+    );
+
     expect(parseFloat(capturedOpacity)).toBeLessThan(1); // 半透明になっている
     expect(capturedCursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
     await waitForProcessingComplete(page);
-    
+
     // disabledクラスが削除されることを確認
     await expect(compactDropZone).not.toHaveClass(/disabled/);
 

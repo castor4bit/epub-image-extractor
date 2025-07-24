@@ -1,6 +1,11 @@
 import { test, expect, _electron as electron, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
-import { clearLocalStorage, clearExistingResults, waitForProcessingComplete, waitForFileInProcessingList } from './helpers/test-helpers';
+import {
+  clearLocalStorage,
+  clearExistingResults,
+  waitForProcessingComplete,
+  waitForFileInProcessingList,
+} from './helpers/test-helpers';
 
 let electronApp: ElectronApplication;
 let page: Page;

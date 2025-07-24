@@ -36,12 +36,11 @@ export async function clearLocalStorage(electronApp: ElectronApplication): Promi
  * @param page Playwrightのページオブジェクト
  * @param expectedCount 期待される完了数（例: "1件完了"）
  */
-export async function waitForProcessingComplete(
-  page: Page,
-  expectedCount?: string,
-): Promise<void> {
+export async function waitForProcessingComplete(page: Page, expectedCount?: string): Promise<void> {
   if (expectedCount) {
-    await page.locator(`.summary-completed:has-text("${expectedCount}")`).waitFor({ state: 'visible' });
+    await page
+      .locator(`.summary-completed:has-text("${expectedCount}")`)
+      .waitFor({ state: 'visible' });
   } else {
     await page.locator('.summary-completed').waitFor({ state: 'visible' });
   }
