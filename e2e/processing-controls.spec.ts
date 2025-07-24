@@ -52,7 +52,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await fileInput.setInputFiles(testEpubPath);
 
     // 処理が開始されることを確認し、すぐにcloseイベントをトリガー
-    await expect(page.locator('.processing-item.processing').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.processing-item.processing').first()).toBeVisible();
 
     // 処理中にすぐにcloseイベントをトリガー（処理が完了する前に）
     const result = await electronApp.evaluate(() => {
@@ -89,7 +89,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await expect(page).toBeDefined();
     
     // 処理が完了するまで待つ（ダイアログを防ぐため）
-    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.summary-completed')).toBeVisible();
   });
 
   test('処理完了後は通常通りドロップを受け付ける', async () => {
@@ -101,7 +101,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await fileInput1.setInputFiles(testFile1);
 
     // 処理が完了するまで待つ
-    await expect(page.locator('text=完了')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=完了')).toBeVisible();
 
     // コンパクトドロップゾーンが有効であることを確認
     const compactDropZone = page.locator('.compact-drop-zone');
@@ -112,7 +112,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await fileInput2.setInputFiles(testFile2);
 
     // 2つ目のファイルが処理リストに追加されることを確認
-    await expect(page.locator('text=test2.epub')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=test2.epub')).toBeVisible();
   });
 
   test('処理中の視覚的フィードバックが正しく表示される', async () => {
@@ -143,7 +143,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     expect(cursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
-    await expect(page.locator('text=完了')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=完了')).toBeVisible();
     
     const opacityAfter = await compactDropZone.evaluate((el) => 
       window.getComputedStyle(el).opacity
@@ -163,7 +163,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     await fileInputMulti.setInputFiles(testFiles);
 
     // 処理中の表示を確認
-    await expect(page.locator('text=処理中')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=処理中')).toBeVisible();
 
     // ドロップゾーンが無効化されていることを確認
     const compactDropZone = page.locator('.compact-drop-zone');
@@ -176,7 +176,7 @@ test.describe('処理制御機能E2Eテスト', () => {
     }
 
     // すべての処理が完了するまで待つ
-    await expect(page.locator('.summary-completed:has-text("3件完了")')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.summary-completed:has-text("3件完了")')).toBeVisible();
 
     // 処理完了後はドロップゾーンが有効になることを確認
     await expect(compactDropZone).not.toHaveClass(/disabled/);

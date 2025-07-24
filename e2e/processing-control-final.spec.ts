@@ -27,7 +27,7 @@ test.describe('処理制御の最終テスト', () => {
     await fileInput.setInputFiles(testFile);
 
     // 処理状況が表示されることを確認
-    await expect(page.locator('text=処理状況')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=処理状況')).toBeVisible();
     
     // コンパクトドロップゾーンの存在と無効化状態を確認
     const compactDropZone = page.locator('.compact-drop-zone');
@@ -48,7 +48,7 @@ test.describe('処理制御の最終テスト', () => {
     expect(wasDisabled).toBe(true);
     
     // 処理完了を待つ
-    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.summary-completed')).toBeVisible();
     
     // 処理完了後は有効になっていることを確認
     await expect(compactDropZone).not.toHaveClass(/disabled/);

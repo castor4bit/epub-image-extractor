@@ -21,7 +21,7 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   
   // タイムアウト設定
-  timeout: 20 * 1000, // 20秒（個別のテストで調整可能）
+  timeout: 5 * 1000, // 5秒
   globalTimeout: 5 * 60 * 1000, // 5分（全体のタイムアウト）
   
   use: {
