@@ -5,6 +5,7 @@ import { organizeByChapters, FilenamingOptions } from './chapterOrganizer';
 import { handleError } from '../utils/errorHandler';
 import { generateOutputPath } from '../utils/outputPath';
 import { settingsStore } from '../store/settings';
+import { addE2EDelayByType } from '../utils/testMode';
 import path from 'path';
 import fs from 'fs/promises';
 import pLimit from 'p-limit';
@@ -91,6 +92,9 @@ async function processEpubFile(
       status: 'processing',
     });
 
+    // E2Eテストモードの場合は処理開始時に遅延を追加
+    await addE2EDelayByType('FILE_PROCESSING_START');
+
     // EPUB解析
     const epubData = await parseEpub(filePath);
 
@@ -145,6 +149,9 @@ async function processEpubFile(
       epubData.basePath,
       filenamingOptions,
     );
+
+    // E2Eテストモードの場合は処理完了時に遅延を追加
+    await addE2EDelayByType('FILE_PROCESSING_END');
 
     // 進捗通知：完了
     onProgress({

@@ -7,6 +7,7 @@ import { getTranslation } from './i18n/translations';
 import { LanguageCode } from '../shared/constants/languages';
 
 let mainWindow: BrowserWindow | null = null;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 // アプリケーション名を設定
 // メニューバーには英語、アプリ内は日本語を使用
@@ -63,6 +64,8 @@ function createWindow() {
   // 処理状態の更新を受信
   ipcMain.on('app:updateProcessingState', (_event, processing: boolean) => {
     isProcessing = processing;
+    // グローバル変数に設定（E2Eテスト用）
+    (global as any).isProcessing = processing;
   });
 
   // 終了確認ダイアログ
@@ -91,11 +94,15 @@ function createWindow() {
   });
 
   mainWindow.on('closed', () => {
+    // タイマーをクリア
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+    }
     mainWindow = null;
   });
 
   // ウィンドウサイズと位置の変更を保存
-  let saveTimer: ReturnType<typeof setTimeout> | null = null;
   const saveBounds = () => {
     if (!mainWindow) return;
 
@@ -151,7 +158,20 @@ app.whenReady().then(() => {
   createWindow();
 });
 
+app.on('before-quit', () => {
+  // アプリケーション終了前にタイマーをクリア
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+});
+
 app.on('window-all-closed', () => {
+  // タイマーをクリア
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
   // macOSでもウィンドウを閉じたらアプリケーションを終了する
   app.quit();
 });

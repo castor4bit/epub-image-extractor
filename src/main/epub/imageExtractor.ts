@@ -2,6 +2,7 @@ import { ImageInfo } from '@shared/types';
 import { EpubData } from './parser';
 import { AppError, ErrorCode } from '../../shared/error-types';
 import { logger } from '../utils/logger';
+import { addE2EDelayByType } from '../utils/testMode';
 import path from 'path';
 import { checkResourceLimits } from '../utils/pathSecurity';
 import { createZipReader } from '../utils/zip-reader';
@@ -89,6 +90,9 @@ export async function extractImages(
         }
 
         images.push(...pageImages);
+
+        // E2Eテストモードの場合は画像処理時に遅延を追加
+        await addE2EDelayByType('IMAGE_PROCESSING');
 
         // 進捗を通知
         processedCount++;

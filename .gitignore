@@ -59,6 +59,8 @@ tmp/
 **/test-epubs/
 test-*.js
 test.epub
+test-results/
+playwright-report/
 
 # Electron
 electron-builder.yml

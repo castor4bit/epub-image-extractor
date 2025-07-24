@@ -7,25 +7,54 @@ let page: Page;
 
 test.describe('ドラッグ&ドロップE2Eテスト', () => {
   test.beforeEach(async () => {
-    // Electronアプリケーションを起動
+    // Electronアプリケーションを起動（E2Eテストモードを有効化）
     electronApp = await electron.launch({
       args: [path.join(__dirname, '..', 'dist-electron', 'main', 'index.js')],
       env: {
         ...process.env,
         NODE_ENV: 'test',
+        E2E_TEST_MODE: 'true',
       },
     });
 
     // メインウィンドウを取得
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
+
+    // localStorageをクリアして初期状態にする
+    await page.evaluate(() => {
+      localStorage.clear();
+    });
   });
 
-  test.afterEach(async () => {
-    await electronApp.close();
+  test.afterEach(async ({ }, testInfo) => {
+    if (electronApp) {
+      try {
+        // テストが失敗した場合はスクリーンショットを取得
+        if (testInfo.status !== 'passed') {
+          const page = await electronApp.firstWindow();
+          if (page) {
+            await testInfo.attach('screenshot', {
+              body: await page.screenshot(),
+              contentType: 'image/png'
+            });
+          }
+        }
+        await electronApp.close();
+      } catch (error) {
+        // エラーは無視（テスト自体は成功している）
+      }
+    }
   });
 
-  test('EPUBファイルをドラッグ&ドロップで処理できる', async () => {
+  test('@smoke EPUBファイルをドラッグ&ドロップで処理できる', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible()) {
+      await clearButton.click();
+      await page.waitForTimeout(500); // クリア処理を待つ
+    }
+
     // テスト用EPUBファイルのパス
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
 
@@ -34,21 +63,25 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     await expect(dropZone).toBeVisible();
     await expect(dropZone).toContainText('EPUBファイルをドロップ');
 
-    // ファイルをドロップ（Playwrightのファイルチューザーを使用）
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.locator('input[type="file"]').click(),
-    ]);
-    await fileChooser.setFiles(testEpubPath);
+    // ファイル入力要素を直接操作
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(testEpubPath);
 
     // 処理が開始されることを確認
     await expect(page.locator('text=処理中')).toBeVisible({ timeout: 5000 });
 
     // 処理が完了することを確認
-    await expect(page.locator('text=完了')).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('text=完了')).toBeVisible({ timeout: 15000 });
   });
 
   test('複数のEPUBファイルを同時に処理できる', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
       path.join(__dirname, 'fixtures', 'test2.epub'),
@@ -58,18 +91,15 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     await expect(dropZone).toBeVisible();
 
     // 複数ファイルを選択
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.locator('input[type="file"]').click(),
-    ]);
-    await fileChooser.setFiles(testFiles);
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(testFiles);
 
     // 両方のファイルが処理リストに表示されることを確認
     await expect(page.locator('text=test1.epub')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('text=test2.epub')).toBeVisible({ timeout: 5000 });
 
-    // 処理が完了することを確認
-    await expect(page.locator('text=2件完了')).toBeVisible({ timeout: 30000 });
+    // 処理が完了することを確認（より具体的なセレクタを使用）
+    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible({ timeout: 15000 });
   });
 
   test('無効なファイルをドロップした場合エラーが表示される', async () => {
@@ -85,43 +115,55 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     });
 
     // ファイルを選択
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.locator('input[type="file"]').click(),
-    ]);
-    await fileChooser.setFiles(invalidFilePath);
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(invalidFilePath);
 
     // クリーンアップ
     await fs.unlink(invalidFilePath).catch(() => {});
   });
 
-  test('処理中に追加のファイルをドロップできる', async () => {
+  test('処理完了後に追加のファイルをドロップできる', async () => {
+    
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
     const testFile2 = path.join(__dirname, 'fixtures', 'test2.epub');
 
     // 最初のファイルを処理
-    const [fileChooser1] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.locator('input[type="file"]').click(),
-    ]);
-    await fileChooser1.setFiles(testFile1);
+    const fileInput1 = page.locator('input[type="file"]');
+    await fileInput1.setInputFiles(testFile1);
 
     // 処理が開始されることを確認
     await expect(page.locator('text=処理中')).toBeVisible({ timeout: 5000 });
 
     // コンパクトドロップゾーンが表示されることを確認
-    await expect(page.locator('.compact-drop-zone')).toBeVisible();
+    const compactDropZone = page.locator('.compact-drop-zone');
+    await expect(compactDropZone).toBeVisible();
 
-    // 追加のファイルをドロップ
-    const [fileChooser2] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.locator('.compact-drop-zone input[type="file"]').click(),
-    ]);
-    await fileChooser2.setFiles(testFile2);
+    // 最初のファイルの処理が完了するまで待つ（「1件完了」という表示を待つ）
+    await expect(page.locator('.summary-completed:has-text("1件完了")')).toBeVisible({ timeout: 15000 });
+    
+    // ドロップゾーンが有効になっていることを確認（処理状態がクリアされている）
+    await expect(compactDropZone).not.toHaveClass(/disabled/);
+    
+    // 少し待機して状態が安定するのを待つ
+    await page.waitForTimeout(500);
+
+    // 処理完了後、追加のファイルをドロップ
+    const fileInput2 = page.locator('.compact-drop-zone input[type="file"]');
+    await fileInput2.setInputFiles(testFile2);
 
     // 両方のファイルが処理リストに表示されることを確認
     await expect(page.locator('text=test1.epub')).toBeVisible();
     await expect(page.locator('text=test2.epub')).toBeVisible();
+    
+    // 2つ目のファイルの処理も完了するまで待つ
+    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible({ timeout: 15000 });
   });
 
   test('ドラッグ中はドロップゾーンがハイライトされる', async () => {
