@@ -136,7 +136,7 @@ test.describe('処理制御機能E2Eテスト', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
 
     // 初期状態の確認
@@ -151,23 +151,27 @@ test.describe('処理制御機能E2Eテスト', () => {
     // 処理中の視覚的状態を確認（処理開始直後）
     const compactDropZone = page.locator('.compact-drop-zone');
     await expect(compactDropZone).toBeVisible();
-    
+
     // 処理中の状態をキャプチャ（10回チェック）
     let wasDisabled = false;
     let capturedOpacity = '1';
     let capturedCursor = 'auto';
-    
+
     for (let i = 0; i < 10; i++) {
-      const hasDisabledClass = await compactDropZone.evaluate(el => el.classList.contains('disabled'));
+      const hasDisabledClass = await compactDropZone.evaluate((el) =>
+        el.classList.contains('disabled'),
+      );
       if (hasDisabledClass) {
         wasDisabled = true;
-        capturedOpacity = await compactDropZone.evaluate((el) => window.getComputedStyle(el).opacity);
+        capturedOpacity = await compactDropZone.evaluate(
+          (el) => window.getComputedStyle(el).opacity,
+        );
         capturedCursor = await compactDropZone.evaluate((el) => window.getComputedStyle(el).cursor);
         break;
       }
       await page.waitForTimeout(50);
     }
-    
+
     // 処理中の状態が観測されたことを確認
     expect(wasDisabled).toBe(true);
     expect(parseFloat(capturedOpacity)).toBeLessThan(1); // 半透明になっている
@@ -183,6 +187,13 @@ test.describe('処理制御機能E2Eテスト', () => {
   });
 
   test('複数ファイル処理中も適切に制御される', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
       path.join(__dirname, 'fixtures', 'test2.epub'),
