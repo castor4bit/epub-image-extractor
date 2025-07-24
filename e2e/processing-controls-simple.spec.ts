@@ -68,8 +68,16 @@ test.describe('処理制御機能の基本動作', () => {
   });
 
   test('処理制御のCSSクラスが正しく適用される', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     // 処理開始前の状態を確認
     const initialDropZone = page.locator('.drop-zone');
+    await expect(initialDropZone).toBeVisible();
     const initialClassList = await initialDropZone.getAttribute('class');
     expect(initialClassList).not.toContain('disabled');
 
@@ -89,9 +97,19 @@ test.describe('処理制御機能の基本動作', () => {
     // disabledクラスの適用は処理速度に依存するため、
     // クラス自体が正しく設定されていることのみ確認
     expect(classList).toMatch(/compact-drop-zone/);
+    
+    // 処理が完了するまで待つ
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 15000 });
   });
 
   test('複数ファイル選択で処理が開始される', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
       path.join(__dirname, 'fixtures', 'test2.epub'),
@@ -104,16 +122,29 @@ test.describe('処理制御機能の基本動作', () => {
     // 処理状況が表示されることを確認
     await expect(page.locator('text=処理状況')).toBeVisible({ timeout: 5000 });
 
-    // ファイル名が表示されることを確認
-    await expect(page.locator('text=test1.epub')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('text=test2.epub')).toBeVisible({ timeout: 5000 });
+    // ファイル名が表示されることを確認（正しいセレクタを使用）
+    await expect(page.locator('.processing-item:has-text("test1.epub")')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.processing-item:has-text("test2.epub")')).toBeVisible({ timeout: 5000 });
+    
+    // 処理が完了するまで待つ（ダイアログを防ぐため）
+    await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible({ timeout: 15000 });
   });
 
   test('設定画面を開いても処理は継続される', async () => {
+    // 既存の結果をクリア
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     // ファイルを処理開始
     const testFile = path.join(__dirname, 'fixtures', 'test.epub');
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(testFile);
+
+    // 統合ビューに切り替わることを確認
+    await expect(page.locator('.compact-drop-zone')).toBeVisible({ timeout: 5000 });
 
     // 設定ボタンをクリック
     const settingsButton = page.locator('button[title="設定"]');
@@ -122,11 +153,17 @@ test.describe('処理制御機能の基本動作', () => {
     // 設定画面が開くことを確認
     await expect(page.locator('.settings-window')).toBeVisible({ timeout: 5000 });
 
-    // 設定画面を閉じる
-    const closeButton = page.locator('button:has-text("閉じる")');
+    // 設定画面を閉じる（×ボタンまたはキャンセルボタン）
+    const closeButton = page.locator('button.close-button').or(page.locator('button:has-text("×")'));
     await closeButton.click();
 
+    // 設定画面が閉じることを確認
+    await expect(page.locator('.settings-window')).not.toBeVisible({ timeout: 5000 });
+
     // 処理結果が表示されていることを確認
-    await expect(page.locator('text=test.epub')).toBeVisible();
+    await expect(page.locator('.processing-item:has-text("test.epub")')).toBeVisible({ timeout: 5000 });
+    
+    // 処理が完了するまで待つ
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 15000 });
   });
 });
