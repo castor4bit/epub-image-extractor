@@ -21,8 +21,12 @@ test.describe('処理制御機能の基本動作', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // localStorageをクリアして初期状態にする
-    await page.evaluate(() => {
-      localStorage.clear();
+    await electronApp.evaluate(() => {
+      const helpers = (global as any).testHelpers;
+      if (helpers && helpers.clearLocalStorage) {
+        return helpers.clearLocalStorage();
+      }
+      return { success: false, error: 'Test helpers not available' };
     });
   });
 
@@ -62,7 +66,7 @@ test.describe('処理制御機能の基本動作', () => {
 
     // 処理が完了することを確認（高速なので即座に完了する可能性あり）
     await expect(page.locator('.summary-completed').or(page.locator('text=処理中'))).toBeVisible();
-    
+
     // 処理が完了するまで待つ
     await expect(page.locator('.summary-completed')).toBeVisible();
   });
@@ -74,7 +78,7 @@ test.describe('処理制御機能の基本動作', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     // 処理開始前の状態を確認
     const initialDropZone = page.locator('.drop-zone');
     await expect(initialDropZone).toBeVisible();
@@ -93,11 +97,11 @@ test.describe('処理制御機能の基本動作', () => {
     // クラス属性を確認（処理中または完了後）
     const classList = await compactDropZone.getAttribute('class');
     expect(classList).toBeDefined();
-    
+
     // disabledクラスの適用は処理速度に依存するため、
     // クラス自体が正しく設定されていることのみ確認
     expect(classList).toMatch(/compact-drop-zone/);
-    
+
     // 処理が完了するまで待つ
     await expect(page.locator('.summary-completed')).toBeVisible();
   });
@@ -109,7 +113,7 @@ test.describe('処理制御機能の基本動作', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
       path.join(__dirname, 'fixtures', 'test2.epub'),
@@ -125,7 +129,7 @@ test.describe('処理制御機能の基本動作', () => {
     // ファイル名が表示されることを確認（正しいセレクタを使用）
     await expect(page.locator('.processing-item:has-text("test1.epub")')).toBeVisible();
     await expect(page.locator('.processing-item:has-text("test2.epub")')).toBeVisible();
-    
+
     // 処理が完了するまで待つ（ダイアログを防ぐため）
     await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible();
   });
@@ -137,7 +141,7 @@ test.describe('処理制御機能の基本動作', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     // ファイルを処理開始
     const testFile = path.join(__dirname, 'fixtures', 'test.epub');
     const fileInput = page.locator('input[type="file"]');
@@ -154,7 +158,9 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.settings-window')).toBeVisible();
 
     // 設定画面を閉じる（×ボタンまたはキャンセルボタン）
-    const closeButton = page.locator('button.close-button').or(page.locator('button:has-text("×")'));
+    const closeButton = page
+      .locator('button.close-button')
+      .or(page.locator('button:has-text("×")'));
     await closeButton.click();
 
     // 設定画面が閉じることを確認
@@ -162,7 +168,7 @@ test.describe('処理制御機能の基本動作', () => {
 
     // 処理結果が表示されていることを確認
     await expect(page.locator('.processing-item:has-text("test.epub")')).toBeVisible();
-    
+
     // 処理が完了するまで待つ
     await expect(page.locator('.summary-completed')).toBeVisible();
   });

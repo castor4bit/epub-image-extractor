@@ -94,7 +94,10 @@ export const CompactDropZone: React.FC<CompactDropZoneProps> = ({
           onChange={onFileSelect}
           disabled={isProcessing}
         />
-        <label htmlFor="compact-file-input" className={`compact-select-button ${isProcessing ? 'disabled' : ''}`}>
+        <label
+          htmlFor="compact-file-input"
+          className={`compact-select-button ${isProcessing ? 'disabled' : ''}`}
+        >
           {t('compactDropZone.selectFiles')}
         </label>
       </div>

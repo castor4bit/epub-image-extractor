@@ -21,9 +21,7 @@ describe('CompactDropZone - Processing State', () => {
     );
 
     // 通常状態
-    const dropZone = screen
-      .getByText('追加のEPUBファイルをドロップ')
-      .closest('.compact-drop-zone');
+    const dropZone = screen.getByText('追加のEPUBファイルをドロップ').closest('.compact-drop-zone');
     expect(dropZone).not.toHaveClass('disabled');
 
     // 処理中状態

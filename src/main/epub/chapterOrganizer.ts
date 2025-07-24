@@ -70,7 +70,7 @@ export async function organizeByChapters(
       // ディレクトリ作成
       try {
         await fs.mkdir(chapterDir, { recursive: true });
-        
+
         // E2Eテストモードの場合はチャプター処理時に遅延を追加
         await addE2EDelayByType('CHAPTER_PROCESSING');
       } catch (error) {

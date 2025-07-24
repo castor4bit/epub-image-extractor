@@ -22,8 +22,12 @@ test.describe('処理制御機能E2Eテスト', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // localStorageをクリアして初期状態にする
-    await page.evaluate(() => {
-      localStorage.clear();
+    await electronApp.evaluate(() => {
+      const helpers = (global as any).testHelpers;
+      if (helpers && helpers.clearLocalStorage) {
+        return helpers.clearLocalStorage();
+      }
+      return { success: false, error: 'Test helpers not available' };
     });
   });
 
@@ -44,7 +48,7 @@ test.describe('処理制御機能E2Eテスト', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
 
     // ファイルを処理開始
@@ -65,7 +69,7 @@ test.describe('処理制御機能E2Eテスト', () => {
       const closeResult = helpers.triggerClose();
       return {
         ...closeResult,
-        wasProcessingBeforeClose: currentState
+        wasProcessingBeforeClose: currentState,
       };
     });
 
@@ -84,10 +88,10 @@ test.describe('処理制御機能E2Eテスト', () => {
       expect(result.dialogShown).toBe(false);
       expect(result.dialogOptions).toBeNull();
     }
-    
+
     // アプリがまだ開いていることを確認（キャンセルを選択したため）
     await expect(page).toBeDefined();
-    
+
     // 処理が完了するまで待つ（ダイアログを防ぐため）
     await expect(page.locator('.summary-completed')).toBeVisible();
   });
@@ -99,7 +103,7 @@ test.describe('処理制御機能E2Eテスト', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
     const testFile2 = path.join(__dirname, 'fixtures', 'test2.epub');
 
@@ -120,7 +124,7 @@ test.describe('処理制御機能E2Eテスト', () => {
 
     // 2つ目のファイルが処理リストに追加されることを確認
     await expect(page.locator('text=test2.epub')).toBeVisible();
-    
+
     // 2つ目のファイルの処理も完了するまで待つ（ダイアログを防ぐため）
     await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible();
   });
@@ -142,21 +146,17 @@ test.describe('処理制御機能E2Eテスト', () => {
     await expect(compactDropZone).toHaveClass(/disabled/);
 
     // CSSスタイルが適用されていることを確認
-    const opacity = await compactDropZone.evaluate((el) => 
-      window.getComputedStyle(el).opacity
-    );
+    const opacity = await compactDropZone.evaluate((el) => window.getComputedStyle(el).opacity);
     expect(parseFloat(opacity)).toBeLessThan(1); // 半透明になっている
 
-    const cursor = await compactDropZone.evaluate((el) => 
-      window.getComputedStyle(el).cursor
-    );
+    const cursor = await compactDropZone.evaluate((el) => window.getComputedStyle(el).cursor);
     expect(cursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
     await expect(page.locator('text=完了')).toBeVisible();
-    
-    const opacityAfter = await compactDropZone.evaluate((el) => 
-      window.getComputedStyle(el).opacity
+
+    const opacityAfter = await compactDropZone.evaluate(
+      (el) => window.getComputedStyle(el).opacity,
     );
     expect(parseFloat(opacityAfter)).toBe(1);
   });

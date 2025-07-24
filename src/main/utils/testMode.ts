@@ -30,7 +30,7 @@ export const E2E_DELAYS = {
  */
 export async function addE2EDelay(delayMs: number): Promise<void> {
   if (isE2ETestMode()) {
-    await new Promise(resolve => setTimeout(resolve, delayMs));
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
 }
 

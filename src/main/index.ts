@@ -72,11 +72,11 @@ function createWindow() {
   mainWindow.on('close', (event) => {
     if (isProcessing) {
       event.preventDefault();
-      
+
       const settings = settingsStore.get();
       const lang = (settings.language || 'ja') as LanguageCode;
       const t = getTranslation(lang);
-      
+
       const choice = dialog.showMessageBoxSync(mainWindow!, {
         type: 'question',
         buttons: [t.exitDialog.buttons.quit, t.exitDialog.buttons.cancel],
@@ -85,7 +85,7 @@ function createWindow() {
         message: t.exitDialog.message,
         detail: t.exitDialog.detail,
       });
-      
+
       if (choice === 0) {
         // 終了を選択
         mainWindow?.destroy();
@@ -108,32 +108,39 @@ function createWindow() {
       triggerClose: () => {
         // ダイアログ情報を保存するための変数
         let dialogOptions: any = null;
-        
+
         // dialog.showMessageBoxSyncをモック
         const originalShowMessageBoxSync = dialog.showMessageBoxSync;
-        (dialog as any).showMessageBoxSync = function(...args: any[]) {
+        (dialog as any).showMessageBoxSync = function (...args: any[]) {
           // 引数が1つの場合と2つの場合の両方に対応
           dialogOptions = args.length === 1 ? args[0] : args[1];
           // キャンセルを選択（1）
           return 1;
         };
-        
+
         // closeイベントを発火
         if (mainWindow && !mainWindow.isDestroyed()) {
           const event = { preventDefault: () => {} };
           mainWindow.emit('close', event);
         }
-        
+
         // モックを元に戻す
         dialog.showMessageBoxSync = originalShowMessageBoxSync;
-        
+
         return {
           dialogShown: dialogOptions !== null,
           dialogOptions: dialogOptions,
-          isProcessing: isProcessing
+          isProcessing: isProcessing,
         };
       },
-      getProcessingState: () => isProcessing
+      getProcessingState: () => isProcessing,
+      clearLocalStorage: async () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          await mainWindow.webContents.executeJavaScript('localStorage.clear()');
+          return { success: true };
+        }
+        return { success: false, error: 'Window not available' };
+      },
     };
   }
 

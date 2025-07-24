@@ -22,12 +22,16 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // localStorageをクリアして初期状態にする
-    await page.evaluate(() => {
-      localStorage.clear();
+    await electronApp.evaluate(() => {
+      const helpers = (global as any).testHelpers;
+      if (helpers && helpers.clearLocalStorage) {
+        return helpers.clearLocalStorage();
+      }
+      return { success: false, error: 'Test helpers not available' };
     });
   });
 
-  test.afterEach(async ({ }, testInfo) => {
+  test.afterEach(async ({}, testInfo) => {
     if (electronApp) {
       try {
         // テストが失敗した場合はスクリーンショットを取得
@@ -36,7 +40,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
           if (page) {
             await testInfo.attach('screenshot', {
               body: await page.screenshot(),
-              contentType: 'image/png'
+              contentType: 'image/png',
             });
           }
         }
@@ -81,7 +85,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     const testFiles = [
       path.join(__dirname, 'fixtures', 'test1.epub'),
       path.join(__dirname, 'fixtures', 'test2.epub'),
@@ -123,14 +127,13 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
   });
 
   test('処理完了後に追加のファイルをドロップできる', async () => {
-    
     // 既存の結果をクリア
     const clearButton = page.locator('button:has-text("クリア")');
     if (await clearButton.isVisible({ timeout: 1000 })) {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     const testFile1 = path.join(__dirname, 'fixtures', 'test1.epub');
     const testFile2 = path.join(__dirname, 'fixtures', 'test2.epub');
 
@@ -147,10 +150,10 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
 
     // 最初のファイルの処理が完了するまで待つ（「1件完了」という表示を待つ）
     await expect(page.locator('.summary-completed:has-text("1件完了")')).toBeVisible();
-    
+
     // ドロップゾーンが有効になっていることを確認（処理状態がクリアされている）
     await expect(compactDropZone).not.toHaveClass(/disabled/);
-    
+
     // 少し待機して状態が安定するのを待つ
     await page.waitForTimeout(500);
 
@@ -161,7 +164,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
     // 両方のファイルが処理リストに表示されることを確認
     await expect(page.locator('text=test1.epub')).toBeVisible();
     await expect(page.locator('text=test2.epub')).toBeVisible();
-    
+
     // 2つ目のファイルの処理も完了するまで待つ
     await expect(page.locator('.summary-completed:has-text("2件完了")')).toBeVisible();
   });
@@ -173,7 +176,7 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
       await clearButton.click();
       await page.waitForTimeout(500);
     }
-    
+
     const dropZone = page.locator('.drop-zone');
     await expect(dropZone).toBeVisible();
 

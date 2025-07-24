@@ -6,7 +6,7 @@ export const SUPPORTED_LANGUAGES = {
     englishName: 'Japanese',
   },
   en: {
-    code: 'en', 
+    code: 'en',
     name: 'English',
     englishName: 'English',
   },
