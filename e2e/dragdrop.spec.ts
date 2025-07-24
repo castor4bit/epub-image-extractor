@@ -167,7 +167,15 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
   });
 
   test('ドラッグ中はドロップゾーンがハイライトされる', async () => {
+    // 既存の結果をクリアして初期状態にする
+    const clearButton = page.locator('button:has-text("クリア")');
+    if (await clearButton.isVisible({ timeout: 1000 })) {
+      await clearButton.click();
+      await page.waitForTimeout(500);
+    }
+    
     const dropZone = page.locator('.drop-zone');
+    await expect(dropZone).toBeVisible();
 
     // 初期状態ではactiveクラスがないことを確認
     await expect(dropZone).not.toHaveClass(/active/);

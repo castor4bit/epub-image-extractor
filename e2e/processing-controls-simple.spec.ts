@@ -39,7 +39,7 @@ test.describe('処理制御機能の基本動作', () => {
   test('@smoke ドロップゾーンの初期状態と処理後の状態を確認', async () => {
     // 既存の結果をクリア
     const clearButton = page.locator('button:has-text("クリア")');
-    if (await clearButton.isVisible()) {
+    if (await clearButton.isVisible({ timeout: 1000 })) {
       await clearButton.click();
       await page.waitForTimeout(500); // クリア処理を待つ
     }
@@ -61,7 +61,10 @@ test.describe('処理制御機能の基本動作', () => {
     await expect(page.locator('.compact-drop-zone')).toBeVisible({ timeout: 5000 });
 
     // 処理が完了することを確認（高速なので即座に完了する可能性あり）
-    await expect(page.locator('text=/完了|処理中/')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.summary-completed').or(page.locator('text=処理中'))).toBeVisible({ timeout: 5000 });
+    
+    // 処理が完了するまで待つ
+    await expect(page.locator('.summary-completed')).toBeVisible({ timeout: 15000 });
   });
 
   test('処理制御のCSSクラスが正しく適用される', async () => {
