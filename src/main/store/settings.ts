@@ -46,6 +46,13 @@ const store = new Store<Settings>({
 
 export const settingsStore = {
   get: (): Settings => {
+    // E2Eテストモードでは常にデフォルト値を返す
+    if (process.env.E2E_TEST_MODE === 'true') {
+      return {
+        ...defaults,
+        outputDirectory: getDefaultOutputDirectory(), // 最新のデフォルト値を使用
+      };
+    }
     return {
       outputDirectory: store.get('outputDirectory'),
       language: store.get('language'),
@@ -65,6 +72,10 @@ export const settingsStore = {
   },
 
   getOutputDirectory: (): string => {
+    // E2Eテストモードでは常に一時ディレクトリを返す
+    if (process.env.E2E_TEST_MODE === 'true') {
+      return getDefaultOutputDirectory();
+    }
     return store.get('outputDirectory');
   },
 
