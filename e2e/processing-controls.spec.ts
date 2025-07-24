@@ -43,44 +43,81 @@ test.describe('処理制御機能E2Eテスト', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(testEpubPath);
 
-    // 処理が開始されることを確認し、すぐにcloseイベントをトリガー
+    // 処理が開始されることを確認
     await expect(page.locator('.processing-item.processing').first()).toBeVisible();
 
-    // 処理中にすぐにcloseイベントをトリガー（処理が完了する前に）
+    // 処理中の状態を確認してからcloseイベントをトリガー
     const result = await electronApp.evaluate(() => {
       const helpers = (global as any).testHelpers;
       if (!helpers) {
         throw new Error('Test helpers not available. Make sure E2E_TEST_MODE is set.');
       }
-      // 現在の処理状態も返す
-      const currentState = helpers.getProcessingState();
+
+      // 処理中であることを確認
+      const processingState = helpers.getProcessingState();
+      if (!processingState) {
+        throw new Error('Expected to be processing, but was not');
+      }
+
+      // closeイベントをトリガー
       const closeResult = helpers.triggerClose();
       return {
         ...closeResult,
-        wasProcessingBeforeClose: currentState,
+        wasProcessingBeforeClose: processingState,
       };
     });
 
-    // ダイアログが表示されたことを確認
-    // 処理中の場合のみダイアログが表示される
-    if (result.wasProcessingBeforeClose || result.isProcessing) {
-      // 処理中だった場合、ダイアログが表示されるはず
-      expect(result.dialogShown).toBe(true);
-      expect(result.dialogOptions).toBeDefined();
-      expect(result.dialogOptions.title).toBe('処理中のファイルがあります');
-      expect(result.dialogOptions.message).toBe('処理中のファイルがあります');
-      expect(result.dialogOptions.detail).toBe('処理を中断して終了してもよろしいですか？');
-      expect(result.dialogOptions.buttons).toEqual(['終了', 'キャンセル']);
-    } else {
-      expect(result.dialogShown).toBe(false);
-      expect(result.dialogOptions).toBeNull();
-    }
+    // ダイアログが表示されたことを確認（処理中なので必ず表示されるはず）
+    expect(result.dialogShown).toBe(true);
+    expect(result.dialogOptions).toBeDefined();
+    expect(result.dialogOptions.title).toBe('処理中のファイルがあります');
+    expect(result.dialogOptions.message).toBe('処理中のファイルがあります');
+    expect(result.dialogOptions.detail).toBe('処理を中断して終了してもよろしいですか？');
+    expect(result.dialogOptions.buttons).toEqual(['終了', 'キャンセル']);
 
     // アプリがまだ開いていることを確認（キャンセルを選択したため）
     await expect(page).toBeDefined();
 
     // 処理が完了するまで待つ（ダイアログを防ぐため）
     await waitForProcessingComplete(page);
+  });
+
+  test('処理完了後はダイアログなしで終了できる', async () => {
+    await clearExistingResults(page);
+
+    const testEpubPath = path.join(__dirname, 'fixtures', 'test.epub');
+
+    // ファイルを処理
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(testEpubPath);
+
+    // 処理が完了するまで待つ
+    await waitForProcessingComplete(page);
+
+    // 処理完了後にcloseイベントをトリガー
+    const result = await electronApp.evaluate(() => {
+      const helpers = (global as any).testHelpers;
+      if (!helpers) {
+        throw new Error('Test helpers not available. Make sure E2E_TEST_MODE is set.');
+      }
+
+      // 処理中でないことを確認
+      const processingState = helpers.getProcessingState();
+      if (processingState) {
+        throw new Error('Expected not to be processing, but was still processing');
+      }
+
+      // closeイベントをトリガー
+      const closeResult = helpers.triggerClose();
+      return {
+        ...closeResult,
+        wasProcessingBeforeClose: processingState,
+      };
+    });
+
+    // ダイアログが表示されないことを確認（処理中ではないため）
+    expect(result.dialogShown).toBe(false);
+    expect(result.dialogOptions).toBeNull();
   });
 
   test('処理完了後は通常通りドロップを受け付ける', async () => {
