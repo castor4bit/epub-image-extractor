@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   
+  // グローバルセットアップ/ティアダウン
+  globalTeardown: require.resolve('./e2e/global-teardown.ts'),
+  
   // テストファイルのパターン
   testMatch: '**/*.spec.ts',
   

@@ -1,6 +1,7 @@
 import Store from 'electron-store';
 import { app } from 'electron';
 import path from 'path';
+import os from 'os';
 
 interface Settings {
   outputDirectory: string;
@@ -17,8 +18,16 @@ interface Settings {
   };
 }
 
+// E2Eテストモードでは一時ディレクトリを使用
+const getDefaultOutputDirectory = (): string => {
+  if (process.env.E2E_TEST_MODE === 'true') {
+    return path.join(os.tmpdir(), 'epub-extractor-e2e', 'EPUB_Images');
+  }
+  return path.join(app.getPath('desktop'), 'EPUB_Images');
+};
+
 const defaults: Settings = {
-  outputDirectory: path.join(app.getPath('desktop'), 'EPUB_Images'),
+  outputDirectory: getDefaultOutputDirectory(),
   language: 'ja',
   alwaysOnTop: true,
   includeOriginalFilename: true,
