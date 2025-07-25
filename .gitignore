@@ -62,12 +62,10 @@ test-results/
 playwright-report/
 
 # E2Eテストフィクスチャは明示的に含める
-!e2e/fixtures/
 !e2e/fixtures/**
 
 # その他のEPUBファイルは除外
 *.epub
-!e2e/fixtures/*.epub
 
 # Electron
 electron-builder.yml
