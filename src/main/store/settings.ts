@@ -11,7 +11,7 @@ interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean; // 元のファイル名を含めるか
   includePageSpread: boolean; // 左右情報を含めるか
-  inactiveOpacity?: number; // ウィンドウ非アクティブ時の透明度（0.0～1.0）
+  inactiveOpacity?: number; // ウィンドウ非アクティブ時の透明度（0.1～1.0）
   windowBounds?: {
     // ウィンドウのサイズと位置
     width: number;
