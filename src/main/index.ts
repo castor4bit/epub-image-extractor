@@ -17,6 +17,9 @@ if (process.env.CI && process.platform === 'linux') {
   app.commandLine.appendSwitch('disable-setuid-sandbox');
   app.commandLine.appendSwitch('disable-dev-shm-usage');
   app.commandLine.appendSwitch('disable-gpu');
+  app.commandLine.appendSwitch('disable-software-rasterizer');
+  app.commandLine.appendSwitch('disable-features=TranslateUI');
+  console.log('[Main] CI Linux environment detected, sandbox disabled');
 }
 
 // アプリケーション名を設定

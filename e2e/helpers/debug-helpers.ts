@@ -7,12 +7,35 @@ export async function debugPageState(page: Page, label: string): Promise<void> {
   console.log(`\n=== Debug: ${label} ===`);
   
   try {
+    // ページが有効か確認
+    const isConnected = page.isClosed();
+    if (isConnected) {
+      console.log('WARNING: Page is closed!');
+      return;
+    }
+    
     // 現在のURL
     console.log(`URL: ${page.url()}`);
     
     // ページタイトル
     const title = await page.title();
     console.log(`Title: ${title}`);
+    
+    // CI環境では追加のデバッグ情報
+    if (process.env.CI) {
+      // ビューポートサイズ
+      const viewport = page.viewportSize();
+      console.log(`Viewport: ${viewport?.width}x${viewport?.height}`);
+      
+      // ページのHTML構造を一部出力
+      const bodyHTML = await page.evaluate(() => {
+        const body = document.body;
+        if (!body) return 'No body element';
+        // 最初の100文字程度
+        return body.innerHTML.substring(0, 200) + '...';
+      });
+      console.log(`Body HTML preview: ${bodyHTML}`);
+    }
     
     // 表示されている主要な要素
     const visibleElements = [

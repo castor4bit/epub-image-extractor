@@ -7,7 +7,7 @@ import {
   waitForProcessingComplete,
   waitForFileInProcessingList,
 } from './helpers/test-helpers';
-import { launchElectron } from './helpers/electron-launch';
+import { launchElectron, closeElectron } from './helpers/electron-launch';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -29,17 +29,25 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
       try {
         // テストが失敗した場合はスクリーンショットを取得
         if (testInfo.status !== 'passed') {
-          const page = await electronApp.firstWindow();
-          if (page) {
-            await testInfo.attach('screenshot', {
-              body: await page.screenshot(),
-              contentType: 'image/png',
-            });
+          try {
+            const page = await electronApp.firstWindow();
+            if (page) {
+              await testInfo.attach('screenshot', {
+                body: await page.screenshot(),
+                contentType: 'image/png',
+              });
+            }
+          } catch (screenshotError) {
+            console.warn('[E2E] Failed to capture screenshot:', screenshotError);
           }
         }
-        await electronApp.close();
       } catch (error) {
-        // エラーは無視（テスト自体は成功している）
+        console.error('[E2E] Error in afterEach:', error);
+      } finally {
+        // 確実にElectronを終了
+        await closeElectron(electronApp, true);
+        electronApp = null;
+        page = null;
       }
     }
   });

@@ -18,7 +18,7 @@ export default defineConfig({
   workers: 1,
   
   // リトライ設定
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   
   // レポーター設定
   reporter: process.env.CI 
@@ -29,8 +29,8 @@ export default defineConfig({
   outputDir: './test-results',
   
   // タイムアウト設定
-  timeout: 5 * 1000, // 5秒
-  globalTimeout: 5 * 60 * 1000, // 5分（全体のタイムアウト）
+  timeout: process.env.CI ? 15 * 1000 : 5 * 1000, // CI環境では15秒、ローカルでは5秒
+  globalTimeout: 10 * 60 * 1000, // 10分（全体のタイムアウト）
   
   use: {
     // トレース設定

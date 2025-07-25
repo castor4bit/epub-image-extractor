@@ -1,5 +1,6 @@
 import { _electron as electron, ElectronApplication } from '@playwright/test';
 import path from 'path';
+import { execSync } from 'child_process';
 
 /**
  * CI環境を考慮してElectronアプリケーションを起動する
@@ -65,9 +66,100 @@ export async function launchElectron(
     });
 
     console.log('[E2E] Electron launched successfully');
+    
+    // CI環境でプロセス情報を出力
+    if (process.env.CI) {
+      try {
+        const pid = await app.evaluate(() => process.pid);
+        console.log(`[E2E] Electron PID: ${pid}`);
+        
+        // メモリ使用量を確認
+        const memoryInfo = await app.evaluate(() => process.memoryUsage());
+        console.log('[E2E] Memory usage:', {
+          heapUsed: `${Math.round(memoryInfo.heapUsed / 1024 / 1024)}MB`,
+          external: `${Math.round(memoryInfo.external / 1024 / 1024)}MB`,
+          rss: `${Math.round(memoryInfo.rss / 1024 / 1024)}MB`,
+        });
+      } catch (error) {
+        console.warn('[E2E] Failed to get process info:', error);
+      }
+    }
+    
     return app;
   } catch (error) {
     console.error('[E2E] Failed to launch Electron:', error);
     throw error;
+  }
+}
+
+/**
+ * Electronアプリケーションを確実に終了する
+ * @param app ElectronApplicationインスタンス
+ * @param force 強制終了フラグ
+ */
+export async function closeElectron(app: ElectronApplication, force = false): Promise<void> {
+  if (!app) {
+    return;
+  }
+
+  console.log('[E2E] Closing Electron application...');
+  
+  try {
+    // まず通常のクローズを試行
+    await app.close();
+    console.log('[E2E] Electron closed gracefully');
+  } catch (error) {
+    console.warn('[E2E] Failed to close Electron gracefully:', error);
+    
+    if (force || process.env.CI) {
+      console.log('[E2E] Attempting force kill...');
+      
+      // CI環境では強制終了を試行
+      try {
+        // プロセスIDを取得して強制終了
+        const pid = await app.evaluate(() => process.pid);
+        if (pid) {
+          if (process.platform === 'win32') {
+            execSync(`taskkill /PID ${pid} /F`, { stdio: 'ignore' });
+          } else {
+            execSync(`kill -9 ${pid}`, { stdio: 'ignore' });
+          }
+          console.log(`[E2E] Force killed process ${pid}`);
+        }
+      } catch (killError) {
+        console.error('[E2E] Failed to force kill:', killError);
+      }
+    }
+  }
+  
+  // 少し待機してプロセスが完全に終了するのを待つ
+  await new Promise(resolve => setTimeout(resolve, 500));
+}
+
+/**
+ * CI環境でのElectronプロセスをクリーンアップ
+ */
+export async function cleanupElectronProcesses(): Promise<void> {
+  if (!process.env.CI) {
+    return;
+  }
+  
+  console.log('[E2E] Cleaning up Electron processes...');
+  
+  try {
+    if (process.platform === 'linux') {
+      // Linux環境でElectronプロセスを検索して終了
+      try {
+        const processes = execSync('pgrep -f "electron.*dist-electron" || true', { encoding: 'utf-8' });
+        if (processes.trim()) {
+          execSync('pkill -f "electron.*dist-electron" || true', { stdio: 'ignore' });
+          console.log('[E2E] Killed lingering Electron processes');
+        }
+      } catch (error) {
+        // エラーは無視（プロセスが存在しない場合など）
+      }
+    }
+  } catch (error) {
+    console.warn('[E2E] Failed to cleanup processes:', error);
   }
 }

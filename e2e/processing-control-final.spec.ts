@@ -1,7 +1,7 @@
 import { test, expect, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
 import { waitForProcessingComplete } from './helpers/test-helpers';
-import { launchElectron } from './helpers/electron-launch';
+import { launchElectron, closeElectron } from './helpers/electron-launch';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -37,6 +37,8 @@ test.describe('処理制御の最終テスト', () => {
     await expect(compactDropZone).not.toHaveClass(/disabled/);
 
     // アプリケーションを終了
-    await electronApp.close();
+    await closeElectron(electronApp, true);
+    electronApp = null;
+    page = null;
   });
 });

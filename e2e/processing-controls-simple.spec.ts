@@ -7,7 +7,7 @@ import {
   waitForFileInProcessingList,
   closeSettingsWindow,
 } from './helpers/test-helpers';
-import { launchElectron } from './helpers/electron-launch';
+import { launchElectron, closeElectron } from './helpers/electron-launch';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -26,11 +26,9 @@ test.describe('処理制御機能の基本動作', () => {
 
   test.afterEach(async () => {
     if (electronApp) {
-      try {
-        await electronApp.close();
-      } catch (error) {
-        // エラーは無視（テスト自体は成功している）
-      }
+      await closeElectron(electronApp, true);
+      electronApp = null;
+      page = null;
     }
   });
 

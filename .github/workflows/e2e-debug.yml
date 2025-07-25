@@ -58,8 +58,18 @@ jobs:
     
     - name: Run E2E tests with xvfb-run and debug
       run: |
+        echo "=== System Info ==="
+        free -h
+        df -h
+        ps aux | grep -E "(xvfb|electron)" || true
+        echo ""
+        echo "=== Starting E2E tests ==="
         xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" \
-          npm run test:e2e -- --reporter=list
+          npm run test:e2e -- --reporter=list || EXIT_CODE=$?
+        echo ""
+        echo "=== Post-test Processes ==="
+        ps aux | grep -E "(xvfb|electron)" || true
+        exit ${EXIT_CODE:-0}
       env:
         CI: true
         NODE_ENV: test
