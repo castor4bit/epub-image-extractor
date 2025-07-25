@@ -2,11 +2,9 @@ import { _electron as electron } from '@playwright/test';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
-import { cleanupElectronProcesses } from './helpers/electron-launch';
 
 async function globalTeardown() {
-  // 残っているElectronプロセスをクリーンアップ
-  await cleanupElectronProcesses();
+  // Playwrightが自動的にプロセスをクリーンアップするため、手動クリーンアップは不要
   
   // E2Eテスト用の一時ディレクトリをクリーンアップ
   const testDir = path.join(os.tmpdir(), 'epub-extractor-e2e');

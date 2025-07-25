@@ -63,15 +63,6 @@ export async function closeElectron(app: ElectronApplication, force = false): Pr
   await new Promise(resolve => setTimeout(resolve, 500));
 }
 
-export async function cleanupElectronProcesses(): Promise<void> {
-  try {
-    if (process.platform === 'linux') {
-      try {
-        const processes = execSync('pgrep -f "electron.*dist-electron" || true', { encoding: 'utf-8' });
-        if (processes.trim()) {
-          execSync('pkill -f "electron.*dist-electron" || true', { stdio: 'ignore' });
-        }
-      } catch (error) {}
-    }
-  } catch (error) {}
-}
+// cleanupElectronProcesses関数を削除
+// 理由: Playwrightが自動的にプロセス管理を行うため不要
+// electron.launch()で作成されたプロセスはapp.close()で適切にクリーンアップされる
