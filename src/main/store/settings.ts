@@ -3,6 +3,7 @@ import { app } from 'electron';
 import path from 'path';
 import os from 'os';
 import { isE2ETestMode } from '../utils/testMode';
+import { WINDOW_OPACITY } from '../constants/window';
 
 interface Settings {
   outputDirectory: string;
@@ -34,7 +35,7 @@ const defaults: Settings = {
   alwaysOnTop: true,
   includeOriginalFilename: true,
   includePageSpread: true,
-  inactiveOpacity: 0.8,
+  inactiveOpacity: WINDOW_OPACITY.inactive.default,
 };
 
 // electron-storeインスタンスを作成

@@ -95,7 +95,7 @@ describe('SettingsWindow - 最前面表示オプション', () => {
         alwaysOnTop: false,
         includeOriginalFilename: true,
         includePageSpread: true,
-        inactiveOpacity: 0.8,
+        inactiveOpacity: 0.8, // デフォルト値
       });
       expect(onClose).toHaveBeenCalled();
     });

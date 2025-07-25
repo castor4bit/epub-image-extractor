@@ -1,8 +1,9 @@
 import { BrowserWindow } from 'electron';
+import { WINDOW_OPACITY } from '../constants/window';
 
 export function setupWindowOpacityHandlers(
   window: BrowserWindow,
-  inactiveOpacity: number = 0.8,
+  inactiveOpacity: number = WINDOW_OPACITY.inactive.default,
 ): void {
   // ウィンドウの透明度制御
   window.on('blur', () => {
@@ -13,7 +14,7 @@ export function setupWindowOpacityHandlers(
 
   window.on('focus', () => {
     if (!window.isDestroyed()) {
-      window.setOpacity(1.0);
+      window.setOpacity(WINDOW_OPACITY.active);
     }
   });
 }

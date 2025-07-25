@@ -1,5 +1,6 @@
 import { BrowserWindow } from 'electron';
 import { setupWindowOpacityHandlers } from '../windowOpacity';
+import { WINDOW_OPACITY } from '../../constants/window';
 
 // Electronのモック
 jest.mock('electron', () => ({
@@ -41,22 +42,22 @@ describe('Window Opacity Control', () => {
       expect(mockWindow.on).toHaveBeenCalledTimes(2);
     });
 
-    it('should set opacity to default 0.8 when window loses focus', () => {
+    it('should set opacity to default inactive opacity when window loses focus', () => {
       setupWindowOpacityHandlers(mockWindow as any);
 
       // blurイベントをトリガー
       eventHandlers['blur']();
 
-      expect(mockWindow.setOpacity).toHaveBeenCalledWith(0.8);
+      expect(mockWindow.setOpacity).toHaveBeenCalledWith(WINDOW_OPACITY.inactive.default);
     });
 
-    it('should set opacity to 1.0 when window gains focus', () => {
+    it('should set opacity to active opacity when window gains focus', () => {
       setupWindowOpacityHandlers(mockWindow as any);
 
       // focusイベントをトリガー
       eventHandlers['focus']();
 
-      expect(mockWindow.setOpacity).toHaveBeenCalledWith(1.0);
+      expect(mockWindow.setOpacity).toHaveBeenCalledWith(WINDOW_OPACITY.active);
     });
 
     it('should use custom opacity value when provided', () => {
@@ -77,13 +78,13 @@ describe('Window Opacity Control', () => {
       expect(mockWindow.setOpacity).toHaveBeenLastCalledWith(0.7);
 
       eventHandlers['focus']();
-      expect(mockWindow.setOpacity).toHaveBeenLastCalledWith(1.0);
+      expect(mockWindow.setOpacity).toHaveBeenLastCalledWith(WINDOW_OPACITY.active);
 
       eventHandlers['blur']();
       expect(mockWindow.setOpacity).toHaveBeenLastCalledWith(0.7);
 
       eventHandlers['focus']();
-      expect(mockWindow.setOpacity).toHaveBeenLastCalledWith(1.0);
+      expect(mockWindow.setOpacity).toHaveBeenLastCalledWith(WINDOW_OPACITY.active);
 
       // 合計4回呼ばれているはず
       expect(mockWindow.setOpacity).toHaveBeenCalledTimes(4);
@@ -111,7 +112,7 @@ describe('Window Opacity Control', () => {
       mockWindow.isDestroyed.mockReturnValue(false);
       eventHandlers['blur']();
       expect(mockWindow.isDestroyed).toHaveBeenCalled();
-      expect(mockWindow.setOpacity).toHaveBeenCalledWith(0.8);
+      expect(mockWindow.setOpacity).toHaveBeenCalledWith(WINDOW_OPACITY.inactive.default);
 
       // ウィンドウが破棄された後
       mockWindow.isDestroyed.mockReturnValue(true);

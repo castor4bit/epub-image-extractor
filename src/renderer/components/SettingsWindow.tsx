@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import './SettingsWindow.css';
 import { VersionInfo } from './VersionInfo';
 import './VersionInfo.css';
+import { WINDOW_OPACITY } from '../../main/constants/window';
 
 interface Settings {
   outputDirectory: string;
@@ -27,7 +28,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
     alwaysOnTop: true,
     includeOriginalFilename: true,
     includePageSpread: true,
-    inactiveOpacity: 0.8,
+    inactiveOpacity: WINDOW_OPACITY.inactive.default,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [wasReset, setWasReset] = useState(false);
@@ -42,7 +43,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           alwaysOnTop: loadedSettings.alwaysOnTop ?? true,
           includeOriginalFilename: loadedSettings.includeOriginalFilename ?? true,
           includePageSpread: loadedSettings.includePageSpread ?? true,
-          inactiveOpacity: loadedSettings.inactiveOpacity ?? 0.8,
+          inactiveOpacity: loadedSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
         });
       });
       // ダイアログを開いたときにリセットフラグをクリア
@@ -88,7 +89,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       alwaysOnTop: defaultSettings.alwaysOnTop ?? true,
       includeOriginalFilename: defaultSettings.includeOriginalFilename ?? true,
       includePageSpread: defaultSettings.includePageSpread ?? true,
-      inactiveOpacity: defaultSettings.inactiveOpacity ?? 0.8,
+      inactiveOpacity: defaultSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
     });
     // リセットフラグを設定
     setWasReset(true);
@@ -176,16 +177,16 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
               <input
                 id="inactive-opacity"
                 type="range"
-                min="0.1"
-                max="1.0"
-                step="0.1"
-                value={settings.inactiveOpacity ?? 0.8}
+                min={String(WINDOW_OPACITY.inactive.min)}
+                max={String(WINDOW_OPACITY.inactive.max)}
+                step={String(WINDOW_OPACITY.inactive.step)}
+                value={settings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default}
                 onChange={(e) =>
                   setSettings((prev) => ({ ...prev, inactiveOpacity: parseFloat(e.target.value) }))
                 }
               />
               <span className="opacity-value">
-                {Math.round((settings.inactiveOpacity ?? 0.8) * 100)}%
+                {Math.round((settings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default) * 100)}%
               </span>
             </div>
             <small>{t('settings.inactiveOpacity.description')}</small>
