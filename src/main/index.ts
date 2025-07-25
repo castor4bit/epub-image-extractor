@@ -1,10 +1,15 @@
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
+import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain } from 'electron';
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
 import { WINDOW_SIZES } from './constants/window';
+import { getTranslation } from './i18n/translations';
+import { LanguageCode } from '../shared/constants/languages';
+import { isE2ETestMode } from './utils/testMode';
+import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2e-helpers';
 
 let mainWindow: BrowserWindow | null = null;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 // アプリケーション名を設定
 // メニューバーには英語、アプリ内は日本語を使用
@@ -14,11 +19,10 @@ app.name = 'EPUB Image Extractor';
 if (process.platform === 'darwin' && app.dock) {
   // 開発環境でも正しい名前を表示するための設定
   try {
-    // アイコンが存在する場合のみ設定
     const iconPath = join(__dirname, '../../public/icon.png');
     app.dock.setIcon(iconPath);
   } catch {
-    // アイコンファイルが存在しない場合は無視
+    // アイコン設定に失敗しても動作に影響ないため、エラーは無視
   }
 }
 
@@ -37,6 +41,7 @@ function createWindow() {
     minHeight: WINDOW_SIZES.minimum.height,
     resizable: true, // リサイズ可能に設定
     alwaysOnTop: settings.alwaysOnTop,
+    show: true,
     icon:
       process.platform === 'darwin'
         ? undefined // macOSではアプリケーションバンドルのアイコンを使用
@@ -55,12 +60,56 @@ function createWindow() {
     mainWindow.loadFile(join(__dirname, '../../dist/index.html'));
   }
 
+  // 処理状態を保持する変数
+  let isProcessing = false;
+
+  // 処理状態の更新を受信
+  ipcMain.on('app:updateProcessingState', (_event, processing: boolean) => {
+    isProcessing = processing;
+    // E2Eテスト用にグローバル状態を更新
+    if (isE2ETestMode()) {
+      setGlobalProcessingState(processing);
+    }
+  });
+
+  // 終了確認ダイアログ
+  mainWindow.on('close', (event) => {
+    if (isProcessing) {
+      event.preventDefault();
+
+      const settings = settingsStore.get();
+      const lang = (settings.language || 'ja') as LanguageCode;
+      const t = getTranslation(lang);
+
+      const choice = dialog.showMessageBoxSync(mainWindow!, {
+        type: 'question',
+        buttons: [t.exitDialog.buttons.quit, t.exitDialog.buttons.cancel],
+        defaultId: 1,
+        title: t.exitDialog.title,
+        message: t.exitDialog.message,
+        detail: t.exitDialog.detail,
+      });
+
+      if (choice === 0) {
+        mainWindow?.destroy();
+      }
+    }
+  });
+
   mainWindow.on('closed', () => {
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+    }
     mainWindow = null;
   });
 
+  // E2Eテスト用のヘルパーを設定
+  if (isE2ETestMode()) {
+    setupE2ETestHelpers(mainWindow, () => isProcessing);
+  }
+
   // ウィンドウサイズと位置の変更を保存
-  let saveTimer: ReturnType<typeof setTimeout> | null = null;
   const saveBounds = () => {
     if (!mainWindow) return;
 
@@ -116,7 +165,20 @@ app.whenReady().then(() => {
   createWindow();
 });
 
+app.on('before-quit', () => {
+  // アプリケーション終了前にタイマーをクリア
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+});
+
 app.on('window-all-closed', () => {
+  // タイマーをクリア
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
   // macOSでもウィンドウを閉じたらアプリケーションを終了する
   app.quit();
 });

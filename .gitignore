@@ -58,7 +58,14 @@ tmp/
 **/test-output*/
 **/test-epubs/
 test-*.js
-test.epub
+test-results/
+playwright-report/
+
+# E2Eテストフィクスチャは明示的に含める
+!e2e/fixtures/**
+
+# その他のEPUBファイルは除外
+*.epub
 
 # Electron
 electron-builder.yml

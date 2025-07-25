@@ -209,6 +209,31 @@
   transform: scale(0.98);
 }
 
+/* ドロップゾーンの無効状態 */
+.drop-zone.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f8f9fa;
+}
+
+.drop-zone.disabled .drop-zone-content {
+  pointer-events: none;
+}
+
+.drop-zone.disabled .select-button,
+.select-button.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.drop-zone.disabled .drop-icon,
+.drop-zone.disabled .drop-text,
+.drop-zone.disabled .drop-subtitle {
+  opacity: 0.6;
+}
+
 /* 進捗表示 */
 .progress-container {
   width: 100%;
@@ -509,6 +534,30 @@
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+/* コンパクトドロップゾーンの無効状態 */
+.compact-drop-zone.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f8f9fa;
+}
+
+.compact-drop-zone.disabled .compact-drop-zone-content {
+  pointer-events: none;
+}
+
+.compact-drop-zone.disabled .compact-select-button,
+.compact-select-button.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.compact-drop-zone.disabled .compact-drop-icon,
+.compact-drop-zone.disabled .compact-drop-text {
+  opacity: 0.6;
 }
 
 /* ファイル処理リスト */

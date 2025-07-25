@@ -31,6 +31,7 @@ const mockElectronAPI = {
       type: file.type || 'application/epub+zip',
     }));
   }),
+  updateProcessingState: jest.fn(),
 };
 
 // window.electronAPIをモック

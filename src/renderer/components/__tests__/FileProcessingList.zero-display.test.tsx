@@ -33,19 +33,19 @@ describe('FileProcessingList - 「0」の表示問題', () => {
 
     // ファイル名が表示される
     expect(screen.getByText('test.epub')).toBeInTheDocument();
-    
+
     // 「待機中」と表示される
     expect(screen.getByText('待機中')).toBeInTheDocument();
-    
+
     // デバッグ情報を出力
     const container = screen.getByText('test.epub').closest('.processing-item');
     console.log('=== pending状態のレンダリング内容 ===');
     console.log(container?.innerHTML);
-    
+
     // 「0」という文字が表示されないことを確認
     const zeroElements = screen.queryAllByText('0');
     expect(zeroElements.length).toBe(0);
-    
+
     // 「0画像」や「0 / 0」といった表示もないことを確認
     expect(screen.queryByText(/0.*画像/)).not.toBeInTheDocument();
     expect(screen.queryByText(/0.*\/.*0/)).not.toBeInTheDocument();
@@ -74,7 +74,7 @@ describe('FileProcessingList - 「0」の表示問題', () => {
 
     // 「画像を抽出中...」と表示される
     expect(screen.getByText('画像を抽出中...')).toBeInTheDocument();
-    
+
     // 「0」や「0 / 0」といった表示はない
     expect(screen.queryByText(/0.*\/.*0/)).not.toBeInTheDocument();
   });
@@ -101,7 +101,7 @@ describe('FileProcessingList - 「0」の表示問題', () => {
 
     // 「画像なし」と表示される
     expect(screen.getByText('画像なし')).toBeInTheDocument();
-    
+
     // 「0」という単独の文字は表示されない
     const zeroElements = screen.queryAllByText('0');
     expect(zeroElements.length).toBe(0);

@@ -1,6 +1,7 @@
 import { ImageInfo, ChapterInfo } from '@shared/types';
 import { AppError, ErrorCode } from '../../shared/error-types';
 import { logger } from '../utils/logger';
+import { addE2EDelayByType } from '../utils/testMode';
 import path from 'path';
 import fs from 'fs/promises';
 import {
@@ -69,6 +70,9 @@ export async function organizeByChapters(
       // ディレクトリ作成
       try {
         await fs.mkdir(chapterDir, { recursive: true });
+
+        // E2Eテストモードの場合はチャプター処理時に遅延を追加
+        await addE2EDelayByType('CHAPTER_PROCESSING');
       } catch (error) {
         throw new AppError(
           ErrorCode.DIRECTORY_CREATE_ERROR,

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 interface FileDropZoneProps {
   isDragging: boolean;
+  isProcessing: boolean;
   onDragEnter: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
@@ -12,6 +13,7 @@ interface FileDropZoneProps {
 
 export const FileDropZone: React.FC<FileDropZoneProps> = ({
   isDragging,
+  isProcessing,
   onDragEnter,
   onDragOver,
   onDragLeave,
@@ -19,13 +21,51 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
   onFileSelect,
 }) => {
   const { t } = useTranslation();
+
+  // 処理中はドロップイベントを無効化
+  const handleDragEnter = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragEnter(e);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragOver(e);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragLeave(e);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDrop(e);
+  };
+
   return (
     <div
-      className={`drop-zone ${isDragging ? 'active' : ''}`}
-      onDragEnter={onDragEnter}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
+      className={`drop-zone ${isDragging ? 'active' : ''} ${isProcessing ? 'disabled' : ''}`}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <div className="drop-zone-content">
         <svg className="drop-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -52,9 +92,10 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           multiple
           accept=".epub,application/epub+zip,.zip"
           onChange={onFileSelect}
+          disabled={isProcessing}
           style={{ display: 'none' }}
         />
-        <label htmlFor="file-input" className="select-button">
+        <label htmlFor="file-input" className={`select-button ${isProcessing ? 'disabled' : ''}`}>
           {t('dropZone.selectFiles')}
         </label>
       </div>

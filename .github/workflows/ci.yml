@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+# PRごとまたはブランチごとに古いワークフローをキャンセル
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -37,3 +42,44 @@ jobs:
     
     - name: Build application
       run: npm run build
+    
+    - name: Install Linux dependencies for E2E
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        sudo apt-get install -y \
+          libasound2t64 \
+          libgbm1 \
+          libgtk-3-0 \
+          libnss3 \
+          libxss1 \
+          libxtst6
+    
+    - name: Install Playwright
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run E2E tests (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" npm run test:e2e
+      env:
+        CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
+    
+    - name: Run E2E tests (Windows/macOS)
+      if: matrix.os != 'ubuntu-latest'
+      run: npm run test:e2e
+      env:
+        CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
+    
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-report-${{ matrix.os }}
+        path: |
+          playwright-report/
+          test-results/

@@ -24,6 +24,7 @@ const mockOnProgress = jest.fn();
     version: '1.0.0',
     name: 'Test App',
   }),
+  updateProcessingState: jest.fn(),
 };
 
 describe('App - processFiles関数', () => {

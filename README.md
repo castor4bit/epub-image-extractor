@@ -196,6 +196,18 @@ npm run test:integration
 # Run all tests
 npm run test:all
 
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with visual browser
+npm run test:e2e:headed
+
+# Run E2E smoke tests only
+npm run test:e2e:smoke
+
+# Debug E2E tests
+npm run test:e2e:debug
+
 # Run tests with coverage
 npm run test:coverage
 ```

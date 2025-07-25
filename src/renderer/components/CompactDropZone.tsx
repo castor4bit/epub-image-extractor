@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 interface CompactDropZoneProps {
   isDragging: boolean;
+  isProcessing: boolean;
   onDragEnter: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
@@ -12,6 +13,7 @@ interface CompactDropZoneProps {
 
 export const CompactDropZone: React.FC<CompactDropZoneProps> = ({
   isDragging,
+  isProcessing,
   onDragEnter,
   onDragOver,
   onDragLeave,
@@ -19,13 +21,51 @@ export const CompactDropZone: React.FC<CompactDropZoneProps> = ({
   onFileSelect,
 }) => {
   const { t } = useTranslation();
+
+  // 処理中はドロップイベントを無効化
+  const handleDragEnter = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragEnter(e);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragOver(e);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragLeave(e);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (isProcessing) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDrop(e);
+  };
+
   return (
     <div
-      className={`compact-drop-zone ${isDragging ? 'active' : ''}`}
-      onDragEnter={onDragEnter}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
+      className={`compact-drop-zone ${isDragging ? 'active' : ''} ${isProcessing ? 'disabled' : ''}`}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <div className="compact-drop-zone-content">
         <svg className="compact-drop-icon" width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -52,8 +92,12 @@ export const CompactDropZone: React.FC<CompactDropZoneProps> = ({
           multiple
           accept=".epub,.zip,application/epub+zip,application/zip"
           onChange={onFileSelect}
+          disabled={isProcessing}
         />
-        <label htmlFor="compact-file-input" className="compact-select-button">
+        <label
+          htmlFor="compact-file-input"
+          className={`compact-select-button ${isProcessing ? 'disabled' : ''}`}
+        >
           {t('compactDropZone.selectFiles')}
         </label>
       </div>

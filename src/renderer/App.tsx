@@ -30,6 +30,7 @@ function App() {
       }
 
       setIsProcessing(true);
+      window.electronAPI.updateProcessingState(true);
       setHasAnyResults(true);
       // 新しい処理時は進捗をリセットしない（追加処理のため）
 
@@ -86,9 +87,11 @@ function App() {
           });
 
           setIsProcessing(false);
+          window.electronAPI.updateProcessingState(false);
         } else {
           alert(`${t('errors.fileProcessing')}: ${result.error}`);
           setIsProcessing(false);
+          window.electronAPI.updateProcessingState(false);
         }
       } catch (error) {
         console.error('処理エラー:', error);
@@ -256,6 +259,7 @@ function App() {
           // 初期状態：大きなドロップゾーン
           <FileDropZone
             isDragging={isDragging}
+            isProcessing={isProcessing}
             onDragEnter={handleDragEnter}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -267,6 +271,7 @@ function App() {
           <div className="integrated-view">
             <CompactDropZone
               isDragging={isDragging}
+              isProcessing={isProcessing}
               onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
