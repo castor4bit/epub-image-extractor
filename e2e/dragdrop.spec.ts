@@ -37,14 +37,10 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
                 contentType: 'image/png',
               });
             }
-          } catch (screenshotError) {
-            // スクリーンショット取得エラーは無視
-          }
+          } catch (screenshotError) {}
         }
       } catch (error) {
-        // エラーは無視
       } finally {
-        // 確実にElectronを終了
         await closeElectron(electronApp, true);
         electronApp = null;
         page = null;

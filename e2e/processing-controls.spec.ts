@@ -177,25 +177,16 @@ test.describe('処理制御機能E2Eテスト', () => {
       };
     });
 
-    // disabled状態の検証
     expect(disabledState.hasDisabledClass).toBe(true);
     expect(disabledState.cursor).toBe('not-allowed');
-    
-    // CI環境ではopacityの正確な値はチェックしない（Xvfbの制限）
-    if (!process.env.CI) {
-      expect(parseFloat(disabledState.opacity)).toBe(0.5);
-    }
+    expect(parseFloat(disabledState.opacity)).toBeCloseTo(0.5, 1);
 
-    // 処理完了後は通常の表示に戻ることを確認
     await waitForProcessingComplete(page);
 
-    // disabledクラスが外れるまで待機
     await expect(compactDropZone).not.toHaveClass(/disabled/);
 
-    // 追加の待機（CSSトランジション完了のため）
     await page.waitForTimeout(500);
 
-    // 通常状態に戻っていることを確認
     const normalState = await compactDropZone.evaluate((el) => {
       const styles = window.getComputedStyle(el);
       return {
@@ -206,19 +197,9 @@ test.describe('処理制御機能E2Eテスト', () => {
     });
 
 
-    // 通常状態の検証
     expect(normalState.hasDisabledClass).toBe(false);
     expect(normalState.cursor).toBe('pointer');
-    
-    // CI環境では状態の変化があったことだけを確認
-    if (process.env.CI) {
-      // disabledクラスが外れて、cursorが変わったことを確認
-      expect(normalState.hasDisabledClass).not.toBe(disabledState.hasDisabledClass);
-      expect(normalState.cursor).not.toBe(disabledState.cursor);
-    } else {
-      // ローカル環境では正確な値を確認
-      expect(parseFloat(normalState.opacity)).toBe(1);
-    }
+    expect(parseFloat(normalState.opacity)).toBeCloseTo(1, 1);
   });
 
   test('複数ファイル処理中も適切に制御される', async () => {
