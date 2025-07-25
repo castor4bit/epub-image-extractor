@@ -10,6 +10,7 @@ interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean; // 元のファイル名を含めるか
   includePageSpread: boolean; // 左右情報を含めるか
+  inactiveOpacity?: number; // ウィンドウ非アクティブ時の透明度（0.0～1.0）
   windowBounds?: {
     // ウィンドウのサイズと位置
     width: number;
@@ -33,6 +34,7 @@ const defaults: Settings = {
   alwaysOnTop: true,
   includeOriginalFilename: true,
   includePageSpread: true,
+  inactiveOpacity: 0.8,
 };
 
 // electron-storeインスタンスを作成
@@ -60,6 +62,7 @@ export const settingsStore = {
       alwaysOnTop: store.get('alwaysOnTop'),
       includeOriginalFilename: store.get('includeOriginalFilename'),
       includePageSpread: store.get('includePageSpread'),
+      inactiveOpacity: store.get('inactiveOpacity'),
       windowBounds: store.get('windowBounds'),
     };
   },

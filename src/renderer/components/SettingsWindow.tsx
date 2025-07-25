@@ -10,6 +10,7 @@ interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean;
   includePageSpread: boolean;
+  inactiveOpacity?: number;
 }
 
 interface SettingsWindowProps {
@@ -26,6 +27,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
     alwaysOnTop: true,
     includeOriginalFilename: true,
     includePageSpread: true,
+    inactiveOpacity: 0.8,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [wasReset, setWasReset] = useState(false);
@@ -40,6 +42,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           alwaysOnTop: loadedSettings.alwaysOnTop ?? true,
           includeOriginalFilename: loadedSettings.includeOriginalFilename ?? true,
           includePageSpread: loadedSettings.includePageSpread ?? true,
+          inactiveOpacity: loadedSettings.inactiveOpacity ?? 0.8,
         });
       });
       // ダイアログを開いたときにリセットフラグをクリア
@@ -85,6 +88,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       alwaysOnTop: defaultSettings.alwaysOnTop ?? true,
       includeOriginalFilename: defaultSettings.includeOriginalFilename ?? true,
       includePageSpread: defaultSettings.includePageSpread ?? true,
+      inactiveOpacity: defaultSettings.inactiveOpacity ?? 0.8,
     });
     // リセットフラグを設定
     setWasReset(true);
@@ -164,6 +168,27 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
               />
               {t('settings.filenameOptions.includePageSpread')}
             </label>
+          </div>
+
+          <div className="setting-group">
+            <label htmlFor="inactive-opacity">{t('settings.inactiveOpacity.label')}</label>
+            <div className="opacity-slider">
+              <input
+                id="inactive-opacity"
+                type="range"
+                min="0.1"
+                max="1.0"
+                step="0.1"
+                value={settings.inactiveOpacity ?? 0.8}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, inactiveOpacity: parseFloat(e.target.value) }))
+                }
+              />
+              <span className="opacity-value">
+                {Math.round((settings.inactiveOpacity ?? 0.8) * 100)}%
+              </span>
+            </div>
+            <small>{t('settings.inactiveOpacity.description')}</small>
           </div>
 
           <VersionInfo onShowAbout={onShowAbout} />

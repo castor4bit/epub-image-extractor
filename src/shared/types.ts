@@ -44,6 +44,7 @@ export interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean;
   includePageSpread: boolean;
+  inactiveOpacity?: number; // ウィンドウ非アクティブ時の透明度（0.0～1.0）
 }
 
 export interface AppVersionInfo {

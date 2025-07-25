@@ -126,6 +126,16 @@ function createWindow() {
   mainWindow.on('resize', debouncedSave);
   mainWindow.on('move', debouncedSave);
 
+  // ウィンドウの透明度制御
+  const inactiveOpacity = settings.inactiveOpacity ?? 0.8;
+  mainWindow.on('blur', () => {
+    mainWindow?.setOpacity(inactiveOpacity);
+  });
+
+  mainWindow.on('focus', () => {
+    mainWindow?.setOpacity(1.0); // アクティブ時は完全に不透明
+  });
+
   // IPCハンドラーを登録
   registerIpcHandlers(mainWindow);
 }
