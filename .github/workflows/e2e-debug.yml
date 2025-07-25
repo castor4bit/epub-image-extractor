@@ -33,7 +33,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y xvfb
         sudo apt-get install -y \
-          libasound2 \
+          libasound2t64 \
           libgbm1 \
           libgtk-3-0 \
           libnss3 \

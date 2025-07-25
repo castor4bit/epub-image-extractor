@@ -35,10 +35,9 @@ jobs:
           xvfb \
           libgtk-3-0 \
           libnotify-dev \
-          libgconf-2-4 \
           libnss3 \
           libxss1 \
-          libasound2 \
+          libasound2t64 \
           libxtst6 \
           libatspi2.0-0 \
           libx11-xcb1 \
