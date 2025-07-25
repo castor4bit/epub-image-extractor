@@ -45,13 +45,27 @@ jobs:
     - name: Test build
       run: npm run build
     
+    - name: Install Linux dependencies for E2E
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        sudo apt-get install -y \
+          libasound2t64 \
+          libgbm1 \
+          libgtk-3-0 \
+          libnss3 \
+          libxss1 \
+          libxtst6
+    
     - name: Install Playwright
-      run: npx playwright install --with-deps
+      run: npx playwright install --with-deps chromium
     
     - name: Run E2E tests (smoke tests only)
-      run: npm run test:e2e -- --grep "@smoke"
+      run: xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" npm run test:e2e -- --grep "@smoke"
       env:
         CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
     
     - name: Comment PR
       uses: actions/github-script@v7

@@ -43,25 +43,12 @@ jobs:
     - name: Install Playwright
       run: npx playwright install chromium
     
-    - name: Setup virtual display
-      run: |
-        # Xvfbデーモンを起動
-        sudo Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &
-        sleep 3
-        # 環境変数を設定
-        echo "DISPLAY=:99" >> $GITHUB_ENV
-    
     - name: Debug environment
       run: |
         echo "=== Environment Debug ==="
-        echo "DISPLAY: $DISPLAY"
         echo "Platform: ${{ runner.os }}"
         echo "Node version: $(node --version)"
         echo "npm version: $(npm --version)"
-        echo ""
-        echo "=== X11 Status ==="
-        ps aux | grep -i xvfb || echo "No Xvfb process found"
-        ls -la /tmp/.X11-unix/ || echo "No X11 socket found"
         echo ""
         echo "=== Electron Binary ==="
         ls -la node_modules/electron/dist/ | head -10
@@ -69,11 +56,12 @@ jobs:
         echo "=== Build Output ==="
         ls -la dist-electron/main/ | head -10
     
-    - name: Run E2E tests with debug
-      run: npm run test:e2e -- --reporter=list
+    - name: Run E2E tests with xvfb-run and debug
+      run: |
+        xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" \
+          npm run test:e2e -- --reporter=list
       env:
         CI: true
-        DISPLAY: :99
         NODE_ENV: test
         E2E_TEST_MODE: true
         DEBUG: pw:browser*,pw:protocol

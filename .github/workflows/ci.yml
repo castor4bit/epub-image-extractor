@@ -49,16 +49,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y xvfb libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
     
-    - name: Setup virtual display (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &
-        echo "DISPLAY=:99" >> $GITHUB_ENV
-    
     - name: Install Playwright
-      run: npx playwright install chromium
+      run: npx playwright install --with-deps chromium
     
-    - name: Run E2E tests
+    - name: Run E2E tests (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" npm run test:e2e
+      env:
+        CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
+    
+    - name: Run E2E tests (Windows/macOS)
+      if: matrix.os != 'ubuntu-latest'
       run: npm run test:e2e
       env:
         CI: true

@@ -14,17 +14,17 @@ export async function launchElectron(
   // CI環境（Linux）では追加のフラグを設定
   if (process.env.CI && process.platform === 'linux') {
     console.log('[E2E] Running in CI Linux environment');
-    console.log('[E2E] DISPLAY:', process.env.DISPLAY);
+    console.log('[E2E] DISPLAY:', process.env.DISPLAY || '(not set)');
     
+    // xvfb-runを使用している場合、これらのフラグは必要最小限にする
     args.push(
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-gpu',
-      '--disable-features=UseOzonePlatform',
-      '--disable-accelerated-2d-canvas',
-      '--disable-gl-drawing-for-tests',
     );
+    
+    console.log('[E2E] Added CI-specific Electron flags');
   }
 
   // 起動前のデバッグ情報
@@ -35,7 +35,21 @@ export async function launchElectron(
     DISPLAY: process.env.DISPLAY || ':99',
     CI: process.env.CI,
     platform: process.platform,
+    USER: process.env.USER,
+    HOME: process.env.HOME,
+    PWD: process.cwd(),
   });
+  
+  // CI環境でのXvfb確認
+  if (process.env.CI && process.platform === 'linux') {
+    const { execSync } = require('child_process');
+    try {
+      const xvfbProcesses = execSync('ps aux | grep -i xvfb || true', { encoding: 'utf-8' });
+      console.log('[E2E] Xvfb processes:', xvfbProcesses.trim());
+    } catch (error) {
+      console.log('[E2E] Could not check Xvfb processes');
+    }
+  }
 
   try {
     const app = await electron.launch({

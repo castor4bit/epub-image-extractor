@@ -21,7 +21,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   
   // レポーター設定
-  reporter: process.env.CI ? 'github' : 'list',
+  reporter: process.env.CI 
+    ? [['github'], ['html', { open: 'never', outputFolder: 'playwright-report' }]]
+    : [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
+  
+  // 出力ディレクトリ
+  outputDir: './test-results',
   
   // タイムアウト設定
   timeout: 5 * 1000, // 5秒
