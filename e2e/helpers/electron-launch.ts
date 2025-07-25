@@ -7,6 +7,17 @@ export async function launchElectron(
 ): Promise<ElectronApplication> {
   const args = [path.join(__dirname, '../../dist-electron/main/index.js')];
 
+  // CI環境（Linux）では追加のフラグを設定
+  // これらのフラグがないと "The SUID sandbox helper binary was found" エラーが発生
+  if (process.env.CI && process.platform === 'linux') {
+    args.push(
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+    );
+  }
+
   try {
     const app = await electron.launch({
       args,
