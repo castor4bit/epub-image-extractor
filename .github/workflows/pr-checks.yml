@@ -6,6 +6,11 @@ on:
     branches:
       - main
 
+# 同じPRの古いワークフローをキャンセル
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: write

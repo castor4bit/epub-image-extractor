@@ -4,6 +4,11 @@ on:
   push:
     branches: [ feat/processing-controls ]
 
+# 同じブランチの古いワークフローをキャンセル
+concurrency:
+  group: e2e-debug-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   e2e-linux:
     runs-on: ubuntu-latest
