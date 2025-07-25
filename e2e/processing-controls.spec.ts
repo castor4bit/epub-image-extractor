@@ -205,10 +205,6 @@ test.describe('処理制御機能E2Eテスト', () => {
       };
     });
 
-    if (process.env.CI) {
-      console.log('Disabled state:', disabledState);
-      console.log('Normal state:', normalState);
-    }
 
     // 通常状態の検証
     expect(normalState.hasDisabledClass).toBe(false);

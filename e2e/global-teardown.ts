@@ -5,8 +5,6 @@ import fs from 'fs/promises';
 import { cleanupElectronProcesses } from './helpers/electron-launch';
 
 async function globalTeardown() {
-  console.log('[E2E] Running global teardown...');
-  
   // 残っているElectronプロセスをクリーンアップ
   await cleanupElectronProcesses();
   
@@ -15,12 +13,10 @@ async function globalTeardown() {
 
   try {
     await fs.rm(testDir, { recursive: true, force: true });
-    console.log('[E2E] Test temporary directory cleaned up:', testDir);
+    console.log('E2E test temporary directory cleaned up:', testDir);
   } catch (error) {
-    console.warn('[E2E] Failed to cleanup test directory:', error);
+    console.warn('Failed to cleanup test directory:', error);
   }
-  
-  console.log('[E2E] Global teardown completed');
 }
 
 export default globalTeardown;

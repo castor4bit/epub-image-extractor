@@ -8,7 +8,6 @@ import {
   closeSettingsWindow,
 } from './helpers/test-helpers';
 import { launchElectron, closeElectron } from './helpers/electron-launch';
-import { debugPageState, captureErrorDetails } from './helpers/debug-helpers';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -128,24 +127,8 @@ test.describe('処理制御機能の基本動作', () => {
     // 設定画面が開くことを確認
     await expect(page.locator('.settings-window')).toBeVisible();
 
-    // CI環境でのデバッグ情報
-    if (process.env.CI) {
-      await debugPageState(page, 'Settings window opened');
-    }
-
     // 設定画面を閉じる
-    if (process.env.CI) {
-      await debugPageState(page, 'Before closing settings');
-    }
-    
-    try {
-      await closeSettingsWindow(page);
-    } catch (error) {
-      if (process.env.CI) {
-        await captureErrorDetails(page, 'settings-close-failed');
-      }
-      throw error;
-    }
+    await closeSettingsWindow(page);
 
     // 処理結果が表示されていることを確認
     await expect(page.locator('.processing-item:has-text("test.epub")')).toBeVisible();

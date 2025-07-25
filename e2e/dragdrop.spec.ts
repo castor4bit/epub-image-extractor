@@ -38,11 +38,11 @@ test.describe('ドラッグ&ドロップE2Eテスト', () => {
               });
             }
           } catch (screenshotError) {
-            console.warn('[E2E] Failed to capture screenshot:', screenshotError);
+            // スクリーンショット取得エラーは無視
           }
         }
       } catch (error) {
-        console.error('[E2E] Error in afterEach:', error);
+        // エラーは無視
       } finally {
         // 確実にElectronを終了
         await closeElectron(electronApp, true);

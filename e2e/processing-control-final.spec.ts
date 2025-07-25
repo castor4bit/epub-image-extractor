@@ -28,7 +28,6 @@ test.describe('処理制御の最終テスト', () => {
     await expect(compactDropZone).toBeVisible();
 
     await expect(compactDropZone).toHaveClass(/disabled/, { timeout: 1000 });
-    console.log('Drop zone disabled detected');
 
     // 処理完了を待つ
     await waitForProcessingComplete(page);
