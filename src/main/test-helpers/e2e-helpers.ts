@@ -25,6 +25,7 @@ export function setupE2ETestHelpers(
           args.length === 1
             ? (args[0] as MessageBoxSyncOptions)
             : (args[1] as MessageBoxSyncOptions);
+        // 1を返す = キャンセルボタンを選択（buttons: ['終了', 'キャンセル']の場合）
         return 1;
       };
 
