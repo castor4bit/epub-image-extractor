@@ -11,9 +11,14 @@ export async function launchElectron(
 ): Promise<ElectronApplication> {
   const args = [path.join(__dirname, '../../dist-electron/main/index.js')];
 
-  // CI環境（Linux）ではサンドボックスを無効化
+  // CI環境（Linux）では追加のフラグを設定
   if (process.env.CI && process.platform === 'linux') {
-    args.push('--no-sandbox');
+    args.push(
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+    );
   }
 
   return await electron.launch({
@@ -22,6 +27,7 @@ export async function launchElectron(
       ...process.env,
       NODE_ENV: 'test',
       E2E_TEST_MODE: 'true',
+      DISPLAY: process.env.DISPLAY || ':99',
       ...additionalEnv,
     },
   });

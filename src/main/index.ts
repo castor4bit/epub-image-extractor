@@ -14,6 +14,9 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null;
 // CI環境でのサンドボックス対応
 if (process.env.CI && process.platform === 'linux') {
   app.commandLine.appendSwitch('no-sandbox');
+  app.commandLine.appendSwitch('disable-setuid-sandbox');
+  app.commandLine.appendSwitch('disable-dev-shm-usage');
+  app.commandLine.appendSwitch('disable-gpu');
 }
 
 // アプリケーション名を設定
