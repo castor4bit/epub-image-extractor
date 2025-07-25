@@ -50,6 +50,8 @@ function createWindow() {
     minHeight: WINDOW_SIZES.minimum.height,
     resizable: true, // リサイズ可能に設定
     alwaysOnTop: settings.alwaysOnTop,
+    // CI環境では非表示で起動
+    show: !(process.env.CI && process.platform === 'linux'),
     icon:
       process.platform === 'darwin'
         ? undefined // macOSではアプリケーションバンドルのアイコンを使用

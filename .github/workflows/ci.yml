@@ -43,29 +43,27 @@ jobs:
     - name: Build application
       run: npm run build
     
-    - name: Install Linux dependencies
+    - name: Install Linux dependencies for E2E
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y xvfb
+        sudo apt-get install -y xvfb libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2
+    
+    - name: Setup virtual display (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &
+        echo "DISPLAY=:99" >> $GITHUB_ENV
     
     - name: Install Playwright
       run: npx playwright install chromium
     
-    - name: Run E2E tests (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        export DISPLAY=:99
-        Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-        npm run test:e2e
-      env:
-        CI: true
-    
-    - name: Run E2E tests (Windows/macOS)
-      if: matrix.os != 'ubuntu-latest'
+    - name: Run E2E tests
       run: npm run test:e2e
       env:
         CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
     
     - name: Upload test artifacts
       uses: actions/upload-artifact@v4
