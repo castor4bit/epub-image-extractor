@@ -19,6 +19,7 @@ if (process.env.CI && process.platform === 'linux') {
   app.commandLine.appendSwitch('disable-gpu');
   app.commandLine.appendSwitch('disable-software-rasterizer');
   app.commandLine.appendSwitch('disable-features=TranslateUI');
+  // eslint-disable-next-line no-console
   console.log('[Main] CI Linux environment detected, sandbox disabled');
 }
 

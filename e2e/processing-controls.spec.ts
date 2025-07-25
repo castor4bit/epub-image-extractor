@@ -174,7 +174,8 @@ test.describe('処理制御機能E2Eテスト', () => {
       (el) => window.getComputedStyle(el).cursor,
     );
 
-    expect(parseFloat(capturedOpacity)).toBeLessThan(1); // 半透明になっている
+    // CSSファイルでは opacity: 0.5 が設定されている
+    expect(parseFloat(capturedOpacity)).toBe(0.5);
     expect(capturedCursor).toBe('not-allowed');
 
     // 処理完了後は通常の表示に戻ることを確認
@@ -182,10 +183,22 @@ test.describe('処理制御機能E2Eテスト', () => {
 
     await expect(compactDropZone).not.toHaveClass(/disabled/);
 
-    const opacityAfter = await compactDropZone.evaluate(
-      (el) => window.getComputedStyle(el).opacity,
-    );
-    expect(parseFloat(opacityAfter)).toBeGreaterThan(0.95); // ほぼ完全に不透明
+    // CSSトランジションが完了するまで待機（transition: all var(--transition-base)）
+    await page.waitForTimeout(500);
+
+    // 通常状態に戻っていることを確認（disabledクラスが外れたらopacity: 1になる）
+    const finalState = await compactDropZone.evaluate((el) => {
+      const styles = window.getComputedStyle(el);
+      return {
+        opacity: styles.opacity,
+        cursor: styles.cursor,
+        hasDisabledClass: el.classList.contains('disabled'),
+      };
+    });
+
+    expect(finalState.hasDisabledClass).toBe(false);
+    expect(parseFloat(finalState.opacity)).toBe(1);
+    expect(finalState.cursor).toBe('pointer');
   });
 
   test('複数ファイル処理中も適切に制御される', async () => {
