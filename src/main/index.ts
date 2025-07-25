@@ -7,6 +7,7 @@ import { getTranslation } from './i18n/translations';
 import { LanguageCode } from '../shared/constants/languages';
 import { isE2ETestMode } from './utils/testMode';
 import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2e-helpers';
+import { setupWindowOpacityHandlers } from './utils/windowOpacity';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -127,14 +128,7 @@ function createWindow() {
   mainWindow.on('move', debouncedSave);
 
   // ウィンドウの透明度制御
-  const inactiveOpacity = settings.inactiveOpacity ?? 0.8;
-  mainWindow.on('blur', () => {
-    mainWindow?.setOpacity(inactiveOpacity);
-  });
-
-  mainWindow.on('focus', () => {
-    mainWindow?.setOpacity(1.0); // アクティブ時は完全に不透明
-  });
+  setupWindowOpacityHandlers(mainWindow, settings.inactiveOpacity ?? 0.8);
 
   // IPCハンドラーを登録
   registerIpcHandlers(mainWindow);
