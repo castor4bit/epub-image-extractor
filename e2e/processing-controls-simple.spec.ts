@@ -8,6 +8,7 @@ import {
   closeSettingsWindow,
 } from './helpers/test-helpers';
 import { launchElectron, closeElectron } from './helpers/electron-launch';
+import { debugPageState, captureErrorDetails } from './helpers/debug-helpers';
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -129,13 +130,11 @@ test.describe('処理制御機能の基本動作', () => {
 
     // CI環境でのデバッグ情報
     if (process.env.CI) {
-      const { debugPageState } = await import('./helpers/debug-helpers');
       await debugPageState(page, 'Settings window opened');
     }
 
     // 設定画面を閉じる
     if (process.env.CI) {
-      const { debugPageState } = await import('./helpers/debug-helpers');
       await debugPageState(page, 'Before closing settings');
     }
     
@@ -143,7 +142,6 @@ test.describe('処理制御機能の基本動作', () => {
       await closeSettingsWindow(page);
     } catch (error) {
       if (process.env.CI) {
-        const { captureErrorDetails } = await import('./helpers/debug-helpers');
         await captureErrorDetails(page, 'settings-close-failed');
       }
       throw error;
