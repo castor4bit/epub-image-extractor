@@ -59,10 +59,6 @@ export async function closeElectron(app: ElectronApplication, force = false): Pr
       } catch (killError) {}
     }
   }
-  
-  await new Promise(resolve => setTimeout(resolve, 500));
-}
 
-// cleanupElectronProcesses関数を削除
-// 理由: Playwrightが自動的にプロセス管理を行うため不要
-// electron.launch()で作成されたプロセスはapp.close()で適切にクリーンアップされる
+  await new Promise((resolve) => setTimeout(resolve, 500));
+}

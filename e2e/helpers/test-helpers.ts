@@ -62,7 +62,7 @@ export async function waitForFileInProcessingList(page: Page, fileName: string):
 export async function closeSettingsWindow(page: Page): Promise<void> {
   // 設定ウィンドウが表示されていることを確認
   await page.locator('.settings-window').waitFor({ state: 'visible', timeout: 5000 });
-  
+
   // ウィンドウを閉じるための複数の方法を試行
   const closeActions = [
     // キャンセルボタンをクリック（最も確実な方法）
@@ -102,7 +102,7 @@ export async function closeSettingsWindow(page: Page): Promise<void> {
       return true;
     },
   ];
-  
+
   let closed = false;
   for (const action of closeActions) {
     try {
@@ -114,11 +114,11 @@ export async function closeSettingsWindow(page: Page): Promise<void> {
       // エラーは無視して次の方法を試す
     }
   }
-  
+
   if (!closed) {
     throw new Error('Failed to close settings window with any method');
   }
-  
+
   // 設定ウィンドウが閉じたことを確認
   await page.locator('.settings-window').waitFor({ state: 'hidden', timeout: 5000 });
 }

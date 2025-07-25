@@ -11,7 +11,6 @@ import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
-
 // アプリケーション名を設定
 // メニューバーには英語、アプリ内は日本語を使用
 app.name = 'EPUB Image Extractor';
@@ -20,7 +19,6 @@ app.name = 'EPUB Image Extractor';
 if (process.platform === 'darwin' && app.dock) {
   // 開発環境でも正しい名前を表示するための設定
   try {
-    // アイコンが存在する場合のみ設定
     const iconPath = join(__dirname, '../../public/icon.png');
     app.dock.setIcon(iconPath);
   } catch {
@@ -93,14 +91,12 @@ function createWindow() {
       });
 
       if (choice === 0) {
-        // 終了を選択
         mainWindow?.destroy();
       }
     }
   });
 
   mainWindow.on('closed', () => {
-    // タイマーをクリア
     if (saveTimer) {
       clearTimeout(saveTimer);
       saveTimer = null;

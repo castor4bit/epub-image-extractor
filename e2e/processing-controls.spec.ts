@@ -196,7 +196,6 @@ test.describe('処理制御機能E2Eテスト', () => {
       };
     });
 
-
     expect(normalState.hasDisabledClass).toBe(false);
     expect(normalState.cursor).toBe('pointer');
     expect(parseFloat(normalState.opacity)).toBeCloseTo(1, 1);

@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 
 async function globalTeardown() {
   // Playwrightが自動的にプロセスをクリーンアップするため、手動クリーンアップは不要
-  
+
   // E2Eテスト用の一時ディレクトリをクリーンアップ
   const testDir = path.join(os.tmpdir(), 'epub-extractor-e2e');
 

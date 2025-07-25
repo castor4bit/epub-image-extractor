@@ -14,10 +14,8 @@ export function setupE2ETestHelpers(
      * アプリケーション終了時のダイアログをシミュレート
      */
     triggerClose: () => {
-      // ダイアログ情報を保存するための変数
       let dialogOptions: MessageBoxSyncOptions | null = null;
 
-      // dialog.showMessageBoxSyncをモック
       const originalShowMessageBoxSync = dialog.showMessageBoxSync;
       (dialog as unknown as Record<string, unknown>).showMessageBoxSync = function (
         ...args: unknown[]
@@ -27,17 +25,14 @@ export function setupE2ETestHelpers(
           args.length === 1
             ? (args[0] as MessageBoxSyncOptions)
             : (args[1] as MessageBoxSyncOptions);
-        // キャンセルを選択（1）
         return 1;
       };
 
-      // closeイベントを発火
       if (mainWindow && !mainWindow.isDestroyed()) {
         const event = { preventDefault: () => {} };
         mainWindow.emit('close', event);
       }
 
-      // モックを元に戻す
       dialog.showMessageBoxSync = originalShowMessageBoxSync;
 
       return {
