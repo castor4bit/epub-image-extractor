@@ -11,17 +11,9 @@ export async function launchElectron(
   additionalEnv?: Record<string, string>,
 ): Promise<ElectronApplication> {
   const args = [path.join(__dirname, '../../dist-electron/main/index.js')];
-
-  // CI環境（Linux）では追加のフラグを設定
-  if (process.env.CI && process.platform === 'linux') {
-    args.push(
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-    );
-  }
-
+  
+  // CI環境用のフラグはメインプロセス（src/main/index.ts）で設定されるため、
+  // ここでの重複設定は不要
 
   try {
     const app = await electron.launch({
