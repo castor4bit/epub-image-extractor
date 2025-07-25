@@ -96,6 +96,7 @@ describe('SettingsWindow - 最前面表示オプション', () => {
         includeOriginalFilename: true,
         includePageSpread: true,
         inactiveOpacity: 0.8, // デフォルト値
+        enableMouseHoverOpacity: true,
       });
       expect(onClose).toHaveBeenCalled();
     });

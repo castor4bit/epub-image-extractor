@@ -120,5 +120,17 @@ describe('Window Opacity Control', () => {
       expect(mockWindow.isDestroyed).toHaveBeenCalledTimes(2);
       expect(mockWindow.setOpacity).toHaveBeenCalledTimes(1); // 前回の1回のみ
     });
+
+    // マウスホバー機能は将来の実装として保留
+    it('should accept enableMouseHover parameter for future implementation', () => {
+      // enableMouseHover = false のテスト
+      setupWindowOpacityHandlers(mockWindow as any, 0.8, false);
+      expect(mockWindow.on).toHaveBeenCalledTimes(2);
+
+      // enableMouseHover = true のテスト（デフォルト）
+      jest.clearAllMocks();
+      setupWindowOpacityHandlers(mockWindow as any);
+      expect(mockWindow.on).toHaveBeenCalledTimes(2);
+    });
   });
 });

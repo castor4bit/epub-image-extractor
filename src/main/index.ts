@@ -131,6 +131,7 @@ function createWindow() {
   setupWindowOpacityHandlers(
     mainWindow,
     settings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
+    settings.enableMouseHoverOpacity ?? true,
   );
 
   // IPCハンドラーを登録

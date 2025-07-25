@@ -45,6 +45,7 @@ export interface Settings {
   includeOriginalFilename: boolean;
   includePageSpread: boolean;
   inactiveOpacity?: number; // ウィンドウ非アクティブ時の透明度（0.1～1.0）
+  enableMouseHoverOpacity?: boolean; // マウスオーバー時に透明度を戻すかどうか
 }
 
 export interface AppVersionInfo {

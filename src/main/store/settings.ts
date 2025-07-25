@@ -12,6 +12,7 @@ interface Settings {
   includeOriginalFilename: boolean; // 元のファイル名を含めるか
   includePageSpread: boolean; // 左右情報を含めるか
   inactiveOpacity?: number; // ウィンドウ非アクティブ時の透明度（0.1～1.0）
+  enableMouseHoverOpacity?: boolean; // マウスオーバー時に透明度を戻すかどうか
   windowBounds?: {
     // ウィンドウのサイズと位置
     width: number;
@@ -36,6 +37,7 @@ const defaults: Settings = {
   includeOriginalFilename: true,
   includePageSpread: true,
   inactiveOpacity: WINDOW_OPACITY.inactive.default,
+  enableMouseHoverOpacity: true,
 };
 
 // electron-storeインスタンスを作成
@@ -64,6 +66,7 @@ export const settingsStore = {
       includeOriginalFilename: store.get('includeOriginalFilename'),
       includePageSpread: store.get('includePageSpread'),
       inactiveOpacity: store.get('inactiveOpacity'),
+      enableMouseHoverOpacity: store.get('enableMouseHoverOpacity'),
       windowBounds: store.get('windowBounds'),
     };
   },

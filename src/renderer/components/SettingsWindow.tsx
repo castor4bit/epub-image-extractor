@@ -12,6 +12,7 @@ interface Settings {
   includeOriginalFilename: boolean;
   includePageSpread: boolean;
   inactiveOpacity?: number;
+  enableMouseHoverOpacity?: boolean;
 }
 
 interface SettingsWindowProps {
@@ -29,6 +30,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
     includeOriginalFilename: true,
     includePageSpread: true,
     inactiveOpacity: WINDOW_OPACITY.inactive.default,
+    enableMouseHoverOpacity: true,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [wasReset, setWasReset] = useState(false);
@@ -44,6 +46,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           includeOriginalFilename: loadedSettings.includeOriginalFilename ?? true,
           includePageSpread: loadedSettings.includePageSpread ?? true,
           inactiveOpacity: loadedSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
+          enableMouseHoverOpacity: loadedSettings.enableMouseHoverOpacity ?? true,
         });
       });
       // ダイアログを開いたときにリセットフラグをクリア
@@ -90,6 +93,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       includeOriginalFilename: defaultSettings.includeOriginalFilename ?? true,
       includePageSpread: defaultSettings.includePageSpread ?? true,
       inactiveOpacity: defaultSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
+      enableMouseHoverOpacity: defaultSettings.enableMouseHoverOpacity ?? true,
     });
     // リセットフラグを設定
     setWasReset(true);
@@ -190,6 +194,18 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
               </span>
             </div>
             <small>{t('settings.inactiveOpacity.description')}</small>
+            <label htmlFor="enable-mouse-hover">
+              <input
+                id="enable-mouse-hover"
+                type="checkbox"
+                checked={settings.enableMouseHoverOpacity ?? true}
+                disabled={true}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, enableMouseHoverOpacity: e.target.checked }))
+                }
+              />
+              {t('settings.inactiveOpacity.enableMouseHover')}
+            </label>
           </div>
 
           <VersionInfo onShowAbout={onShowAbout} />
