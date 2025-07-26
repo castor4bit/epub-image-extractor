@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.5.2...v0.6.0) (2025-07-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* Default ZIP implementation changed to fflate. Use USE_ADM_ZIP=true environment variable for compatibility.
+
+### Features
+
+* Add processing controls for file drop and app exit confirmation ([#34](https://github.com/castor4bit/epub-image-extractor/issues/34)) ([3175042](https://github.com/castor4bit/epub-image-extractor/commit/3175042ed553fc2ee517807a689dfc65f7e49ef3))
+* Add window opacity control with mouse hover support ([#35](https://github.com/castor4bit/epub-image-extractor/issues/35)) ([b2e211f](https://github.com/castor4bit/epub-image-extractor/commit/b2e211fb290ba745f6f483876050d5d582966ecb))
+* Migrate from adm-zip to fflate for improved performance ([#32](https://github.com/castor4bit/epub-image-extractor/issues/32)) ([cb5f9b0](https://github.com/castor4bit/epub-image-extractor/commit/cb5f9b0db5f611f506ffc08e3be7a99848fdb6df))
+
+
+### Bug Fixes
+
+* Fix issue where '0' is displayed when files are dropped ([#33](https://github.com/castor4bit/epub-image-extractor/issues/33)) ([30bf0d9](https://github.com/castor4bit/epub-image-extractor/commit/30bf0d9c95a6f89c3c830b8ce67dc29dccfdbe4e))
+
 ## [0.5.2](https://github.com/castor4bit/epub-image-extractor/compare/v0.5.1...v0.5.2) (2025-07-23)
 
 
