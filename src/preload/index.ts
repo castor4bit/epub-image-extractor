@@ -46,6 +46,13 @@ const electronAPI = {
   updateProcessingState: (isProcessing: boolean) => {
     ipcRenderer.send('app:updateProcessingState', isProcessing);
   },
+  // ウィンドウマウスイベント
+  send: (channel: string, ...args: unknown[]) => {
+    const validChannels = ['window:mouseenter', 'window:mouseleave'];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.send(channel, ...args);
+    }
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

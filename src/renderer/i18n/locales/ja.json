@@ -49,6 +49,11 @@
       "includePageSpread": "見開き情報を含める",
       "includePageSpreadDesc": "例: 001_left.jpg, 002_right.jpg（見開きページの場合）"
     },
+    "inactiveOpacity": {
+      "label": "非アクティブ時の透明度",
+      "description": "ウィンドウがフォーカスを失ったときの透明度（10%～100%）",
+      "enableMouseHover": "マウスオーバー時に透明度を元に戻す"
+    },
     "actions": {
       "reset": "デフォルトに戻す",
       "cancel": "キャンセル",

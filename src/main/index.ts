@@ -2,11 +2,12 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain }
 import { join } from 'path';
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
-import { WINDOW_SIZES } from './constants/window';
+import { WINDOW_SIZES, WINDOW_OPACITY } from './constants/window';
 import { getTranslation } from './i18n/translations';
 import { LanguageCode } from '../shared/constants/languages';
 import { isE2ETestMode } from './utils/testMode';
 import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2e-helpers';
+import { setupWindowOpacityHandlers } from './utils/windowOpacity';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -125,6 +126,13 @@ function createWindow() {
 
   mainWindow.on('resize', debouncedSave);
   mainWindow.on('move', debouncedSave);
+
+  // ウィンドウの透明度制御
+  setupWindowOpacityHandlers(
+    mainWindow,
+    settings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
+    settings.enableMouseHoverOpacity ?? true,
+  );
 
   // IPCハンドラーを登録
   registerIpcHandlers(mainWindow);

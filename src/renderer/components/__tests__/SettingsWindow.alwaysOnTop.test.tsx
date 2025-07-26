@@ -19,6 +19,8 @@ const mockElectronAPI = {
     alwaysOnTop: true,
     includeOriginalFilename: true,
     includePageSpread: true,
+    inactiveOpacity: 0.8,
+    enableMouseHoverOpacity: true,
   }),
   saveSettings: jest.fn().mockResolvedValue({ success: true }),
   selectOutputDirectory: jest.fn(),
@@ -28,6 +30,8 @@ const mockElectronAPI = {
     alwaysOnTop: true,
     includeOriginalFilename: true,
     includePageSpread: true,
+    inactiveOpacity: 0.8,
+    enableMouseHoverOpacity: true,
   }),
 };
 
@@ -61,6 +65,8 @@ describe('SettingsWindow - 最前面表示オプション', () => {
       alwaysOnTop: false,
       includeOriginalFilename: true,
       includePageSpread: true,
+      inactiveOpacity: 0.8,
+      enableMouseHoverOpacity: true,
     });
 
     render(<SettingsWindow isOpen={true} onClose={jest.fn()} />);
@@ -95,6 +101,8 @@ describe('SettingsWindow - 最前面表示オプション', () => {
         alwaysOnTop: false,
         includeOriginalFilename: true,
         includePageSpread: true,
+        inactiveOpacity: 0.8, // デフォルト値
+        enableMouseHoverOpacity: true,
       });
       expect(onClose).toHaveBeenCalled();
     });
@@ -107,6 +115,8 @@ describe('SettingsWindow - 最前面表示オプション', () => {
       alwaysOnTop: false,
       includeOriginalFilename: true,
       includePageSpread: true,
+      inactiveOpacity: 0.8,
+      enableMouseHoverOpacity: true,
     });
 
     render(<SettingsWindow isOpen={true} onClose={jest.fn()} />);

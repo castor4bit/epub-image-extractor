@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import './SettingsWindow.css';
 import { VersionInfo } from './VersionInfo';
 import './VersionInfo.css';
+import { WINDOW_OPACITY } from '../../main/constants/window';
 
 interface Settings {
   outputDirectory: string;
@@ -10,6 +11,8 @@ interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean;
   includePageSpread: boolean;
+  inactiveOpacity?: number;
+  enableMouseHoverOpacity?: boolean;
 }
 
 interface SettingsWindowProps {
@@ -26,6 +29,8 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
     alwaysOnTop: true,
     includeOriginalFilename: true,
     includePageSpread: true,
+    inactiveOpacity: WINDOW_OPACITY.inactive.default,
+    enableMouseHoverOpacity: true,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [wasReset, setWasReset] = useState(false);
@@ -40,6 +45,8 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           alwaysOnTop: loadedSettings.alwaysOnTop ?? true,
           includeOriginalFilename: loadedSettings.includeOriginalFilename ?? true,
           includePageSpread: loadedSettings.includePageSpread ?? true,
+          inactiveOpacity: loadedSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
+          enableMouseHoverOpacity: loadedSettings.enableMouseHoverOpacity ?? true,
         });
       });
       // ダイアログを開いたときにリセットフラグをクリア
@@ -85,6 +92,8 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       alwaysOnTop: defaultSettings.alwaysOnTop ?? true,
       includeOriginalFilename: defaultSettings.includeOriginalFilename ?? true,
       includePageSpread: defaultSettings.includePageSpread ?? true,
+      inactiveOpacity: defaultSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
+      enableMouseHoverOpacity: defaultSettings.enableMouseHoverOpacity ?? true,
     });
     // リセットフラグを設定
     setWasReset(true);
@@ -163,6 +172,38 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
                 }
               />
               {t('settings.filenameOptions.includePageSpread')}
+            </label>
+          </div>
+
+          <div className="setting-group">
+            <label htmlFor="inactive-opacity">{t('settings.inactiveOpacity.label')}</label>
+            <div className="opacity-slider">
+              <input
+                id="inactive-opacity"
+                type="range"
+                min={String(WINDOW_OPACITY.inactive.min)}
+                max={String(WINDOW_OPACITY.inactive.max)}
+                step={String(WINDOW_OPACITY.inactive.step)}
+                value={settings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, inactiveOpacity: parseFloat(e.target.value) }))
+                }
+              />
+              <span className="opacity-value">
+                {Math.round((settings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default) * 100)}%
+              </span>
+            </div>
+            <small>{t('settings.inactiveOpacity.description')}</small>
+            <label htmlFor="enable-mouse-hover">
+              <input
+                id="enable-mouse-hover"
+                type="checkbox"
+                checked={settings.enableMouseHoverOpacity ?? true}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, enableMouseHoverOpacity: e.target.checked }))
+                }
+              />
+              {t('settings.inactiveOpacity.enableMouseHover')}
             </label>
           </div>
 

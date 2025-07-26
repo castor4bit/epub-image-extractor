@@ -3,6 +3,7 @@ import { app } from 'electron';
 import path from 'path';
 import os from 'os';
 import { isE2ETestMode } from '../utils/testMode';
+import { WINDOW_OPACITY } from '../constants/window';
 
 interface Settings {
   outputDirectory: string;
@@ -10,6 +11,8 @@ interface Settings {
   alwaysOnTop: boolean;
   includeOriginalFilename: boolean; // 元のファイル名を含めるか
   includePageSpread: boolean; // 左右情報を含めるか
+  inactiveOpacity?: number; // ウィンドウ非アクティブ時の透明度（0.1～1.0）
+  enableMouseHoverOpacity?: boolean; // マウスオーバー時に透明度を戻すかどうか
   windowBounds?: {
     // ウィンドウのサイズと位置
     width: number;
@@ -33,6 +36,8 @@ const defaults: Settings = {
   alwaysOnTop: true,
   includeOriginalFilename: true,
   includePageSpread: true,
+  inactiveOpacity: WINDOW_OPACITY.inactive.default,
+  enableMouseHoverOpacity: true,
 };
 
 // electron-storeインスタンスを作成
@@ -60,6 +65,8 @@ export const settingsStore = {
       alwaysOnTop: store.get('alwaysOnTop'),
       includeOriginalFilename: store.get('includeOriginalFilename'),
       includePageSpread: store.get('includePageSpread'),
+      inactiveOpacity: store.get('inactiveOpacity'),
+      enableMouseHoverOpacity: store.get('enableMouseHoverOpacity'),
       windowBounds: store.get('windowBounds'),
     };
   },

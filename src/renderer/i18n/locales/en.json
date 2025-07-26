@@ -49,6 +49,11 @@
       "includePageSpread": "Include page spread info",
       "includePageSpreadDesc": "e.g., 001_left.jpg, 002_right.jpg (for spread pages)"
     },
+    "inactiveOpacity": {
+      "label": "Inactive Window Opacity",
+      "description": "Window opacity when it loses focus (10%-100%)",
+      "enableMouseHover": "Restore opacity on mouse hover"
+    },
     "actions": {
       "reset": "Reset to Default",
       "cancel": "Cancel",

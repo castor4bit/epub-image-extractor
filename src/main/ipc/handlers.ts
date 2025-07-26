@@ -7,7 +7,8 @@ import { settingsStore } from '../store/settings';
 import { extractEpubsFromZip, cleanupTempFiles, isZipFile } from '../utils/zipHandler';
 import { scanMultipleFoldersForEpubs } from '../utils/folderScanner';
 import { logger } from '../utils/logger';
-import { WINDOW_SIZES } from '../constants/window';
+import { WINDOW_SIZES, WINDOW_OPACITY } from '../constants/window';
+import { setupWindowOpacityHandlers } from '../utils/windowOpacity';
 
 // 出力ディレクトリ選択
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
@@ -168,6 +169,21 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     // alwaysOnTopの設定が変更された場合、ウィンドウに反映
     if (settings.alwaysOnTop !== undefined) {
       mainWindow.setAlwaysOnTop(settings.alwaysOnTop);
+    }
+
+    // 透明度設定が変更された場合、ウィンドウの透明度ハンドラーを再設定
+    if (settings.inactiveOpacity !== undefined || settings.enableMouseHoverOpacity !== undefined) {
+      const currentSettings = settingsStore.get();
+
+      // 既存のハンドラーを削除してから新しいハンドラーを設定
+      mainWindow.removeAllListeners('blur');
+      mainWindow.removeAllListeners('focus');
+
+      setupWindowOpacityHandlers(
+        mainWindow,
+        currentSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
+        currentSettings.enableMouseHoverOpacity ?? true,
+      );
     }
 
     return { success: true };
