@@ -171,10 +171,12 @@
 }
 
 .setting-group label[for='include-original-filename'],
-.setting-group label[for='include-page-spread'] {
+.setting-group label[for='include-page-spread'],
+.setting-group label[for='enable-mouse-hover'] {
   display: flex;
   align-items: center;
   margin-bottom: var(--space-3);
+  margin-top: var(--space-3);
   cursor: pointer;
   transition: color var(--transition-fast);
 }

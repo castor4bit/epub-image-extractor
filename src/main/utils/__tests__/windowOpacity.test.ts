@@ -27,6 +27,9 @@ describe('Window Opacity Control', () => {
       on: jest.fn((event: string, handler: Function) => {
         eventHandlers[event] = handler;
       }),
+      once: jest.fn((event: string, handler: Function) => {
+        eventHandlers[event] = handler;
+      }),
       setOpacity: jest.fn(),
       isDestroyed: jest.fn().mockReturnValue(false),
     };
@@ -43,8 +46,8 @@ describe('Window Opacity Control', () => {
 
       expect(mockWindow.on).toHaveBeenCalledWith('blur', expect.any(Function));
       expect(mockWindow.on).toHaveBeenCalledWith('focus', expect.any(Function));
-      expect(mockWindow.on).toHaveBeenCalledWith('closed', expect.any(Function)); // Mouse hover cleanup handler
-      expect(mockWindow.on).toHaveBeenCalledTimes(3);
+      expect(mockWindow.once).toHaveBeenCalledWith('closed', expect.any(Function)); // Mouse hover cleanup handler
+      expect(mockWindow.on).toHaveBeenCalledTimes(2);
     });
 
     it('should set opacity to default inactive opacity when window loses focus', () => {
