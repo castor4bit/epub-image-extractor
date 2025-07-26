@@ -146,7 +146,7 @@ describe('Window Opacity Control', () => {
     it('should handle mouse enter event by setting active opacity', () => {
       const mockIpcMain = ipcMain as jest.Mocked<typeof ipcMain>;
       let mouseEnterHandler: Function;
-      
+
       mockIpcMain.on.mockImplementation((event: string, handler: Function) => {
         if (event === 'window:mouseenter') {
           mouseEnterHandler = handler;
@@ -166,7 +166,7 @@ describe('Window Opacity Control', () => {
     it('should handle mouse leave event by restoring inactive opacity', () => {
       const mockIpcMain = ipcMain as jest.Mocked<typeof ipcMain>;
       let mouseLeaveHandler: Function;
-      
+
       mockIpcMain.on.mockImplementation((event: string, handler: Function) => {
         if (event === 'window:mouseleave') {
           mouseLeaveHandler = handler;
@@ -187,7 +187,7 @@ describe('Window Opacity Control', () => {
       const mockIpcMain = ipcMain as jest.Mocked<typeof ipcMain>;
       let mouseEnterHandler: Function;
       let mouseLeaveHandler: Function;
-      
+
       mockIpcMain.on.mockImplementation((event: string, handler: Function) => {
         if (event === 'window:mouseenter') {
           mouseEnterHandler = handler;
@@ -215,7 +215,7 @@ describe('Window Opacity Control', () => {
       const mockIpcMain = ipcMain as jest.Mocked<typeof ipcMain>;
       let mouseEnterHandler: Function;
       let mouseLeaveHandler: Function;
-      
+
       mockIpcMain.on.mockImplementation((event: string, handler: Function) => {
         if (event === 'window:mouseenter') {
           mouseEnterHandler = handler;
@@ -237,7 +237,7 @@ describe('Window Opacity Control', () => {
     it('should not apply opacity when mouse is over during blur event', () => {
       const mockIpcMain = ipcMain as jest.Mocked<typeof ipcMain>;
       let mouseEnterHandler: Function;
-      
+
       mockIpcMain.on.mockImplementation((event: string, handler: Function) => {
         if (event === 'window:mouseenter') {
           mouseEnterHandler = handler;

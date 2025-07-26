@@ -174,11 +174,11 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     // 透明度設定が変更された場合、ウィンドウの透明度ハンドラーを再設定
     if (settings.inactiveOpacity !== undefined || settings.enableMouseHoverOpacity !== undefined) {
       const currentSettings = settingsStore.get();
-      
+
       // 既存のハンドラーを削除してから新しいハンドラーを設定
       mainWindow.removeAllListeners('blur');
       mainWindow.removeAllListeners('focus');
-      
+
       setupWindowOpacityHandlers(
         mainWindow,
         currentSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
