@@ -119,7 +119,7 @@ describe('FflateReader', () => {
 
       // クリーンアップ
       fs.unlinkSync(outputPath);
-      fs.rmdirSync(tempDir, { recursive: true });
+      fs.rmSync(tempDir, { recursive: true });
     });
   });
 });
