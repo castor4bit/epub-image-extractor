@@ -82,7 +82,7 @@ export async function cleanupTempFiles(filePaths: string[]): Promise<void> {
         const parentDir = path.dirname(filePath);
         const files = await fs.readdir(parentDir);
         if (files.length === 0) {
-          await fs.rmdir(parentDir);
+          await fs.rm(parentDir, { recursive: true });
         }
       }
     } catch (error) {
