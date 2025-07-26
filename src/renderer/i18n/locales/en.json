@@ -52,7 +52,7 @@
     "inactiveOpacity": {
       "label": "Inactive Window Opacity",
       "description": "Window opacity when it loses focus (10%-100%)",
-      "enableMouseHover": "Restore opacity on mouse hover (Coming soon)"
+      "enableMouseHover": "Restore opacity on mouse hover"
     },
     "actions": {
       "reset": "Reset to Default",

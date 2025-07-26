@@ -7,6 +7,7 @@ import { CompactDropZone } from './components/CompactDropZone';
 import { FileDropZone } from './components/FileDropZone';
 import { FileProcessingList } from './components/FileProcessingList';
 import { SettingsWindow } from './components/SettingsWindow';
+import { WindowHoverDetector } from './components/WindowHoverDetector';
 import './i18n';
 
 function App() {
@@ -293,6 +294,7 @@ function App() {
         onShowAbout={handleShowAbout}
       />
       <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+      <WindowHoverDetector />
     </div>
   );
 }

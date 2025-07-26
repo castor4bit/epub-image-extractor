@@ -22,6 +22,7 @@ interface ElectronAPI {
   clearWindowBounds: () => Promise<{ success: boolean }>;
   openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
   updateProcessingState: (isProcessing: boolean) => void;
+  send: (channel: string, ...args: any[]) => void;
 }
 
 interface Window {

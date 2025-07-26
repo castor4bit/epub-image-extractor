@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { WINDOW_OPACITY } from '../constants/window';
 
 export function setupWindowOpacityHandlers(
@@ -6,9 +6,11 @@ export function setupWindowOpacityHandlers(
   inactiveOpacity: number = WINDOW_OPACITY.inactive.default,
   enableMouseHover: boolean = true,
 ): void {
+  let isMouseOver = false;
+
   // ウィンドウの透明度制御
   window.on('blur', () => {
-    if (!window.isDestroyed()) {
+    if (!window.isDestroyed() && (!enableMouseHover || !isMouseOver)) {
       window.setOpacity(inactiveOpacity);
     }
   });
@@ -20,10 +22,30 @@ export function setupWindowOpacityHandlers(
   });
 
   // マウスオーバー時の透明度制御
-  // TODO: 将来的な実装として、レンダラープロセスからのIPCイベントを使用して
-  // マウスホバーを検出し、透明度を制御する機能を追加予定
-  // 現在は設定UIのみ実装し、実際の機能は保留
   if (enableMouseHover) {
-    // 将来の実装のためのプレースホルダー
+    // レンダラープロセスからのマウスイベントを処理
+    const handleMouseEnter = () => {
+      isMouseOver = true;
+      if (!window.isDestroyed() && !window.isFocused()) {
+        window.setOpacity(WINDOW_OPACITY.active);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      isMouseOver = false;
+      if (!window.isDestroyed() && !window.isFocused()) {
+        window.setOpacity(inactiveOpacity);
+      }
+    };
+
+    // IPCイベントハンドラーを登録
+    ipcMain.on('window:mouseenter', handleMouseEnter);
+    ipcMain.on('window:mouseleave', handleMouseLeave);
+
+    // ウィンドウが破棄されたらイベントハンドラーを削除
+    window.on('closed', () => {
+      ipcMain.removeListener('window:mouseenter', handleMouseEnter);
+      ipcMain.removeListener('window:mouseleave', handleMouseLeave);
+    });
   }
 }

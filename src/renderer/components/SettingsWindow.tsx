@@ -199,7 +199,6 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
                 id="enable-mouse-hover"
                 type="checkbox"
                 checked={settings.enableMouseHoverOpacity ?? true}
-                disabled={true}
                 onChange={(e) =>
                   setSettings((prev) => ({ ...prev, enableMouseHoverOpacity: e.target.checked }))
                 }
