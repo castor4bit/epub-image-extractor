@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { Mutex } from 'async-mutex';
+import { SimpleMutex } from './mutex';
 
 // 並列処理での競合を防ぐためのミューテックス
-const outputPathMutex = new Mutex();
+const outputPathMutex = new SimpleMutex();
 
 /**
  * 出力ディレクトリのパスを生成し、重複を避ける
