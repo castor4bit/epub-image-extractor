@@ -45,7 +45,6 @@
     "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
   },
   "dependencies": {
-    "async-mutex": "^0.5.0",
     "electron-store": "^8.2.0",
     "fast-xml-parser": "^5.2.5",
     "fflate": "^0.8.2",
