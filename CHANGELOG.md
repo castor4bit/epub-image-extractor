@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.0...v0.6.1) (2025-07-30)
+
+
+### Features
+
+* **settings:** update opacity settings to 5% increments with 85% default ([#43](https://github.com/castor4bit/epub-image-extractor/issues/43)) ([d9b306a](https://github.com/castor4bit/epub-image-extractor/commit/d9b306a6974bad614504a0c85598e3f1abedddad))
+
+
+### Bug Fixes
+
+* Replace deprecated fs.rmdir with fs.rm to fix Node.js warning ([#38](https://github.com/castor4bit/epub-image-extractor/issues/38)) ([724cf7c](https://github.com/castor4bit/epub-image-extractor/commit/724cf7ce3e5e4ab5e86aef5c82dc5a7b3d99c1c5))
+
+
+### Code Refactoring
+
+* replace async-mutex with custom SimpleMutex implementation ([#42](https://github.com/castor4bit/epub-image-extractor/issues/42)) ([a067631](https://github.com/castor4bit/epub-image-extractor/commit/a067631ab7c8bf6a17a32efad99fdb6fe4305a7a))
+
 ## [0.6.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.5.2...v0.6.0) (2025-07-26)
 
 
