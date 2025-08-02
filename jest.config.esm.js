@@ -29,6 +29,7 @@ export default {
     '**/src/main/utils/xmlParser.test.ts',
     '**/src/main/utils/testMode.test.ts',
     '**/src/main/i18n/translations.test.ts',
+    '**/src/main/utils/logger.esm.test.ts',
     // Complex mocking dependencies, skip for now
     // '**/src/main/utils/outputPath.test.ts',
     // '**/src/main/utils/logger.test.ts',
