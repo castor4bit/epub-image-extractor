@@ -26,6 +26,7 @@ export default {
     '**/src/shared/error-types.test.ts',
     '**/src/shared/constants/languages.test.ts',
     '**/src/main/utils/pathSecurity.test.ts',
+    '**/src/main/utils/xmlParser.test.ts',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.esm.ts'],
