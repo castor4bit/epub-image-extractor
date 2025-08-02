@@ -20,6 +20,7 @@
     "test:integration:coverage": "jest --config jest.integration.config.js --coverage",
     "test:all": "npm run test && npm run test:integration",
     "test:esm": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.esm.js",
+    "typecheck:esm": "tsc --project tsconfig.esm.json",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "PWDEBUG=1 playwright test",
