@@ -26,6 +26,11 @@ export default {
     '**/src/shared/error-types.test.ts',
     '**/src/shared/constants/languages.test.ts',
     '**/src/main/utils/pathSecurity.test.ts',
+    '**/src/main/utils/xmlParser.test.ts',
+    '**/src/main/utils/testMode.test.ts',
+    // Complex mocking dependencies, skip for now
+    // '**/src/main/utils/outputPath.test.ts',
+    // '**/src/main/utils/logger.test.ts',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.esm.ts'],
