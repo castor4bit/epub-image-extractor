@@ -23,6 +23,9 @@ export default {
     // For now, only run specific ESM-compatible tests
     '**/src/main/utils/mutex.test.ts',
     '**/src/main/constants/window.test.ts',
+    '**/src/shared/error-types.test.ts',
+    '**/src/shared/constants/languages.test.ts',
+    '**/src/main/utils/pathSecurity.test.ts',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.esm.ts'],
