@@ -40,6 +40,9 @@ jobs:
     - name: Run tests
       run: npm test -- --passWithNoTests
     
+    - name: Run ESM tests
+      run: npm run test:esm -- --passWithNoTests
+    
     - name: Build application
       run: npm run build
     
