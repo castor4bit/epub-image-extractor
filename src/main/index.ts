@@ -8,6 +8,7 @@ import { LanguageCode } from '../shared/constants/languages';
 import { isE2ETestMode } from './utils/testMode';
 import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2e-helpers';
 import { setupWindowOpacityHandlers } from './utils/windowOpacity';
+import { setElectronApp } from './utils/logger';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -139,6 +140,9 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Electronアプリケーションをロガーに設定
+  setElectronApp(app);
+  
   // カスタムメニューを設定（デフォルトのAboutダイアログを無効化）
   if (process.platform === 'darwin') {
     // macOS用のメニュー
