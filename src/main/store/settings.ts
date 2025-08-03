@@ -65,15 +65,15 @@ async function getStore(): Promise<any> {
       },
       alwaysOnTop: {
         type: 'boolean' as const,
-        default: false,
+        default: true,
       },
       includeOriginalFilename: {
         type: 'boolean' as const,
-        default: false,
+        default: true,
       },
       includePageSpread: {
         type: 'boolean' as const,
-        default: false,
+        default: true,
       },
       inactiveOpacity: {
         type: 'number' as const,
@@ -100,9 +100,9 @@ async function getStore(): Promise<any> {
       defaults: {
         outputDirectory: getDefaultOutputDirectory(),
         language: 'ja',
-        alwaysOnTop: false,
-        includeOriginalFilename: false,
-        includePageSpread: false,
+        alwaysOnTop: true,
+        includeOriginalFilename: true,
+        includePageSpread: true,
         inactiveOpacity: WINDOW_OPACITY.inactive.default,
         enableMouseHoverOpacity: true,
       },
@@ -119,9 +119,9 @@ async function getStore(): Promise<any> {
     const inMemoryStore: Record<string, any> = {
       outputDirectory: getDefaultOutputDirectory(),
       language: 'ja',
-      alwaysOnTop: false,
-      includeOriginalFilename: false,
-      includePageSpread: false,
+      alwaysOnTop: true,
+      includeOriginalFilename: true,
+      includePageSpread: true,
       inactiveOpacity: WINDOW_OPACITY.inactive.default,
       enableMouseHoverOpacity: true,
     };
@@ -169,9 +169,9 @@ class SettingsStoreProxy {
     return {
       outputDirectory: getDefaultOutputDirectory(),
       language: 'ja',
-      alwaysOnTop: false,
-      includeOriginalFilename: false,
-      includePageSpread: false,
+      alwaysOnTop: true,
+      includeOriginalFilename: true,
+      includePageSpread: true,
       inactiveOpacity: WINDOW_OPACITY.inactive.default,
       enableMouseHoverOpacity: true,
     };
