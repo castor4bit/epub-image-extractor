@@ -8,7 +8,23 @@ import { settingsStore } from '../store/settings';
 import { addE2EDelayByType } from '../utils/testMode';
 import path from 'path';
 import fs from 'fs/promises';
-import pLimit from 'p-limit';
+
+// p-limitの動的インポート
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let pLimitModule: any = null;
+
+async function getPLimit() {
+  if (!pLimitModule) {
+    try {
+      const module = await import('p-limit');
+      pLimitModule = module.default;
+    } catch {
+      // フォールバック: p-limitが使えない場合は単純な制限なし関数を返す
+      pLimitModule = () => <T>(fn: () => Promise<T>) => fn();
+    }
+  }
+  return pLimitModule;
+}
 
 export async function processEpubFiles(
   filePaths: string[],
@@ -17,6 +33,7 @@ export async function processEpubFiles(
   parallelLimit: number = 3,
 ): Promise<ExtractionResult[]> {
   // 並列処理の制限（同時に処理するEPUBファイル数）
+  const pLimit = await getPLimit();
   const limit = pLimit(parallelLimit);
   const results: ExtractionResult[] = [];
 
