@@ -31,7 +31,7 @@ module.exports = {
     },
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/dist-electron/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/dist-electron/', '**/*.esm.test.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testEnvironmentOptions: {
     env: {
@@ -43,7 +43,7 @@ module.exports = {
       displayName: 'main',
       preset: 'ts-jest',
       testEnvironment: 'node',
-      testMatch: ['<rootDir>/src/main/**/*.test.ts'],
+      testMatch: ['<rootDir>/src/main/**/*.test.ts', '!**/*.esm.test.ts'],
       transform: {
         '^.+\\.tsx?$': ['ts-jest', {}],
       },

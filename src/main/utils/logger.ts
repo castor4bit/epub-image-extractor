@@ -2,13 +2,14 @@ import pino from 'pino';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import type { App } from 'electron';
 import { AppError } from '../../shared/error-types';
 
 // Electronのappオブジェクトをグローバルに保持
-let electronApp: Electron.App | null = null;
+let electronApp: App | null = null;
 
 // ElectronのappオブジェクトをセットするためのAPI
-export function setElectronApp(app: Electron.App): void {
+export function setElectronApp(app: App): void {
   electronApp = app;
 }
 
