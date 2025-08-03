@@ -2,20 +2,28 @@ import pino from 'pino';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import type { App } from 'electron';
 import { AppError } from '../../shared/error-types';
+
+// Electronのappオブジェクトをグローバルに保持
+let electronApp: App | null = null;
+
+// ElectronのappオブジェクトをセットするためのAPI
+export function setElectronApp(app: App): void {
+  electronApp = app;
+}
 
 // ログファイルのパスを取得（Electronが利用できない場合は一時ディレクトリを使用）
 function getLogPath(): string {
-  try {
-    // Electronモジュールの動的インポートを試みる
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const electron = require('electron');
-    if (electron && electron.app && electron.app.getPath) {
-      return electron.app.getPath('userData');
+  // セットされたElectronアプリケーションを使用
+  if (electronApp && electronApp.getPath) {
+    try {
+      return electronApp.getPath('userData');
+    } catch {
+      // エラーが発生した場合はフォールバック
     }
-  } catch {
-    // Electronが利用できない場合（テスト環境など）
   }
+  
   const tmpPath = path.join(os.tmpdir(), 'epub-image-extractor-logs');
   // ディレクトリが存在しない場合は作成
   try {
@@ -31,9 +39,15 @@ function getLogPath(): string {
 // ロガーインスタンスのキャッシュ
 let loggerInstance: pino.Logger | undefined;
 
+// テスト用にキャッシュをクリアする関数
+export function clearLoggerCache(): void {
+  loggerInstance = undefined;
+}
+
 // ロガーの作成
 export function createLogger(): pino.Logger {
-  if (loggerInstance) {
+  // テスト環境ではキャッシュを無効化
+  if (loggerInstance && process.env.NODE_ENV !== 'test') {
     return loggerInstance;
   }
 
