@@ -139,9 +139,12 @@ function createWindow() {
   registerIpcHandlers(mainWindow);
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // Electronアプリケーションをロガーに設定
   setElectronApp(app);
+  
+  // settingsStoreの初期化を待つ
+  await settingsStore.waitForInit();
   
   // カスタムメニューを設定（デフォルトのAboutダイアログを無効化）
   if (process.platform === 'darwin') {

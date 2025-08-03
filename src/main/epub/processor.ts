@@ -154,8 +154,8 @@ async function processEpubFile(
     // 設定からファイル名オプションを取得
     const settings = settingsStore.get();
     const filenamingOptions: FilenamingOptions = {
-      includeOriginalFilename: settings.includeOriginalFilename,
-      includePageSpread: settings.includePageSpread,
+      includeOriginalFilename: settings?.includeOriginalFilename ?? false,
+      includePageSpread: settings?.includePageSpread ?? false,
     };
 
     // 章ごとに整理して保存
