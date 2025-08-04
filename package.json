@@ -53,7 +53,7 @@
     "i18next": "^25.3.2",
     "p-limit": "^6.2.0",
     "pino": "^9.7.0",
-    "pino-pretty": "^13.0.0",
+    "pino-pretty": "^13.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-i18next": "^15.6.1"
