@@ -67,6 +67,7 @@ describe('IPC Handlers', () => {
       language: 'ja',
       alwaysOnTop: true,
     });
+    (settingsStore.update as jest.Mock).mockImplementation(() => {});
 
     // ハンドラーを登録
     registerIpcHandlers(mockMainWindow);
@@ -302,7 +303,7 @@ describe('IPC Handlers', () => {
         const result = await handler(null, newSettings);
 
         expect(result).toEqual({ success: true });
-        expect(settingsStore.set).toHaveBeenCalledWith(newSettings);
+        expect(settingsStore.update).toHaveBeenCalledWith(newSettings);
       });
 
       test('alwaysOnTop設定が変更された場合、ウィンドウに反映されること', async () => {
