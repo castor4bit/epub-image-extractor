@@ -54,6 +54,9 @@ coverage/
 temp/
 tmp/
 
+# Serena設定ディレクトリ
+.serena/
+
 # テスト出力
 **/test-output*/
 **/test-epubs/
