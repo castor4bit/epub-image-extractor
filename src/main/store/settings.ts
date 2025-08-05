@@ -44,6 +44,46 @@ interface StoreOptions {
 let storeInstance: any = null;
 let storeInitialized = false;
 
+// In-memoryストアを作成する関数
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createInMemoryStore(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inMemoryStore: Record<string, any> = {
+    outputDirectory: getDefaultOutputDirectory(),
+    language: 'ja',
+    alwaysOnTop: true,
+    includeOriginalFilename: true,
+    includePageSpread: true,
+    inactiveOpacity: WINDOW_OPACITY.inactive.default,
+    enableMouseHoverOpacity: true,
+  };
+
+  const store = {
+    get: (key?: string) => {
+      if (!key) return inMemoryStore;
+      return inMemoryStore[key];
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    set: (key: string, value: any) => {
+      inMemoryStore[key] = value;
+    },
+    clear: () => {
+      // デフォルト値にリセット
+      inMemoryStore.outputDirectory = getDefaultOutputDirectory();
+      inMemoryStore.language = 'ja';
+      inMemoryStore.alwaysOnTop = true;
+      inMemoryStore.includeOriginalFilename = true;
+      inMemoryStore.includePageSpread = true;
+      inMemoryStore.inactiveOpacity = WINDOW_OPACITY.inactive.default;
+      inMemoryStore.enableMouseHoverOpacity = true;
+    },
+  };
+
+  storeInstance = store;
+  storeInitialized = true;
+  return store;
+}
+
 // electron-storeを動的にインポートする関数
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getStore(): Promise<any> {
@@ -51,11 +91,14 @@ async function getStore(): Promise<any> {
     return storeInstance;
   }
 
+  // Jestテスト環境では動的インポートをスキップ
+  if (process.env.NODE_ENV === 'test' && typeof jest !== 'undefined') {
+    return createInMemoryStore();
+  }
+
   try {
     // electron-store v10はESMモジュールなので動的インポート
-    console.log('Attempting to import electron-store...');
     const { default: Store } = await import('electron-store');
-    console.log('electron-store imported successfully');
     
     const schema = {
       outputDirectory: {
@@ -113,39 +156,10 @@ async function getStore(): Promise<any> {
 
     storeInitialized = true;
     return storeInstance;
-  } catch (error) {
+  } catch {
     // フォールバック: electron-storeが使えない場合（テスト環境など）
     console.warn('electron-store is not available, using in-memory store');
-    console.error('electron-store import error:', error);
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const inMemoryStore: Record<string, any> = {
-      outputDirectory: getDefaultOutputDirectory(),
-      language: 'ja',
-      alwaysOnTop: true,
-      includeOriginalFilename: true,
-      includePageSpread: true,
-      inactiveOpacity: WINDOW_OPACITY.inactive.default,
-      enableMouseHoverOpacity: true,
-    };
-
-    storeInstance = {
-      get: (key?: string) => {
-        if (!key) return inMemoryStore;
-        return inMemoryStore[key];
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      set: (key: string, value: any) => {
-        inMemoryStore[key] = value;
-      },
-      clear: () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Object.keys(inMemoryStore).forEach((key: any) => delete inMemoryStore[key]);
-      },
-    };
-
-    storeInitialized = true;
-    return storeInstance;
+    return createInMemoryStore();
   }
 }
 
