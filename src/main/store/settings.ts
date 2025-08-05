@@ -53,7 +53,9 @@ async function getStore(): Promise<any> {
 
   try {
     // electron-store v10はESMモジュールなので動的インポート
+    console.log('Attempting to import electron-store...');
     const { default: Store } = await import('electron-store');
+    console.log('electron-store imported successfully');
     
     const schema = {
       outputDirectory: {
@@ -111,9 +113,10 @@ async function getStore(): Promise<any> {
 
     storeInitialized = true;
     return storeInstance;
-  } catch {
+  } catch (error) {
     // フォールバック: electron-storeが使えない場合（テスト環境など）
     console.warn('electron-store is not available, using in-memory store');
+    console.error('electron-store import error:', error);
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inMemoryStore: Record<string, any> = {
