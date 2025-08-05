@@ -30,6 +30,9 @@ export default {
     '**/src/main/utils/testMode.test.ts',
     '**/src/main/i18n/translations.test.ts',
     '**/src/main/utils/logger.esm.test.ts',
+    // ESM tests that need more work, skip for now
+    // '**/src/main/store/__tests__/settings.esm.test.ts',
+    // '**/src/main/epub/__tests__/processor.esm.test.ts',
     // Complex mocking dependencies, skip for now
     // '**/src/main/utils/outputPath.test.ts',
     // '**/src/main/utils/logger.test.ts',
