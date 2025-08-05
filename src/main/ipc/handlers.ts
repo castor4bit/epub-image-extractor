@@ -164,7 +164,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
 
   // 設定の保存
   ipcMain.handle('settings:save', async (_event, settings: Partial<Settings>) => {
-    settingsStore.set(settings);
+    settingsStore.update(settings);
 
     // alwaysOnTopの設定が変更された場合、ウィンドウに反映
     if (settings.alwaysOnTop !== undefined) {

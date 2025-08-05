@@ -1,4 +1,3 @@
-import Store from 'electron-store';
 import { app } from 'electron';
 import path from 'path';
 import os from 'os';
@@ -27,84 +26,257 @@ const getDefaultOutputDirectory = (): string => {
   if (isE2ETestMode()) {
     return path.join(os.tmpdir(), 'epub-extractor-e2e', 'EPUB_Images');
   }
-  return path.join(app.getPath('desktop'), 'EPUB_Images');
+  try {
+    return path.join(app.getPath('desktop'), 'EPUB_Images');
+  } catch {
+    // appが初期化されていない場合（テスト環境など）
+    return path.join(os.homedir(), 'Desktop', 'EPUB_Images');
+  }
 };
 
-const defaults: Settings = {
-  outputDirectory: getDefaultOutputDirectory(),
-  language: 'ja',
-  alwaysOnTop: true,
-  includeOriginalFilename: true,
-  includePageSpread: true,
-  inactiveOpacity: WINDOW_OPACITY.inactive.default,
-  enableMouseHoverOpacity: true,
-};
+// electron-store用の型定義
+interface StoreOptions {
+  defaults: Settings;
+}
 
-// electron-storeインスタンスを作成
-const store = new Store<Settings>({
-  defaults,
-  name: 'epub-extractor-settings',
-  // ファイル権限を制限（所有者のみ読み書き可能）
-  fileExtension: 'json',
-  clearInvalidConfig: true,
-  accessPropertiesByDotNotation: false,
-});
+// 動的インポートのキャッシュ
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let storeInstance: any = null;
+let storeInitialized = false;
 
-export const settingsStore = {
-  get: (): Settings => {
-    // E2Eテストモードでは常にデフォルト値を返す
-    if (isE2ETestMode()) {
-      return {
-        ...defaults,
-        outputDirectory: getDefaultOutputDirectory(), // 最新のデフォルト値を使用
-      };
-    }
-    return {
-      outputDirectory: store.get('outputDirectory'),
-      language: store.get('language'),
-      alwaysOnTop: store.get('alwaysOnTop'),
-      includeOriginalFilename: store.get('includeOriginalFilename'),
-      includePageSpread: store.get('includePageSpread'),
-      inactiveOpacity: store.get('inactiveOpacity'),
-      enableMouseHoverOpacity: store.get('enableMouseHoverOpacity'),
-      windowBounds: store.get('windowBounds'),
+// In-memoryストアを作成する関数
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createInMemoryStore(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inMemoryStore: Record<string, any> = {
+    outputDirectory: getDefaultOutputDirectory(),
+    language: 'ja',
+    alwaysOnTop: true,
+    includeOriginalFilename: true,
+    includePageSpread: true,
+    inactiveOpacity: WINDOW_OPACITY.inactive.default,
+    enableMouseHoverOpacity: true,
+  };
+
+  const store = {
+    get: (key?: string) => {
+      if (!key) return inMemoryStore;
+      return inMemoryStore[key];
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    set: (key: string, value: any) => {
+      inMemoryStore[key] = value;
+    },
+    clear: () => {
+      // デフォルト値にリセット
+      inMemoryStore.outputDirectory = getDefaultOutputDirectory();
+      inMemoryStore.language = 'ja';
+      inMemoryStore.alwaysOnTop = true;
+      inMemoryStore.includeOriginalFilename = true;
+      inMemoryStore.includePageSpread = true;
+      inMemoryStore.inactiveOpacity = WINDOW_OPACITY.inactive.default;
+      inMemoryStore.enableMouseHoverOpacity = true;
+    },
+  };
+
+  storeInstance = store;
+  storeInitialized = true;
+  return store;
+}
+
+// electron-storeを動的にインポートする関数
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getStore(): Promise<any> {
+  if (storeInitialized && storeInstance) {
+    return storeInstance;
+  }
+
+  // Jestテスト環境では動的インポートをスキップ
+  if (process.env.NODE_ENV === 'test' && typeof jest !== 'undefined') {
+    return createInMemoryStore();
+  }
+
+  try {
+    // electron-store v10はESMモジュールなので動的インポート
+    const { default: Store } = await import('electron-store');
+    
+    const schema = {
+      outputDirectory: {
+        type: 'string' as const,
+      },
+      language: {
+        type: 'string' as const,
+        default: 'ja',
+      },
+      alwaysOnTop: {
+        type: 'boolean' as const,
+        default: true,
+      },
+      includeOriginalFilename: {
+        type: 'boolean' as const,
+        default: true,
+      },
+      includePageSpread: {
+        type: 'boolean' as const,
+        default: true,
+      },
+      inactiveOpacity: {
+        type: 'number' as const,
+        minimum: 0.1,
+        maximum: 1.0,
+        default: WINDOW_OPACITY.inactive.default,
+      },
+      enableMouseHoverOpacity: {
+        type: 'boolean' as const,
+        default: true,
+      },
+      windowBounds: {
+        type: 'object' as const,
+        properties: {
+          width: { type: 'number' as const },
+          height: { type: 'number' as const },
+          x: { type: 'number' as const },
+          y: { type: 'number' as const },
+        },
+      },
     };
-  },
 
-  set: (settings: Partial<Settings>): void => {
-    Object.entries(settings).forEach(([key, value]) => {
-      if (value !== undefined) {
-        store.set(key as keyof Settings, value);
-      }
+    storeInstance = new Store<Settings>({
+      defaults: {
+        outputDirectory: getDefaultOutputDirectory(),
+        language: 'ja',
+        alwaysOnTop: true,
+        includeOriginalFilename: true,
+        includePageSpread: true,
+        inactiveOpacity: WINDOW_OPACITY.inactive.default,
+        enableMouseHoverOpacity: true,
+      },
+      schema,
+    } as StoreOptions);
+
+    storeInitialized = true;
+    return storeInstance;
+  } catch {
+    // フォールバック: electron-storeが使えない場合（テスト環境など）
+    console.warn('electron-store is not available, using in-memory store');
+    return createInMemoryStore();
+  }
+}
+
+// 同期的なインターフェースを提供するためのプロキシ
+class SettingsStoreProxy {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private storePromise: Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private cachedStore: any = null;
+
+  constructor() {
+    // 初期化時に非同期でストアを取得
+    this.storePromise = getStore().then(store => {
+      this.cachedStore = store;
+      return store;
     });
-  },
+  }
 
-  getOutputDirectory: (): string => {
-    // E2Eテストモードでは常に一時ディレクトリを返す
-    if (isE2ETestMode()) {
-      return getDefaultOutputDirectory();
+  get(): Settings {
+    if (this.cachedStore) {
+      return this.cachedStore.get();
     }
-    return store.get('outputDirectory');
-  },
+    // ストアがまだ初期化されていない場合はデフォルト値を返す
+    return {
+      outputDirectory: getDefaultOutputDirectory(),
+      language: 'ja',
+      alwaysOnTop: true,
+      includeOriginalFilename: true,
+      includePageSpread: true,
+      inactiveOpacity: WINDOW_OPACITY.inactive.default,
+      enableMouseHoverOpacity: true,
+    };
+  }
 
-  setOutputDirectory: (dir: string): void => {
-    store.set('outputDirectory', dir);
-  },
-
-  resetToDefaults: (): void => {
-    store.clear();
-  },
-
-  getWindowBounds: () => {
-    return store.get('windowBounds');
-  },
-
-  setWindowBounds: (bounds: Settings['windowBounds']) => {
-    if (bounds === undefined) {
-      // windowBoundsを削除（デフォルト値に戻す）
-      store.delete('windowBounds');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set(keyOrSettings: keyof Settings | Partial<Settings>, value?: any): void {
+    // オーバーロード: 単一のキー・値、または設定オブジェクト全体を受け取る
+    if (typeof keyOrSettings === 'string') {
+      // 単一のキーと値の場合
+      if (this.cachedStore) {
+        this.cachedStore.set(keyOrSettings, value);
+      } else {
+        // ストアが初期化されるまで待つ
+        this.storePromise.then(store => {
+          store.set(keyOrSettings, value);
+        });
+      }
     } else {
-      store.set('windowBounds', bounds);
+      // 設定オブジェクトの場合（後方互換性のため）
+      this.update(keyOrSettings);
     }
-  },
-};
+  }
+
+  update(settings: Partial<Settings>): void {
+    Object.entries(settings).forEach(([key, value]) => {
+      this.set(key as keyof Settings, value);
+    });
+  }
+
+  getOutputDirectory(): string {
+    const settings = this.get();
+    return settings?.outputDirectory ?? getDefaultOutputDirectory();
+  }
+
+  setOutputDirectory(directory: string): void {
+    this.set('outputDirectory', directory);
+  }
+
+  setLanguage(language: string): void {
+    this.set('language', language);
+  }
+
+  setAlwaysOnTop(alwaysOnTop: boolean): void {
+    this.set('alwaysOnTop', alwaysOnTop);
+  }
+
+  setWindowBounds(bounds: Settings['windowBounds']): void {
+    this.set('windowBounds', bounds);
+  }
+
+  setInactiveOpacity(opacity: number): void {
+    this.set('inactiveOpacity', opacity);
+  }
+
+  setEnableMouseHoverOpacity(enable: boolean): void {
+    this.set('enableMouseHoverOpacity', enable);
+  }
+
+  setIncludeOriginalFilename(include: boolean): void {
+    this.set('includeOriginalFilename', include);
+  }
+
+  setIncludePageSpread(include: boolean): void {
+    this.set('includePageSpread', include);
+  }
+
+  clear(): void {
+    if (this.cachedStore) {
+      this.cachedStore.clear();
+    } else {
+      this.storePromise.then(store => {
+        store.clear();
+      });
+    }
+  }
+
+  resetToDefaults(): void {
+    // clearと同じ動作（electron-storeではclearするとデフォルトに戻る）
+    this.clear();
+  }
+
+  // ストアの初期化を待つ
+  async waitForInit(): Promise<void> {
+    await this.storePromise;
+  }
+}
+
+export const settingsStore = new SettingsStoreProxy();
+
+export type { Settings, SettingsStoreProxy as SettingsStore };
