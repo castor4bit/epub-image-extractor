@@ -1,0 +1,137 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+
+# Cancel old workflows for the same PR
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Stage 1: Quick validation on Ubuntu (5-7 minutes)
+  quick-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ESLint
+      run: npm run lint
+    
+    - name: Run TypeScript check
+      run: npm run typecheck
+    
+    - name: Run unit tests
+      run: npm test
+    
+    - name: Run integration tests
+      run: npm run test:integration
+    
+    - name: Run ESM tests
+      run: npm run test:esm -- --passWithNoTests
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Install Linux dependencies for E2E
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        sudo apt-get install -y \
+          libasound2t64 \
+          libgbm1 \
+          libgtk-3-0 \
+          libnss3 \
+          libxss1 \
+          libxtst6
+    
+    - name: Install Playwright
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run E2E smoke tests
+      run: xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" npm run test:e2e:smoke
+      env:
+        CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
+  
+  # Stage 2: Multi-platform E2E tests (parallel execution, 10-12 minutes)
+  platform-e2e:
+    needs: quick-validation
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false  # Continue testing other platforms even if one fails
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Install Linux dependencies for E2E
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        sudo apt-get install -y \
+          libasound2t64 \
+          libgbm1 \
+          libgtk-3-0 \
+          libnss3 \
+          libxss1 \
+          libxtst6
+    
+    - name: Install Playwright
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run E2E tests (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" npm run test:e2e
+      env:
+        CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
+    
+    - name: Run E2E tests (Windows/macOS)
+      if: matrix.os != 'ubuntu-latest'
+      run: npm run test:e2e
+      env:
+        CI: true
+        NODE_ENV: test
+        E2E_TEST_MODE: true
+    
+    - name: Upload test artifacts on failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-report-${{ matrix.os }}
+        path: |
+          playwright-report/
+          test-results/
+        retention-days: 7
