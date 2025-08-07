@@ -1,5 +1,10 @@
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain } from 'electron';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM support for __dirname and __filename
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
 import { WINDOW_SIZES, WINDOW_OPACITY } from './constants/window';
@@ -59,7 +64,14 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(join(__dirname, '../../dist/index.html'));
+    const htmlPath = join(__dirname, '../../dist/index.html');
+    // E2Eテスト用のデバッグ出力
+    if (isE2ETestMode()) {
+      console.log('[ESM Debug] __dirname:', __dirname);
+      console.log('[ESM Debug] HTML path:', htmlPath);
+      console.log('[ESM Debug] import.meta.url:', import.meta.url);
+    }
+    mainWindow.loadFile(htmlPath);
   }
 
   // 処理状態を保持する変数
