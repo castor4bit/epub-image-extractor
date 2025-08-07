@@ -2,9 +2,21 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain }
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-// ESM support for __dirname and __filename
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// ESM support for __dirname and __filename (only needed in ESM mode)
+let __dirname: string;
+let __filename: string;
+
+if (typeof import.meta.url !== 'undefined') {
+  // ESM mode
+  __filename = fileURLToPath(import.meta.url);
+  __dirname = dirname(__filename);
+} else {
+  // CommonJS mode (E2E builds)
+  // @ts-ignore - __dirname is available in CommonJS
+  __dirname = globalThis.__dirname || '';
+  // @ts-ignore - __filename is available in CommonJS
+  __filename = globalThis.__filename || '';
+}
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
 import { WINDOW_SIZES, WINDOW_OPACITY } from './constants/window';

@@ -8,7 +8,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export async function launchElectron(
   additionalEnv?: Record<string, string>,
 ): Promise<ElectronApplication> {
-  const args = [path.join(__dirname, '../../dist-electron/main/index.js')];
+  // E2Eテスト用のCommonJSビルドを使用
+  const args = [path.join(__dirname, '../../dist-electron-e2e/main/index.js')];
 
   // CI環境（Linux）では追加のフラグを設定
   // これらのフラグがないと "The SUID sandbox helper binary was found" エラーが発生

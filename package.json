@@ -8,7 +8,6 @@
     "email": "30964+castor4bit@users.noreply.github.com"
   },
   "license": "MIT",
-  "type": "module",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -22,10 +21,11 @@
     "test:all": "npm run test && npm run test:integration",
     "test:esm": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.esm.js",
     "typecheck:esm": "tsc --project tsconfig.esm.json",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:debug": "PWDEBUG=1 playwright test",
-    "test:e2e:smoke": "playwright test --grep @smoke",
+    "build:e2e": "node scripts/build-e2e.js",
+    "test:e2e": "npm run build:e2e && playwright test",
+    "test:e2e:headed": "npm run build:e2e && playwright test --headed",
+    "test:e2e:debug": "npm run build:e2e && PWDEBUG=1 playwright test",
+    "test:e2e:smoke": "npm run build:e2e && playwright test --grep @smoke",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" \"e2e/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
@@ -154,5 +154,6 @@
   },
   "engines": {
     "node": ">=24.0.0"
-  }
+  },
+  "type": "module"
 }
