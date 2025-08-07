@@ -68,7 +68,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: join(__dirname, '../preload/index.js'),
+      // E2Eビルドの場合は.cjs、通常ビルドは.js
+      preload: join(__dirname, '../preload', __dirname.includes('dist-electron-e2e') ? 'index.cjs' : 'index.js'),
     },
   });
 

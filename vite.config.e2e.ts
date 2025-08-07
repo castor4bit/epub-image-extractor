@@ -28,6 +28,8 @@ export default defineConfig({
               output: {
                 // CommonJS形式で出力（E2Eテスト用）
                 format: 'cjs',
+                // .cjs拡張子を使用
+                entryFileNames: '[name].cjs',
                 // コード分割を無効化
                 inlineDynamicImports: true,
                 // 厳密なCommonJS形式
@@ -52,6 +54,8 @@ export default defineConfig({
               external: ['electron'],
               output: {
                 format: 'cjs',
+                // .cjs拡張子を使用
+                entryFileNames: '[name].cjs',
               },
             },
           },
