@@ -64,14 +64,7 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    const htmlPath = join(__dirname, '../../dist/index.html');
-    // E2Eテスト用のデバッグ出力
-    if (isE2ETestMode()) {
-      console.log('[ESM Debug] __dirname:', __dirname);
-      console.log('[ESM Debug] HTML path:', htmlPath);
-      console.log('[ESM Debug] import.meta.url:', import.meta.url);
-    }
-    mainWindow.loadFile(htmlPath);
+    mainWindow.loadFile(join(__dirname, '../../dist/index.html'));
   }
 
   // 処理状態を保持する変数
