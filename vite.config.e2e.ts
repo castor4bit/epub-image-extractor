@@ -4,6 +4,8 @@ import electron from 'vite-plugin-electron';
 import renderer from 'vite-plugin-electron-renderer';
 import { resolve } from 'path';
 
+// E2Eテスト専用のビルド設定
+// CommonJS形式でビルドしてPlaywrightとの互換性を確保
 export default defineConfig({
   plugins: [
     react(),
@@ -12,7 +14,7 @@ export default defineConfig({
         entry: 'src/main/index.ts',
         vite: {
           build: {
-            outDir: 'dist-electron/main',
+            outDir: 'dist-electron-e2e/main',
             rollupOptions: {
               external: [
                 'electron',
@@ -23,6 +25,17 @@ export default defineConfig({
                 'winston',
                 'p-limit'
               ],
+              output: {
+                // CommonJS形式で出力（E2Eテスト用）
+                format: 'cjs',
+                // .cjs拡張子を使用
+                entryFileNames: '[name].cjs',
+                // コード分割を無効化
+                inlineDynamicImports: true,
+                // 厳密なCommonJS形式
+                exports: 'auto',
+                interop: 'auto',
+              },
             },
           },
           resolve: {
@@ -35,9 +48,14 @@ export default defineConfig({
         entry: 'src/preload/index.ts',
         vite: {
           build: {
-            outDir: 'dist-electron/preload',
+            outDir: 'dist-electron-e2e/preload',
             rollupOptions: {
               external: ['electron'],
+              output: {
+                format: 'cjs',
+                // .cjs拡張子を使用
+                entryFileNames: '[name].cjs',
+              },
             },
           },
         },

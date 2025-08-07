@@ -1,5 +1,27 @@
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain } from 'electron';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM support for __dirname and __filename (only needed in ESM mode)
+let __dirname: string;
+let __filename: string;
+
+// Type for Node.js CommonJS globals
+interface NodeGlobals {
+  __dirname?: string;
+  __filename?: string;
+}
+
+if (typeof import.meta.url !== 'undefined') {
+  // ESM mode
+  __filename = fileURLToPath(import.meta.url);
+  __dirname = dirname(__filename);
+} else {
+  // CommonJS mode (E2E builds)
+  const nodeGlobals = globalThis as unknown as NodeGlobals;
+  __dirname = nodeGlobals.__dirname || '';
+  __filename = nodeGlobals.__filename || '';
+}
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
 import { WINDOW_SIZES, WINDOW_OPACITY } from './constants/window';
@@ -51,7 +73,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: join(__dirname, '../preload/index.js'),
+      // E2Eビルドの場合は.cjs、通常ビルドは.js
+      preload: join(__dirname, '../preload', __dirname.includes('dist-electron-e2e') ? 'index.cjs' : 'index.js'),
     },
   });
 

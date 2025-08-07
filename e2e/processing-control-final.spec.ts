@@ -1,7 +1,10 @@
 import { test, expect, Page, ElectronApplication } from '@playwright/test';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { waitForProcessingComplete } from './helpers/test-helpers';
 import { launchElectron, closeElectron } from './helpers/electron-launch';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 let electronApp: ElectronApplication;
 let page: Page;

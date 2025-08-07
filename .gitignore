@@ -10,6 +10,7 @@ lerna-debug.log*
 # Build output
 dist/
 dist-electron/
+dist-electron-e2e/
 out/
 *.local
 
