@@ -12,10 +12,10 @@ if (typeof import.meta.url !== 'undefined') {
   __dirname = dirname(__filename);
 } else {
   // CommonJS mode (E2E builds)
-  // @ts-expect-error - __dirname is available in CommonJS
-  __dirname = globalThis.__dirname || '';
-  // @ts-expect-error - __filename is available in CommonJS
-  __filename = globalThis.__filename || '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  __dirname = (globalThis as any).__dirname || '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  __filename = (globalThis as any).__filename || '';
 }
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';

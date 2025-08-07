@@ -40,7 +40,6 @@ export default defineConfig({
           },
           resolve: {
             // Node.js環境での実行を確保
-            browserField: false,
             mainFields: ['module', 'jsnext:main', 'jsnext'],
           },
         },
