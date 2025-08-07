@@ -6,16 +6,21 @@ import { fileURLToPath } from 'url';
 let __dirname: string;
 let __filename: string;
 
+// Type for Node.js CommonJS globals
+interface NodeGlobals {
+  __dirname?: string;
+  __filename?: string;
+}
+
 if (typeof import.meta.url !== 'undefined') {
   // ESM mode
   __filename = fileURLToPath(import.meta.url);
   __dirname = dirname(__filename);
 } else {
   // CommonJS mode (E2E builds)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  __dirname = (globalThis as any).__dirname || '';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  __filename = (globalThis as any).__filename || '';
+  const nodeGlobals = globalThis as unknown as NodeGlobals;
+  __dirname = nodeGlobals.__dirname || '';
+  __filename = nodeGlobals.__filename || '';
 }
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
