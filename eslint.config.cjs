@@ -10,11 +10,14 @@ module.exports = [
   {
     ignores: [
       'dist/**',
-      'dist-electron/**', 
+      'dist-electron/**',
+      'dist-electron-e2e/**', 
       'node_modules/**',
       'coverage/**',
       '*.config.js',
+      '*.config.cjs',
       '*.config.ts',
+      'vite.config.e2e.ts',
       'scripts/**',
       '**/*.test.ts',
       '**/*.test.tsx',

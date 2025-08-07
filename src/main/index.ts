@@ -12,9 +12,9 @@ if (typeof import.meta.url !== 'undefined') {
   __dirname = dirname(__filename);
 } else {
   // CommonJS mode (E2E builds)
-  // @ts-ignore - __dirname is available in CommonJS
+  // @ts-expect-error - __dirname is available in CommonJS
   __dirname = globalThis.__dirname || '';
-  // @ts-ignore - __filename is available in CommonJS
+  // @ts-expect-error - __filename is available in CommonJS
   __filename = globalThis.__filename || '';
 }
 import { registerIpcHandlers } from './ipc/handlers';
