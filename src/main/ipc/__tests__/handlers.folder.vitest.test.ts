@@ -71,7 +71,7 @@ vi.mock('../../utils/folderScanner');
 const actualFs = await vi.importActual('fs/promises');
 
 // fs/promisesの一部をモック
-vi.mock('fs/promises', () => {
+vi.mock('fs/promises', async () => {
   const actualFs = await vi.importActual('fs/promises');
   return {
     ...actualFs,
