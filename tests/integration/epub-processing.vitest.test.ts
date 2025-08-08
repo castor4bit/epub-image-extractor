@@ -1,7 +1,21 @@
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
+import { describe, test, expect, beforeAll, afterAll, vi } from 'vitest';
 import path from 'path';
 import fs from 'fs/promises';
 import { zipSync, strToU8 } from 'fflate';
+import os from 'os';
+
+// Electronのモック
+vi.mock('electron', () => ({
+  app: {
+    getPath: vi.fn((type: string) => {
+      if (type === 'temp') return os.tmpdir();
+      if (type === 'desktop') return path.join(os.homedir(), 'Desktop');
+      return '/mock/path';
+    }),
+    getName: vi.fn(() => 'epub-image-extractor'),
+  }
+}));
+
 import { parseEpub } from '../../src/main/epub/parser';
 import { extractImages } from '../../src/main/epub/imageExtractor';
 import { organizeByChapters } from '../../src/main/epub/chapterOrganizer';

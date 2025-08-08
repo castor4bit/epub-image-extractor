@@ -7,7 +7,12 @@ vi.mock('electron', () => ({
     showOpenDialog: vi.fn(),
   },
   app: {
-    getPath: vi.fn(() => '/mock/desktop'),
+    getPath: vi.fn((type: string) => {
+      if (type === 'temp') {
+        return require('os').tmpdir();
+      }
+      return '/mock/desktop';
+    }),
   },
   shell: {
     openPath: vi.fn(),
@@ -44,7 +49,7 @@ describe('IPC Handlers', () => {
     handlers = new Map();
 
     // ipcMain.handleのモック実装
-    (ipcMain.handle as jest.Mock).mockImplementation(
+    (ipcMain.handle as ReturnType<typeof vi.fn>).mockImplementation(
       (channel: string, handler: (...args: unknown[]) => unknown) => {
         handlers.set(channel, handler);
       },
@@ -59,15 +64,15 @@ describe('IPC Handlers', () => {
     };
 
     // デフォルトのモック実装
-    (app.getPath as jest.Mock).mockReturnValue('/mock/desktop');
-    (fs.mkdir as jest.Mock).mockResolvedValue(undefined);
-    (settingsStore.getOutputDirectory as jest.Mock).mockReturnValue('/mock/output');
-    (settingsStore.get as jest.Mock).mockReturnValue({
+    (app.getPath as ReturnType<typeof vi.fn>).mockReturnValue('/mock/desktop');
+    (fs.mkdir as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+    (settingsStore.getOutputDirectory as ReturnType<typeof vi.fn>).mockReturnValue('/mock/output');
+    (settingsStore.get as ReturnType<typeof vi.fn>).mockReturnValue({
       outputDirectory: '/mock/output',
       language: 'ja',
       alwaysOnTop: true,
     });
-    (settingsStore.update as jest.Mock).mockImplementation(() => {});
+    (settingsStore.update as ReturnType<typeof vi.fn>).mockImplementation(() => {});
 
     // ハンドラーを登録
     registerIpcHandlers(mockMainWindow);
@@ -75,7 +80,7 @@ describe('IPC Handlers', () => {
 
   describe('dialog:selectDirectory', () => {
     test('ディレクトリが選択された場合、パスを返すこと', async () => {
-      (dialog.showOpenDialog as jest.Mock).mockResolvedValue({
+      (dialog.showOpenDialog as ReturnType<typeof vi.fn>).mockResolvedValue({
         canceled: false,
         filePaths: ['/selected/directory'],
       });
@@ -92,7 +97,7 @@ describe('IPC Handlers', () => {
     });
 
     test('キャンセルされた場合、nullを返すこと', async () => {
-      (dialog.showOpenDialog as jest.Mock).mockResolvedValue({
+      (dialog.showOpenDialog as ReturnType<typeof vi.fn>).mockResolvedValue({
         canceled: true,
         filePaths: [],
       });
@@ -112,12 +117,12 @@ describe('IPC Handlers', () => {
         { fileName: 'book2.epub', status: 'completed', imageCount: 3 },
       ];
 
-      (isZipFile as jest.Mock).mockReturnValue(false);
-      (processEpubFiles as jest.Mock).mockResolvedValue(mockResults);
-      (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockResolvedValue(mockResults);
+      (cleanupTempFiles as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
       // fs.statをモック - EPUBファイルとして認識させる
-      (fs.stat as jest.Mock).mockResolvedValue({
+      (fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({
         isDirectory: () => false,
       });
 
@@ -146,13 +151,13 @@ describe('IPC Handlers', () => {
         { fileName: 'book2.epub', status: 'completed', imageCount: 3 },
       ];
 
-      (isZipFile as jest.Mock).mockReturnValue(true);
-      (extractEpubsFromZip as jest.Mock).mockResolvedValue(extractedEpubs);
-      (processEpubFiles as jest.Mock).mockResolvedValue(mockResults);
-      (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (extractEpubsFromZip as ReturnType<typeof vi.fn>).mockResolvedValue(extractedEpubs);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockResolvedValue(mockResults);
+      (cleanupTempFiles as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
       // fs.statをモック - ZIPファイルとして認識させる
-      (fs.stat as jest.Mock).mockResolvedValue({
+      (fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({
         isDirectory: () => false,
       });
 
@@ -177,17 +182,17 @@ describe('IPC Handlers', () => {
     test('ZIP展開エラーを適切に処理すること', async () => {
       const filePaths = ['/test/invalid.zip', '/test/valid.epub'];
 
-      (isZipFile as jest.Mock).mockImplementation((path) => path.endsWith('.zip'));
-      (extractEpubsFromZip as jest.Mock).mockRejectedValue(
+      (isZipFile as ReturnType<typeof vi.fn>).mockImplementation((path) => path.endsWith('.zip'));
+      (extractEpubsFromZip as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('ZIPファイルの展開に失敗しました'),
       );
-      (processEpubFiles as jest.Mock).mockResolvedValue([
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockResolvedValue([
         { fileName: 'valid.epub', status: 'completed', imageCount: 5 },
       ]);
-      (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
+      (cleanupTempFiles as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
       // fs.statをモック
-      (fs.stat as jest.Mock).mockResolvedValue({
+      (fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({
         isDirectory: () => false,
       });
 
@@ -221,8 +226,8 @@ describe('IPC Handlers', () => {
     test('進捗更新が正しく送信されること', async () => {
       const filePaths = ['/test/book.epub'];
 
-      (isZipFile as jest.Mock).mockReturnValue(false);
-      (processEpubFiles as jest.Mock).mockImplementation(async (_files, _output, onProgress) => {
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
         // 進捗を送信
         onProgress({
           fileId: 'file-1',
@@ -235,7 +240,7 @@ describe('IPC Handlers', () => {
       });
 
       // fs.statをモック
-      (fs.stat as jest.Mock).mockResolvedValue({
+      (fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({
         isDirectory: () => false,
       });
 
@@ -256,12 +261,12 @@ describe('IPC Handlers', () => {
       const filePaths = ['/test/book.epub'];
       const error = new Error('Processing failed');
 
-      (isZipFile as jest.Mock).mockReturnValue(false);
-      (processEpubFiles as jest.Mock).mockRejectedValue(error);
-      (cleanupTempFiles as jest.Mock).mockResolvedValue(undefined);
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockRejectedValue(error);
+      (cleanupTempFiles as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
       // fs.statをモック
-      (fs.stat as jest.Mock).mockResolvedValue({
+      (fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({
         isDirectory: () => false,
       });
 
@@ -283,7 +288,7 @@ describe('IPC Handlers', () => {
           language: 'en',
           alwaysOnTop: false,
         };
-        (settingsStore.get as jest.Mock).mockReturnValue(mockSettings);
+        (settingsStore.get as ReturnType<typeof vi.fn>).mockReturnValue(mockSettings);
 
         const handler = handlers.get('settings:get');
         const result = await handler();
@@ -336,7 +341,7 @@ describe('IPC Handlers', () => {
           language: 'ja',
           alwaysOnTop: true,
         };
-        (settingsStore.get as jest.Mock).mockReturnValue(defaultSettings);
+        (settingsStore.get as ReturnType<typeof vi.fn>).mockReturnValue(defaultSettings);
 
         const handler = handlers.get('settings:reset');
         const result = await handler();
@@ -349,7 +354,7 @@ describe('IPC Handlers', () => {
 
   describe('file:openFolder', () => {
     test('フォルダを開けること', async () => {
-      (shell.openPath as jest.Mock).mockResolvedValue('');
+      (shell.openPath as ReturnType<typeof vi.fn>).mockResolvedValue('');
 
       const handler = handlers.get('file:openFolder');
       const result = await handler(null, '/test/folder');
@@ -360,7 +365,7 @@ describe('IPC Handlers', () => {
 
     test('フォルダを開けない場合エラーを返すこと', async () => {
       const error = new Error('Cannot open folder');
-      (shell.openPath as jest.Mock).mockRejectedValue(error);
+      (shell.openPath as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const handler = handlers.get('file:openFolder');
       const result = await handler(null, '/test/folder');

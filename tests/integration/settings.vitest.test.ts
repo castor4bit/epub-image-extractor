@@ -10,7 +10,7 @@ vi.mock('electron', () => ({
     getPath: vi.fn((name: string) => {
       if (name === 'desktop') return '/mock/desktop';
       if (name === 'userData') return '/mock/userData';
-      if (name === 'temp') return '/mock/temp';
+      if (name === 'temp') return require('os').tmpdir();
       return '/mock/path';
     })
   }

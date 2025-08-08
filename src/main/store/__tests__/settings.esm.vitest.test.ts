@@ -84,9 +84,9 @@ describe('Settings Store ESM Compatibility', () => {
             private data: Record<string, any> = {
               outputDirectory: '/mocked/desktop/EPUB_Images',
               language: 'ja',
-              alwaysOnTop: false,
-              includeOriginalFilename: false,
-              includePageSpread: false,
+              alwaysOnTop: true,
+              includeOriginalFilename: true,
+              includePageSpread: true,
               inactiveOpacity: 0.85,
               enableMouseHoverOpacity: true,
             };
@@ -108,7 +108,7 @@ describe('Settings Store ESM Compatibility', () => {
       // Test get
       const settings = settingsStore.get();
       expect(settings.language).toBe('ja');
-      expect(settings.alwaysOnTop).toBe(false);
+      expect(settings.alwaysOnTop).toBe(true);
       
       // Test set
       settingsStore.set('language', 'en');

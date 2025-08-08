@@ -8,7 +8,12 @@ import os from 'os';
 // Electronのappモジュールをモック
 vi.mock('electron', () => ({
   app: {
-    getPath: vi.fn().mockReturnValue('/mock/desktop'),
+    getPath: vi.fn().mockImplementation((type: string) => {
+      if (type === 'temp') {
+        return require('os').tmpdir();
+      }
+      return '/mock/desktop';
+    }),
     getVersion: vi.fn().mockReturnValue('1.0.0'),
     getName: vi.fn().mockReturnValue('EPUB Image Extractor'),
   },
@@ -72,8 +77,9 @@ const actualFs = await vi.importActual('fs/promises');
 
 // fs/promisesの一部をモック
 vi.mock('fs/promises', async () => {
-  const actualFs = await vi.importActual('fs/promises');
+  const actualFs = await vi.importActual<typeof import('fs/promises')>('fs/promises');
   return {
+    default: actualFs,
     ...actualFs,
     mkdir: vi.fn().mockImplementation((path, options) => {
       // 実際のファイルシステムで/mockのパスは実際のパスに置き換える
@@ -179,7 +185,16 @@ describe('Folder drag & drop handler', () => {
       });
 
       const handler = getHandler('epub:process');
-      const result = await handler({}, [tempDir]);
+      const mockEvent = { sender: mockWebContents };
+      const result = await handler(mockEvent, [tempDir]);
+
+      // processEpubFilesが呼ばれたことを確認
+      expect(processEpubFiles).toHaveBeenCalledWith(
+        [epubPath1, epubPath2],
+        expect.any(String),
+        expect.any(Function),
+        expect.any(Number)
+      );
 
       // 進捗が送信されたことを確認
       expect(mockWebContents.send).toHaveBeenCalledWith(
@@ -225,7 +240,8 @@ describe('Folder drag & drop handler', () => {
       });
 
       const handler = getHandler('epub:process');
-      const result = await handler({}, [epubPath1, subDir]);
+      const mockEvent = { sender: mockWebContents };
+      const result = await handler(mockEvent, [epubPath1, subDir]);
 
       // 複数の進捗通知が送信されたことを確認
       expect(mockWebContents.send).toHaveBeenCalled();
@@ -285,7 +301,8 @@ describe('Folder drag & drop handler', () => {
       });
 
       const handler = getHandler('epub:process');
-      const result = await handler({}, [tempDir]);
+      const mockEvent = { sender: mockWebContents };
+      const result = await handler(mockEvent, [tempDir]);
 
       // 進捗通知が送信されたことを確認
       expect(mockWebContents.send).toHaveBeenCalled();
@@ -304,7 +321,8 @@ describe('Folder drag & drop handler', () => {
       (processEpubFiles as ReturnType<typeof vi.fn>).mockResolvedValue([]);
 
       const handler = getHandler('epub:process');
-      const result = await handler({}, [emptyDir]);
+      const mockEvent = { sender: mockWebContents };
+      const result = await handler(mockEvent, [emptyDir]);
 
       // エラーではなく成功結果を返すことを確認
       expect(result).toEqual(

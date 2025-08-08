@@ -36,6 +36,17 @@ describe('Processor ESM Compatibility', () => {
     });
 
     test('should process EPUB files with p-limit concurrency control', async () => {
+      // Mock electron
+      vi.doMock('electron', () => ({
+        app: {
+          getPath: vi.fn((type: string) => {
+            if (type === 'temp') return require('os').tmpdir();
+            return '/mock/desktop';
+          }),
+          getName: vi.fn(() => 'epub-image-extractor'),
+        }
+      }));
+      
       // Mock dependencies
       vi.doMock('p-limit', () => {
         return {
@@ -70,7 +81,14 @@ describe('Processor ESM Compatibility', () => {
 
       vi.doMock('../imageExtractor', () => ({
         extractImages: vi.fn().mockResolvedValue([
-          { path: '/output/image1.jpg', originalPath: 'image1.jpg', pageSpread: null }
+          { 
+            src: 'image1.jpg',
+            path: '/output/image1.jpg', 
+            originalPath: 'image1.jpg', 
+            pageSpread: null,
+            chapterOrder: 0,
+            pageOrder: 0
+          }
         ])
       }));
 
@@ -84,6 +102,17 @@ describe('Processor ESM Compatibility', () => {
           created: true
         })
       }));
+      
+      vi.doMock('fs/promises', async () => {
+        const actual = await vi.importActual<typeof import('fs/promises')>('fs/promises');
+        return {
+          default: actual,
+          ...actual,
+          mkdir: vi.fn().mockResolvedValue(undefined),
+          readFile: vi.fn().mockResolvedValue(''),
+          writeFile: vi.fn().mockResolvedValue(undefined),
+        };
+      });
 
       vi.doMock('../store/settings', () => ({
         settingsStore: {
