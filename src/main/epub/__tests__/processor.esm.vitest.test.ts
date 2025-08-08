@@ -105,7 +105,7 @@ describe('Processor ESM Compatibility', () => {
 
       const { processEpubFiles } = await import('../processor');
       
-      const progressCallback = jest.fn<(progress: ProcessingProgress) => void>();
+      const progressCallback = vi.fn<(progress: ProcessingProgress) => void>();
       const results = await processEpubFiles(
         ['/test.epub'],
         '/output',

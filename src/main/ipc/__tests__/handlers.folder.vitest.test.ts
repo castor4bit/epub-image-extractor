@@ -68,11 +68,11 @@ vi.mock('../../utils/zipHandler');
 vi.mock('../../utils/folderScanner');
 
 // fs/promisesをインポート
-const actualFs = jest.requireActual('fs/promises');
+const actualFs = await vi.importActual('fs/promises');
 
 // fs/promisesの一部をモック
 vi.mock('fs/promises', () => {
-  const actualFs = jest.requireActual('fs/promises');
+  const actualFs = await vi.importActual('fs/promises');
   return {
     ...actualFs,
     mkdir: vi.fn().mockImplementation((path, options) => {
@@ -125,7 +125,7 @@ describe('Folder drag & drop handler', () => {
 
     // IPCハンドラーをクリア
     (ipcMain as any).handlers = new Map();
-    (ipcMain.handle as jest.Mock) = vi.fn((channel, handler) => {
+    (ipcMain.handle as ReturnType<typeof vi.fn>) = vi.fn((channel, handler) => {
       (ipcMain as any).handlers.set(channel, handler);
     });
 
@@ -154,9 +154,9 @@ describe('Folder drag & drop handler', () => {
       await fs.writeFile(epubPath2, 'dummy epub content 2');
 
       // モックの設定
-      (scanMultipleFoldersForEpubs as jest.Mock).mockResolvedValue([epubPath1, epubPath2]);
-      (isZipFile as jest.Mock).mockReturnValue(false);
-      (processEpubFiles as jest.Mock).mockImplementation(async (_files, _output, onProgress) => {
+      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([epubPath1, epubPath2]);
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
         // 進捗をシミュレート
         onProgress({
           fileId: 'file-1',
@@ -200,9 +200,9 @@ describe('Folder drag & drop handler', () => {
       await fs.writeFile(epubPath2, 'dummy epub content 2');
 
       // モックの設定
-      (scanMultipleFoldersForEpubs as jest.Mock).mockResolvedValue([epubPath2]);
-      (isZipFile as jest.Mock).mockReturnValue(false);
-      (processEpubFiles as jest.Mock).mockImplementation(async (_files, _output, onProgress) => {
+      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([epubPath2]);
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
         // 進捗をシミュレート
         onProgress({
           fileId: 'file-1',
@@ -252,9 +252,9 @@ describe('Folder drag & drop handler', () => {
       await fs.writeFile(book4, 'dummy'); // これは検索されない
 
       // モックの設定 - 3階層までのファイルを返す
-      (scanMultipleFoldersForEpubs as jest.Mock).mockResolvedValue([book1, book2, book3]);
-      (isZipFile as jest.Mock).mockReturnValue(false);
-      (processEpubFiles as jest.Mock).mockImplementation(async (_files, _output, onProgress) => {
+      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([book1, book2, book3]);
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
         // 進捗をシミュレート
         onProgress({
           fileId: 'file-1',
@@ -299,9 +299,9 @@ describe('Folder drag & drop handler', () => {
       await fs.mkdir(emptyDir);
 
       // モックの設定 - 空配列を返す
-      (scanMultipleFoldersForEpubs as jest.Mock).mockResolvedValue([]);
-      (isZipFile as jest.Mock).mockReturnValue(false);
-      (processEpubFiles as jest.Mock).mockResolvedValue([]);
+      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockResolvedValue([]);
 
       const handler = getHandler('epub:process');
       const result = await handler({}, [emptyDir]);
