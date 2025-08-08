@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { expect, afterEach, vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 // @testing-library/reactのクリーンアップ
@@ -95,7 +95,7 @@ vi.mock('electron-store', () => {
 
 // windowオブジェクトのモック
 if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'electron', {
+  Object.defineProperty(global.window, 'electron', {
     value: {
       processFiles: vi.fn(),
       getSettings: vi.fn(),
@@ -109,7 +109,7 @@ if (typeof window !== 'undefined') {
   });
 
   // matchMediaのモック
-  Object.defineProperty(window, 'matchMedia', {
+  Object.defineProperty(global.window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation(query => ({
       matches: false,
@@ -128,6 +128,5 @@ if (typeof window !== 'undefined') {
 global.console = {
   ...console,
   error: vi.fn(console.error),
-  warn: vi.fn(console.warn),
-  log: vi.fn(console.log)
+  warn: vi.fn(console.warn)
 };

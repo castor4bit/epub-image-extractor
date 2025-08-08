@@ -29,7 +29,7 @@ const mockOnProgress = vi.fn();
 };
 
 describe('App - ドラッグ&ドロップ機能', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
