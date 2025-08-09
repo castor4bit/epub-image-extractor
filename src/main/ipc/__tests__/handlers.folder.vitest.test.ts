@@ -34,7 +34,7 @@ vi.mock('electron', () => ({
 vi.mock('electron-store', () => {
   return vi.fn().mockImplementation(() => ({
     get: vi.fn().mockReturnValue({
-      outputDirectory: '/mock/output',
+      outputDirectory: require('os').tmpdir(),
       language: 'ja',
       alwaysOnTop: true,
       includeOriginalFilename: true,
@@ -48,9 +48,9 @@ vi.mock('electron-store', () => {
 // モックの設定
 vi.mock('../../store/settings', () => ({
   settingsStore: {
-    getOutputDirectory: vi.fn().mockReturnValue('/mock/output'),
+    getOutputDirectory: vi.fn().mockReturnValue(require('os').tmpdir()),
     get: vi.fn().mockReturnValue({
-      outputDirectory: '/mock/output',
+      outputDirectory: require('os').tmpdir(),
       language: 'ja',
       alwaysOnTop: true,
       includeOriginalFilename: true,
@@ -82,8 +82,8 @@ vi.mock('fs/promises', async () => {
     default: actualFs,
     ...actualFs,
     mkdir: vi.fn().mockImplementation((path, options) => {
-      // 実際のファイルシステムで/mockのパスは実際のパスに置き換える
-      if (path === '/mock/output') {
+      // /mockパスを一時ディレクトリに置き換える
+      if (path.startsWith('/mock')) {
         return Promise.resolve();
       }
       return actualFs.mkdir(path, options);
