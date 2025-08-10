@@ -91,8 +91,8 @@ async function getStore(): Promise<any> {
     return storeInstance;
   }
 
-  // Jestテスト環境では動的インポートをスキップ
-  if (process.env.NODE_ENV === 'test' && typeof jest !== 'undefined') {
+  // テスト環境では動的インポートをスキップ
+  if (process.env.NODE_ENV === 'test') {
     return createInMemoryStore();
   }
 
