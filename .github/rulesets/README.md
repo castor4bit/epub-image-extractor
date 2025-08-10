@@ -148,6 +148,115 @@ The `main-branch-protection.json` ruleset implements comprehensive protection fo
 **Issue**: CI check not recognized
 - **Solution**: Verify `integration_id` matches your GitHub Actions app ID
 
+## Initial Setup Procedures
+
+### Creating a New Ruleset for the First Time
+
+#### Method 1: Via GitHub CLI (Recommended)
+
+1. **Ensure you have the necessary permissions**
+   ```bash
+   # Check if you have admin access to the repository
+   gh api repos/{owner}/{repo} --jq '.permissions.admin'
+   ```
+
+2. **Create the ruleset from JSON file**
+   ```bash
+   # Apply the ruleset configuration
+   gh api repos/castor4bit/epub-image-extractor/rulesets \
+     --method POST \
+     --input .github/rulesets/main-branch-protection.json
+   
+   # Verify the ruleset was created
+   gh api repos/castor4bit/epub-image-extractor/rulesets \
+     --jq '.[] | {id: .id, name: .name, enforcement: .enforcement}'
+   ```
+
+#### Method 2: Via GitHub UI
+
+1. Navigate to your repository on GitHub
+2. Go to **Settings** → **Rules** → **Rulesets**
+3. Click **New ruleset** → **New branch ruleset**
+4. Configure the ruleset:
+   - **Name**: "Main Branch Protection"
+   - **Enforcement status**: Active
+   - **Target branches**: Add `main`
+5. Add rules:
+   - ✅ Restrict deletions
+   - ✅ Restrict force pushes
+   - ✅ Restrict creations
+   - ✅ Require linear history
+   - ✅ Require a pull request before merging
+   - ✅ Require status checks to pass
+6. Configure bypass permissions if needed
+7. Click **Create**
+
+#### Method 3: Via GitHub API with curl
+
+```bash
+# First, create a GitHub personal access token with repo permissions
+# Then use it to create the ruleset
+
+curl -X POST \
+  -H "Authorization: Bearer YOUR_GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/castor4bit/epub-image-extractor/rulesets \
+  -d @.github/rulesets/main-branch-protection.json
+```
+
+### Verification After Initial Setup
+
+1. **Verify the ruleset is active**
+   ```bash
+   gh api repos/castor4bit/epub-image-extractor/rulesets \
+     --jq '.[] | select(.name == "Main Branch Protection") | {
+       id: .id,
+       name: .name,
+       enforcement: .enforcement,
+       created_at: .created_at
+     }'
+   ```
+
+2. **Test with a direct push (should fail)**
+   ```bash
+   # Create a test branch
+   git checkout main
+   git checkout -b test/direct-push
+   echo "test" >> test.txt
+   git add test.txt
+   git commit -m "test: verify branch protection"
+   
+   # Try to push directly to main (should be rejected)
+   git push origin test/direct-push:main
+   # Expected: push rejected due to ruleset
+   
+   # Clean up
+   git checkout main
+   git branch -D test/direct-push
+   ```
+
+3. **Test with a pull request (should work)**
+   ```bash
+   # Create a proper feature branch
+   git checkout -b test/pr-flow
+   echo "test" >> test.txt
+   git add test.txt
+   git commit -m "test: verify PR workflow"
+   git push origin test/pr-flow
+   
+   # Create a PR
+   gh pr create --title "Test: Verify ruleset" --body "Testing branch protection"
+   
+   # Check required status checks
+   gh pr checks
+   
+   # After verification, close the PR
+   gh pr close
+   git checkout main
+   git branch -D test/pr-flow
+   ```
+
 ## Update Procedures
 
 ### When to Update the Ruleset
