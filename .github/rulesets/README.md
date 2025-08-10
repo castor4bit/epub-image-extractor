@@ -78,11 +78,10 @@ The `main-branch-protection.json` ruleset implements comprehensive protection fo
   "parameters": {
     "required_status_checks": [
       {
-        "context": "quick-validation",
-        "integration_id": 15368
+        "context": "quick-validation"
       }
     ],
-    "strict_required_status_checks": true
+    "strict_required_status_checks_policy": true
   }
 }
 ```
@@ -287,12 +286,10 @@ Update the ruleset configuration when:
    ```json
    "required_status_checks": [
      {
-       "context": "quick-validation",
-       "integration_id": 15368
+       "context": "quick-validation"
      },
      {
-       "context": "security-scan",  // New check
-       "integration_id": 15368
+       "context": "security-scan"  // New check
      }
    ]
    ```
