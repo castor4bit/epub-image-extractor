@@ -217,9 +217,8 @@ Update the ruleset configuration when:
    # Validate JSON syntax
    jq . .github/rulesets/main-branch-protection.json
    
-   # Check against schema
-   npx ajv validate -s https://docs.github.com/assets/rulesets-schema.json \
-     -d .github/rulesets/main-branch-protection.json
+   # Note: GitHub does not currently provide a public JSON schema for rulesets.
+   # The JSON structure follows the format documented in GitHub's API documentation.
    ```
 
 4. **Create a Pull Request**
