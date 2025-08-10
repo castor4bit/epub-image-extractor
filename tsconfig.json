@@ -20,7 +20,7 @@
       "@renderer/*": ["src/renderer/*"],
       "@shared/*": ["src/shared/*"]
     },
-    "types": ["node", "jest"],
+    "types": ["node"],
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
@@ -37,5 +37,5 @@
     "release",
     "**/*.spec.ts",
     "**/*.test.ts"
-  ],
+  ]
 }

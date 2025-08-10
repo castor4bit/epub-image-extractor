@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, test, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { render, screen } from '../../__tests__/setup';
 import { FileProcessingList } from '../FileProcessingList';
 import { ProcessingProgress } from '@shared/types';

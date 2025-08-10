@@ -24,14 +24,14 @@ export default defineConfig({
         'tests/setup.vitest.ts'
       ]
     },
-    // Jest互換性のための設定
+    // テストファイルパターン
     include: [
-      '**/__tests__/**/*.vitest.test.ts',
-      '**/__tests__/**/*.vitest.test.tsx',
-      '**/tests/**/*.vitest.test.ts',
-      '**/tests/**/*.vitest.test.tsx',
-      '**/*.vitest.test.ts',
-      '**/*.vitest.test.tsx'
+      '**/__tests__/**/*.test.ts',
+      '**/__tests__/**/*.test.tsx',
+      '**/tests/**/*.test.ts',
+      '**/tests/**/*.test.tsx',
+      '**/*.test.ts',
+      '**/*.test.tsx'
     ],
     // タイムアウト設定
     testTimeout: 10000,

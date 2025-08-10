@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, test, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent } from '../../__tests__/setup';
 import { CompactDropZone } from '../CompactDropZone';
 
