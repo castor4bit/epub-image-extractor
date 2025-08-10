@@ -148,6 +148,249 @@ The `main-branch-protection.json` ruleset implements comprehensive protection fo
 **Issue**: CI check not recognized
 - **Solution**: Verify `integration_id` matches your GitHub Actions app ID
 
+## Update Procedures
+
+### When to Update the Ruleset
+
+Update the ruleset configuration when:
+- Adding/removing CI workflow checks
+- Changing branch protection requirements
+- Modifying review policies
+- Adjusting bypass permissions
+- Updating merge strategies
+
+### Step-by-Step Update Process
+
+#### Method 1: Update via JSON File (Recommended)
+
+1. **Edit the JSON configuration**
+   ```bash
+   # Create a new branch for the changes
+   git checkout -b chore/update-branch-protection-rules
+   
+   # Edit the ruleset file
+   vim .github/rulesets/main-branch-protection.json
+   ```
+
+2. **Common modifications**
+
+   **Adding a new required status check:**
+   ```json
+   "required_status_checks": [
+     {
+       "context": "quick-validation",
+       "integration_id": 15368
+     },
+     {
+       "context": "security-scan",  // New check
+       "integration_id": 15368
+     }
+   ]
+   ```
+
+   **Changing review requirements:**
+   ```json
+   "parameters": {
+     "required_approving_review_count": 1,  // Changed from 0
+     "require_code_owner_review": true,     // Changed from false
+   }
+   ```
+
+   **Adding bypass actors:**
+   ```json
+   "bypass_actors": [
+     {
+       "actor_id": 5,
+       "actor_type": "RepositoryRole",
+       "bypass_mode": "pull_request"
+     },
+     {
+       "actor_id": 123456,  // New: specific user
+       "actor_type": "User",
+       "bypass_mode": "pull_request"
+     }
+   ]
+   ```
+
+3. **Test the configuration locally**
+   ```bash
+   # Validate JSON syntax
+   jq . .github/rulesets/main-branch-protection.json
+   
+   # Check against schema
+   npx ajv validate -s https://docs.github.com/assets/rulesets-schema.json \
+     -d .github/rulesets/main-branch-protection.json
+   ```
+
+4. **Create a Pull Request**
+   ```bash
+   git add .github/rulesets/main-branch-protection.json
+   git commit -m "chore: update branch protection rules
+   
+   - Add security-scan to required checks
+   - Require 1 approving review
+   
+   Co-Authored-By: Claude <noreply@anthropic.com>"
+   
+   git push origin chore/update-branch-protection-rules
+   gh pr create
+   ```
+
+5. **Apply the updated ruleset**
+   
+   After PR is merged, apply via GitHub CLI:
+   ```bash
+   # First, get the current ruleset ID
+   RULESET_ID=$(gh api repos/castor4bit/epub-image-extractor/rulesets \
+     --jq '.[] | select(.name == "Main Branch Protection") | .id')
+   
+   # Update the existing ruleset
+   gh api repos/castor4bit/epub-image-extractor/rulesets/$RULESET_ID \
+     --method PUT \
+     --input .github/rulesets/main-branch-protection.json
+   ```
+
+#### Method 2: Update via GitHub UI
+
+1. Navigate to **Settings** → **Rules** → **Rulesets**
+2. Find "Main Branch Protection" ruleset
+3. Click **Edit** (pencil icon)
+4. Make necessary changes:
+   - Add/remove rules
+   - Modify parameters
+   - Update bypass actors
+5. Click **Save changes**
+
+#### Method 3: Update via GitHub API
+
+```bash
+# Get current ruleset
+gh api repos/castor4bit/epub-image-extractor/rulesets \
+  --jq '.[] | select(.name == "Main Branch Protection")' \
+  > current-ruleset.json
+
+# Edit the file
+vim current-ruleset.json
+
+# Update the ruleset
+gh api repos/castor4bit/epub-image-extractor/rulesets/$RULESET_ID \
+  --method PUT \
+  --input current-ruleset.json
+```
+
+### Verification After Update
+
+1. **Check ruleset status**
+   ```bash
+   gh api repos/castor4bit/epub-image-extractor/rulesets \
+     --jq '.[] | select(.name == "Main Branch Protection") | {
+       name: .name,
+       enforcement: .enforcement,
+       updated_at: .updated_at,
+       rules_count: .rules | length
+     }'
+   ```
+
+2. **Test with a dummy PR**
+   ```bash
+   git checkout -b test/ruleset-verification
+   echo "test" >> test.txt
+   git add test.txt
+   git commit -m "test: verify ruleset configuration"
+   git push origin test/ruleset-verification
+   gh pr create --title "Test: Verify ruleset" --body "Testing ruleset configuration"
+   
+   # Check if expected checks are required
+   gh pr checks
+   
+   # Close without merging
+   gh pr close
+   ```
+
+3. **Monitor ruleset activity**
+   ```bash
+   # View recent ruleset bypass events
+   gh api /repos/castor4bit/epub-image-extractor/audit-log \
+     --jq '.[] | select(.action | contains("ruleset"))'
+   ```
+
+### Common Update Scenarios
+
+#### Scenario 1: Adding a New CI Workflow
+
+When adding a new workflow that should block merging:
+
+1. Create the workflow file (e.g., `.github/workflows/security-check.yml`)
+2. Update ruleset to include the new check:
+   ```json
+   "required_status_checks": [
+     { "context": "quick-validation" },
+     { "context": "security-check" }  // New
+   ]
+   ```
+3. Apply the updated ruleset
+
+#### Scenario 2: Temporarily Disabling Rules
+
+For maintenance or emergency situations:
+
+1. Change enforcement to "disabled":
+   ```json
+   "enforcement": "disabled"  // Changed from "active"
+   ```
+2. Apply the change
+3. Perform necessary operations
+4. Re-enable: `"enforcement": "active"`
+
+#### Scenario 3: Migrating to Team-Based Permissions
+
+When transitioning from solo to team development:
+
+1. Create GitHub team if not exists
+2. Get team ID: `gh api orgs/ORG_NAME/teams/TEAM_SLUG --jq .id`
+3. Update bypass actors:
+   ```json
+   "bypass_actors": [
+     {
+       "actor_id": TEAM_ID,
+       "actor_type": "Team",
+       "bypass_mode": "pull_request"
+     }
+   ]
+   ```
+
+### Rollback Procedures
+
+If an update causes issues:
+
+1. **Via GitHub UI**
+   - Settings → Rules → Rulesets → History
+   - Click "Revert" on the previous version
+
+2. **Via Git**
+   ```bash
+   # Revert the commit that updated the JSON
+   git revert <commit-hash>
+   git push origin main
+   
+   # Re-apply the previous configuration
+   gh api repos/castor4bit/epub-image-extractor/rulesets/$RULESET_ID \
+     --method PUT \
+     --input .github/rulesets/main-branch-protection.json
+   ```
+
+### Best Practices for Updates
+
+1. **Always test in a fork first** (if possible)
+2. **Document the reason for changes** in commit messages
+3. **Keep a backup** of the current configuration before updating
+4. **Coordinate with team** if multiple developers are affected
+5. **Monitor after deployment** for unexpected behaviors
+6. **Use gradual rollout** for major changes:
+   - Start with "evaluate" mode
+   - Monitor for a week
+   - Switch to "active" mode
+
 ### Related Documentation
 - [GitHub Rulesets Documentation](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets)
 - [CLAUDE.md Development Rules](../../CLAUDE.md)
