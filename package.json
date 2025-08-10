@@ -20,8 +20,6 @@
     "test:integration": "vitest run tests/integration",
     "test:integration:coverage": "vitest run --coverage tests/integration",
     "test:all": "npm run test && npm run test:integration",
-    "test:esm": "vitest run --config vitest.config.ts",
-    "typecheck:esm": "tsc --project tsconfig.esm.json",
     "build:e2e": "node scripts/build-e2e.js",
     "test:e2e": "npm run build:e2e && playwright test",
     "test:e2e:headed": "npm run build:e2e && playwright test --headed",
