@@ -74,7 +74,11 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       // E2Eビルドの場合は.cjs、通常ビルドは.js
-      preload: join(__dirname, '../preload', __dirname.includes('dist-electron-e2e') ? 'index.cjs' : 'index.js'),
+      preload: join(
+        __dirname,
+        '../preload',
+        __dirname.includes('dist-electron-e2e') ? 'index.cjs' : 'index.js',
+      ),
     },
   });
 
@@ -165,10 +169,10 @@ function createWindow() {
 app.whenReady().then(async () => {
   // Electronアプリケーションをロガーに設定
   setElectronApp(app);
-  
+
   // settingsStoreの初期化を待つ
   await settingsStore.waitForInit();
-  
+
   // カスタムメニューを設定（デフォルトのAboutダイアログを無効化）
   if (process.platform === 'darwin') {
     // macOS用のメニュー

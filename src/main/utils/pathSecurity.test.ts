@@ -15,7 +15,7 @@ describe('Path Security Utils', () => {
       const basePath = '/home/user/data';
       const relativePath = 'subfolder/file.txt';
       const resolved = resolveSecurePath(basePath, relativePath);
-      
+
       expect(resolved).toBe(path.normalize('/home/user/data/subfolder/file.txt'));
     });
 
@@ -23,16 +23,16 @@ describe('Path Security Utils', () => {
       const basePath = '/home/user/data';
       const relativePath = './subfolder/../another/file.txt';
       const resolved = resolveSecurePath(basePath, relativePath);
-      
+
       expect(resolved).toBe(path.normalize('/home/user/data/another/file.txt'));
     });
 
     test('should throw error for path traversal attempts', () => {
       const basePath = '/home/user/data';
       const relativePath = '../../etc/passwd';
-      
+
       expect(() => resolveSecurePath(basePath, relativePath)).toThrow(AppError);
-      
+
       try {
         resolveSecurePath(basePath, relativePath);
       } catch (error) {
@@ -46,7 +46,7 @@ describe('Path Security Utils', () => {
       const basePath = 'C:\\Users\\user\\data';
       const relativePath = 'subfolder\\file.txt';
       const resolved = resolveSecurePath(basePath, relativePath);
-      
+
       // path.normalize converts paths to platform-specific format
       const expected = path.join(path.normalize(basePath), path.normalize(relativePath));
       expect(resolved).toBe(expected);
@@ -119,7 +119,7 @@ describe('Path Security Utils', () => {
     test('should handle long file names', () => {
       const longName = 'a'.repeat(300) + '.txt';
       const sanitized = sanitizeFileName(longName);
-      
+
       expect(sanitized.length).toBeLessThanOrEqual(255);
       expect(sanitized.endsWith('.txt')).toBe(true);
     });
@@ -152,9 +152,9 @@ describe('Path Security Utils', () => {
       const result = checkResourceLimits(
         100, // current images
         1024 * 1024, // 1MB image
-        100 * 1024 * 1024 // 100MB memory
+        100 * 1024 * 1024, // 100MB memory
       );
-      
+
       expect(result.allowed).toBe(true);
       expect(result.reason).toBeUndefined();
     });
@@ -163,9 +163,9 @@ describe('Path Security Utils', () => {
       const result = checkResourceLimits(
         10001, // exceeds limit
         1024 * 1024,
-        100 * 1024 * 1024
+        100 * 1024 * 1024,
       );
-      
+
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('画像数が上限');
       expect(result.reason).toContain('10000');
@@ -175,9 +175,9 @@ describe('Path Security Utils', () => {
       const result = checkResourceLimits(
         100,
         60 * 1024 * 1024, // 60MB, exceeds 50MB limit
-        100 * 1024 * 1024
+        100 * 1024 * 1024,
       );
-      
+
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('画像サイズが上限');
       expect(result.reason).toContain('50MB');
@@ -187,9 +187,9 @@ describe('Path Security Utils', () => {
       const result = checkResourceLimits(
         100,
         1024 * 1024,
-        2 * 1024 * 1024 * 1024 // 2GB, exceeds 1GB limit
+        2 * 1024 * 1024 * 1024, // 2GB, exceeds 1GB limit
       );
-      
+
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('メモリ使用量が上限');
     });
@@ -199,9 +199,9 @@ describe('Path Security Utils', () => {
       const result = checkResourceLimits(
         20000, // exceeds image count
         100 * 1024 * 1024, // exceeds size
-        2 * 1024 * 1024 * 1024 // exceeds memory
+        2 * 1024 * 1024 * 1024, // exceeds memory
       );
-      
+
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('画像数が上限'); // First check
     });

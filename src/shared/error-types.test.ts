@@ -1,10 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import { 
-  ErrorCode, 
-  AppError, 
-  getDefaultUserMessage, 
+import {
+  ErrorCode,
+  AppError,
+  getDefaultUserMessage,
   wrapError,
-  ProcessingError 
+  ProcessingError,
 } from './error-types';
 
 describe('Error Types', () => {
@@ -29,7 +29,7 @@ describe('Error Types', () => {
         'Parse failed',
         'EPUBファイルの解析に失敗しました',
         { filePath: '/test/file.epub' },
-        new Error('Original error')
+        new Error('Original error'),
       );
 
       expect(error.name).toBe('AppError');
@@ -41,11 +41,7 @@ describe('Error Types', () => {
     });
 
     test('should be instanceof Error', () => {
-      const error = new AppError(
-        ErrorCode.UNKNOWN_ERROR,
-        'Test error',
-        'テストエラー'
-      );
+      const error = new AppError(ErrorCode.UNKNOWN_ERROR, 'Test error', 'テストエラー');
       expect(error).toBeInstanceOf(Error);
       expect(error).toBeInstanceOf(AppError);
     });
@@ -54,9 +50,9 @@ describe('Error Types', () => {
       const error: ProcessingError = new AppError(
         ErrorCode.FILE_NOT_FOUND,
         'File not found',
-        'ファイルが見つかりません'
+        'ファイルが見つかりません',
       );
-      
+
       expect(error.code).toBe(ErrorCode.FILE_NOT_FOUND);
       expect(error.message).toBeDefined();
       expect(error.userMessage).toBeDefined();
@@ -65,32 +61,30 @@ describe('Error Types', () => {
 
   describe('getDefaultUserMessage', () => {
     test('should return Japanese message for each error code', () => {
-      expect(getDefaultUserMessage(ErrorCode.EPUB_PARSE_ERROR))
-        .toBe('EPUBファイルの解析に失敗しました');
-      
-      expect(getDefaultUserMessage(ErrorCode.FILE_NOT_FOUND))
-        .toBe('ファイルが見つかりません');
-      
-      expect(getDefaultUserMessage(ErrorCode.MEMORY_LIMIT_EXCEEDED))
-        .toBe('メモリ使用量が上限を超えました');
+      expect(getDefaultUserMessage(ErrorCode.EPUB_PARSE_ERROR)).toBe(
+        'EPUBファイルの解析に失敗しました',
+      );
+
+      expect(getDefaultUserMessage(ErrorCode.FILE_NOT_FOUND)).toBe('ファイルが見つかりません');
+
+      expect(getDefaultUserMessage(ErrorCode.MEMORY_LIMIT_EXCEEDED)).toBe(
+        'メモリ使用量が上限を超えました',
+      );
     });
 
     test('should return default message for unknown error code', () => {
       // Test with a non-existent error code
       const unknownCode = 'UNKNOWN_CODE' as ErrorCode;
-      expect(getDefaultUserMessage(unknownCode))
-        .toBe('不明なエラーが発生しました');
+      expect(getDefaultUserMessage(unknownCode)).toBe('不明なエラーが発生しました');
     });
   });
 
   describe('wrapError', () => {
     test('should wrap standard Error to AppError', () => {
       const originalError = new Error('Original message');
-      const wrapped = wrapError(
-        originalError,
-        ErrorCode.EPUB_PARSE_ERROR,
-        { filePath: '/test.epub' }
-      );
+      const wrapped = wrapError(originalError, ErrorCode.EPUB_PARSE_ERROR, {
+        filePath: '/test.epub',
+      });
 
       expect(wrapped).toBeInstanceOf(AppError);
       expect(wrapped.code).toBe(ErrorCode.EPUB_PARSE_ERROR);
@@ -103,7 +97,7 @@ describe('Error Types', () => {
       const appError = new AppError(
         ErrorCode.FILE_NOT_FOUND,
         'Not found',
-        'ファイルが見つかりません'
+        'ファイルが見つかりません',
       );
 
       const wrapped = wrapError(appError, ErrorCode.UNKNOWN_ERROR);
@@ -128,7 +122,7 @@ describe('Error Types', () => {
 
     test('should handle non-Error objects', () => {
       const wrapped = wrapError('String error', ErrorCode.UNKNOWN_ERROR);
-      
+
       expect(wrapped).toBeInstanceOf(AppError);
       expect(wrapped.message).toBe('String error');
       expect(wrapped.originalError).toBeInstanceOf(Error);

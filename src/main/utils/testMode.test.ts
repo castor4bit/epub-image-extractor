@@ -1,10 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
-  isE2ETestMode, 
-  E2E_DELAYS, 
-  addE2EDelay, 
-  addE2EDelayByType 
-} from './testMode';
+import { isE2ETestMode, E2E_DELAYS, addE2EDelay, addE2EDelayByType } from './testMode';
 
 describe('Test Mode Utils', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -76,16 +71,16 @@ describe('Test Mode Utils', () => {
     test('should add delay when E2E test mode is enabled', async () => {
       process.env.E2E_TEST_MODE = 'true';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       const delayPromise = addE2EDelay(100);
-      
+
       // Verify setTimeout was called
       expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 100);
-      
+
       // Fast-forward time
       vi.advanceTimersByTime(100);
-      
+
       // Wait for promise to resolve
       await delayPromise;
     });
@@ -93,9 +88,9 @@ describe('Test Mode Utils', () => {
     test('should not add delay when E2E test mode is disabled', async () => {
       delete process.env.E2E_TEST_MODE;
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       await addE2EDelay(100);
-      
+
       // Verify setTimeout was not called
       expect(setTimeoutSpy).not.toHaveBeenCalled();
     });
@@ -103,11 +98,11 @@ describe('Test Mode Utils', () => {
     test('should handle zero delay', async () => {
       process.env.E2E_TEST_MODE = 'true';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       const delayPromise = addE2EDelay(0);
-      
+
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 0);
-      
+
       vi.advanceTimersByTime(0);
       await delayPromise;
     });
@@ -117,11 +112,11 @@ describe('Test Mode Utils', () => {
     test('should add delay for FILE_PROCESSING_START', async () => {
       process.env.E2E_TEST_MODE = 'true';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       const delayPromise = addE2EDelayByType('FILE_PROCESSING_START');
-      
+
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 300);
-      
+
       vi.advanceTimersByTime(300);
       await delayPromise;
     });
@@ -129,11 +124,11 @@ describe('Test Mode Utils', () => {
     test('should add delay for IMAGE_PROCESSING', async () => {
       process.env.E2E_TEST_MODE = 'true';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       const delayPromise = addE2EDelayByType('IMAGE_PROCESSING');
-      
+
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 10);
-      
+
       vi.advanceTimersByTime(10);
       await delayPromise;
     });
@@ -141,11 +136,11 @@ describe('Test Mode Utils', () => {
     test('should add delay for CHAPTER_PROCESSING', async () => {
       process.env.E2E_TEST_MODE = 'true';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       const delayPromise = addE2EDelayByType('CHAPTER_PROCESSING');
-      
+
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 30);
-      
+
       vi.advanceTimersByTime(30);
       await delayPromise;
     });
@@ -153,11 +148,11 @@ describe('Test Mode Utils', () => {
     test('should add delay for FILE_PROCESSING_END', async () => {
       process.env.E2E_TEST_MODE = 'true';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       const delayPromise = addE2EDelayByType('FILE_PROCESSING_END');
-      
+
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 30);
-      
+
       vi.advanceTimersByTime(30);
       await delayPromise;
     });
@@ -165,9 +160,9 @@ describe('Test Mode Utils', () => {
     test('should not add delay when E2E test mode is disabled', async () => {
       delete process.env.E2E_TEST_MODE;
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       await addE2EDelayByType('FILE_PROCESSING_START');
-      
+
       expect(setTimeoutSpy).not.toHaveBeenCalled();
     });
   });
@@ -176,36 +171,36 @@ describe('Test Mode Utils', () => {
     test('should work correctly with multiple delays', async () => {
       process.env.E2E_TEST_MODE = 'true';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       const promises = [
         addE2EDelayByType('FILE_PROCESSING_START'),
         addE2EDelay(50),
         addE2EDelayByType('IMAGE_PROCESSING'),
       ];
-      
+
       expect(setTimeoutSpy).toHaveBeenCalledTimes(3);
-      
+
       // Advance all timers
       vi.advanceTimersByTime(300);
-      
+
       await Promise.all(promises);
     });
 
     test('should handle environment changes correctly', async () => {
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       // Start with E2E mode disabled
       delete process.env.E2E_TEST_MODE;
-      
+
       await addE2EDelay(100);
       expect(setTimeoutSpy).not.toHaveBeenCalled();
-      
+
       // Enable E2E mode
       process.env.E2E_TEST_MODE = 'true';
-      
+
       const delayPromise = addE2EDelay(100);
       expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
-      
+
       vi.advanceTimersByTime(100);
       await delayPromise;
     });

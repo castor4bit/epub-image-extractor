@@ -31,7 +31,7 @@ describe('Language Constants', () => {
       expect(typeof SUPPORTED_LANGUAGES.ja.code).toBe('string');
       expect(typeof SUPPORTED_LANGUAGES.ja.name).toBe('string');
       expect(typeof SUPPORTED_LANGUAGES.ja.englishName).toBe('string');
-      
+
       // Verify the object structure is frozen at type level
       type JaCode = typeof SUPPORTED_LANGUAGES.ja.code;
       const code: JaCode = 'ja';
@@ -43,14 +43,14 @@ describe('Language Constants', () => {
     test('should accept valid language codes', () => {
       const jaCode: LanguageCode = 'ja';
       const enCode: LanguageCode = 'en';
-      
+
       expect(jaCode).toBe('ja');
       expect(enCode).toBe('en');
     });
 
     test('should have matching keys in SUPPORTED_LANGUAGES', () => {
       const codes: LanguageCode[] = ['ja', 'en'];
-      codes.forEach(code => {
+      codes.forEach((code) => {
         expect(SUPPORTED_LANGUAGES[code]).toBeDefined();
         expect(SUPPORTED_LANGUAGES[code].code).toBe(code);
       });
@@ -82,7 +82,7 @@ describe('Language Constants', () => {
 
     test('should support getting language info by code', () => {
       const getLanguageInfo = (code: LanguageCode) => SUPPORTED_LANGUAGES[code];
-      
+
       expect(getLanguageInfo('ja').name).toBe('日本語');
       expect(getLanguageInfo('en').name).toBe('English');
     });

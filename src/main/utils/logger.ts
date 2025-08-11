@@ -23,7 +23,7 @@ function getLogPath(): string {
       // エラーが発生した場合はフォールバック
     }
   }
-  
+
   const tmpPath = path.join(os.tmpdir(), 'epub-image-extractor-logs');
   // ディレクトリが存在しない場合は作成
   try {

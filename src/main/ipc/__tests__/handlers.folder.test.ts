@@ -160,29 +160,34 @@ describe('Folder drag & drop handler', () => {
       await fs.writeFile(epubPath2, 'dummy epub content 2');
 
       // モックの設定
-      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([epubPath1, epubPath2]);
+      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([
+        epubPath1,
+        epubPath2,
+      ]);
       (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
-      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
-        // 進捗をシミュレート
-        onProgress({
-          fileId: 'file-1',
-          fileName: 'book1.epub',
-          totalImages: 5,
-          processedImages: 5,
-          status: 'completed',
-        });
-        onProgress({
-          fileId: 'file-2',
-          fileName: 'book2.epub',
-          totalImages: 3,
-          processedImages: 3,
-          status: 'completed',
-        });
-        return [
-          { fileName: 'book1.epub', status: 'completed', imageCount: 5 },
-          { fileName: 'book2.epub', status: 'completed', imageCount: 3 },
-        ];
-      });
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(
+        async (_files, _output, onProgress) => {
+          // 進捗をシミュレート
+          onProgress({
+            fileId: 'file-1',
+            fileName: 'book1.epub',
+            totalImages: 5,
+            processedImages: 5,
+            status: 'completed',
+          });
+          onProgress({
+            fileId: 'file-2',
+            fileName: 'book2.epub',
+            totalImages: 3,
+            processedImages: 3,
+            status: 'completed',
+          });
+          return [
+            { fileName: 'book1.epub', status: 'completed', imageCount: 5 },
+            { fileName: 'book2.epub', status: 'completed', imageCount: 3 },
+          ];
+        },
+      );
 
       const handler = getHandler('epub:process');
       const mockEvent = { sender: mockWebContents };
@@ -193,7 +198,7 @@ describe('Folder drag & drop handler', () => {
         [epubPath1, epubPath2],
         expect.any(String),
         expect.any(Function),
-        expect.any(Number)
+        expect.any(Number),
       );
 
       // 進捗が送信されたことを確認
@@ -217,27 +222,29 @@ describe('Folder drag & drop handler', () => {
       // モックの設定
       (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([epubPath2]);
       (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
-      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
-        // 進捗をシミュレート
-        onProgress({
-          fileId: 'file-1',
-          fileName: 'direct.epub',
-          totalImages: 3,
-          processedImages: 3,
-          status: 'completed',
-        });
-        onProgress({
-          fileId: 'file-2',
-          fileName: 'nested.epub',
-          totalImages: 2,
-          processedImages: 2,
-          status: 'completed',
-        });
-        return [
-          { fileName: 'direct.epub', status: 'completed', imageCount: 3 },
-          { fileName: 'nested.epub', status: 'completed', imageCount: 2 },
-        ];
-      });
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(
+        async (_files, _output, onProgress) => {
+          // 進捗をシミュレート
+          onProgress({
+            fileId: 'file-1',
+            fileName: 'direct.epub',
+            totalImages: 3,
+            processedImages: 3,
+            status: 'completed',
+          });
+          onProgress({
+            fileId: 'file-2',
+            fileName: 'nested.epub',
+            totalImages: 2,
+            processedImages: 2,
+            status: 'completed',
+          });
+          return [
+            { fileName: 'direct.epub', status: 'completed', imageCount: 3 },
+            { fileName: 'nested.epub', status: 'completed', imageCount: 2 },
+          ];
+        },
+      );
 
       const handler = getHandler('epub:process');
       const mockEvent = { sender: mockWebContents };
@@ -268,37 +275,43 @@ describe('Folder drag & drop handler', () => {
       await fs.writeFile(book4, 'dummy'); // これは検索されない
 
       // モックの設定 - 3階層までのファイルを返す
-      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([book1, book2, book3]);
+      (scanMultipleFoldersForEpubs as ReturnType<typeof vi.fn>).mockResolvedValue([
+        book1,
+        book2,
+        book3,
+      ]);
       (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
-      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
-        // 進捗をシミュレート
-        onProgress({
-          fileId: 'file-1',
-          fileName: 'book1.epub',
-          totalImages: 2,
-          processedImages: 2,
-          status: 'completed',
-        });
-        onProgress({
-          fileId: 'file-2',
-          fileName: 'book2.epub',
-          totalImages: 2,
-          processedImages: 2,
-          status: 'completed',
-        });
-        onProgress({
-          fileId: 'file-3',
-          fileName: 'book3.epub',
-          totalImages: 2,
-          processedImages: 2,
-          status: 'completed',
-        });
-        return [
-          { fileName: 'book1.epub', status: 'completed', imageCount: 2 },
-          { fileName: 'book2.epub', status: 'completed', imageCount: 2 },
-          { fileName: 'book3.epub', status: 'completed', imageCount: 2 },
-        ];
-      });
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(
+        async (_files, _output, onProgress) => {
+          // 進捗をシミュレート
+          onProgress({
+            fileId: 'file-1',
+            fileName: 'book1.epub',
+            totalImages: 2,
+            processedImages: 2,
+            status: 'completed',
+          });
+          onProgress({
+            fileId: 'file-2',
+            fileName: 'book2.epub',
+            totalImages: 2,
+            processedImages: 2,
+            status: 'completed',
+          });
+          onProgress({
+            fileId: 'file-3',
+            fileName: 'book3.epub',
+            totalImages: 2,
+            processedImages: 2,
+            status: 'completed',
+          });
+          return [
+            { fileName: 'book1.epub', status: 'completed', imageCount: 2 },
+            { fileName: 'book2.epub', status: 'completed', imageCount: 2 },
+            { fileName: 'book3.epub', status: 'completed', imageCount: 2 },
+          ];
+        },
+      );
 
       const handler = getHandler('epub:process');
       const mockEvent = { sender: mockWebContents };

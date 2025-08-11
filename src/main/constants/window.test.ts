@@ -30,11 +30,11 @@ describe('Window Constants', () => {
     // The types should be literal types, not general number type
     type DefaultWidth = typeof WINDOW_SIZES.default.width;
     type MinOpacity = typeof WINDOW_OPACITY.inactive.min;
-    
+
     // These checks ensure the const assertion is working at compile time
     const width: DefaultWidth = 600;
     const opacity: MinOpacity = 0.1;
-    
+
     // Runtime checks
     expect(typeof WINDOW_SIZES.default.width).toBe('number');
     expect(typeof WINDOW_OPACITY.inactive.min).toBe('number');

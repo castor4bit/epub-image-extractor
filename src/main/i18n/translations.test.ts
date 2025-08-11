@@ -19,7 +19,9 @@ describe('Translations', () => {
       expect(translations.en.exitDialog).toBeDefined();
       expect(translations.en.exitDialog.title).toBe('Files are being processed');
       expect(translations.en.exitDialog.message).toBe('Files are being processed');
-      expect(translations.en.exitDialog.detail).toBe('Are you sure you want to quit and interrupt the processing?');
+      expect(translations.en.exitDialog.detail).toBe(
+        'Are you sure you want to quit and interrupt the processing?',
+      );
       expect(translations.en.exitDialog.buttons.quit).toBe('Quit');
       expect(translations.en.exitDialog.buttons.cancel).toBe('Cancel');
     });
@@ -50,7 +52,7 @@ describe('Translations', () => {
       // Runtime check for property types
       expect(typeof translations.ja.exitDialog.title).toBe('string');
       expect(typeof translations.en.exitDialog.title).toBe('string');
-      
+
       // Verify the object structure is frozen at type level
       type JaTitle = typeof translations.ja.exitDialog.title;
       const title: JaTitle = '処理中のファイルがあります';
@@ -91,7 +93,7 @@ describe('Translations', () => {
   describe('TranslationKey type', () => {
     test('should allow access to translation properties', () => {
       const trans: TranslationKey = translations;
-      
+
       expect(trans.ja.exitDialog).toBeDefined();
       expect(trans.en.exitDialog).toBeDefined();
     });
@@ -113,7 +115,7 @@ describe('Translations', () => {
     test('all exit dialog fields should be translated', () => {
       const languages: LanguageCode[] = ['ja', 'en'];
 
-      languages.forEach(lang => {
+      languages.forEach((lang) => {
         const trans = translations[lang];
         expect(trans.exitDialog.title).toBeTruthy();
         expect(trans.exitDialog.message).toBeTruthy();
@@ -126,7 +128,7 @@ describe('Translations', () => {
     test('all menu fields should be translated', () => {
       const languages: LanguageCode[] = ['ja', 'en'];
 
-      languages.forEach(lang => {
+      languages.forEach((lang) => {
         const trans = translations[lang];
         expect(trans.menu.file).toBeTruthy();
         expect(trans.menu.edit).toBeTruthy();
