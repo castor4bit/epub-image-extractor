@@ -11,7 +11,7 @@ describe('SimpleMutex', () => {
       try {
         results.push(id);
         // Simulate async work
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         results.push(id * 10);
       } finally {
         release();
@@ -46,13 +46,13 @@ describe('SimpleMutex', () => {
     order.push('acquired-1');
 
     // Start second acquisition (will wait)
-    const acquire2Promise = mutex.acquire().then(release => {
+    const acquire2Promise = mutex.acquire().then((release) => {
       order.push('acquired-2');
       return release;
     });
 
     // Start third acquisition (will wait)
-    const acquire3Promise = mutex.acquire().then(release => {
+    const acquire3Promise = mutex.acquire().then((release) => {
       order.push('acquired-3');
       return release;
     });
@@ -89,7 +89,7 @@ describe('SimpleMutex', () => {
       const release = await mutex.acquire();
       try {
         const current = counter;
-        await new Promise(resolve => setTimeout(resolve, 5));
+        await new Promise((resolve) => setTimeout(resolve, 5));
         counter = current + 1;
       } finally {
         release();
@@ -97,7 +97,11 @@ describe('SimpleMutex', () => {
     };
 
     // Run 10 increments concurrently
-    await Promise.all(Array(10).fill(0).map(() => incrementWithMutex()));
+    await Promise.all(
+      Array(10)
+        .fill(0)
+        .map(() => incrementWithMutex()),
+    );
 
     // Counter should be exactly 10 (no race conditions)
     expect(counter).toBe(10);
@@ -134,10 +138,6 @@ describe('SimpleMutex', () => {
     await Promise.all([errorPromise, normalPromise]);
 
     // Normal task should still execute after error task
-    expect(results).toEqual([
-      'error-task-start',
-      'error-task-released',
-      'normal-task',
-    ]);
+    expect(results).toEqual(['error-task-start', 'error-task-released', 'normal-task']);
   });
 });

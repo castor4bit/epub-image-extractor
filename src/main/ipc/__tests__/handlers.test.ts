@@ -227,17 +227,19 @@ describe('IPC Handlers', () => {
       const filePaths = ['/test/book.epub'];
 
       (isZipFile as ReturnType<typeof vi.fn>).mockReturnValue(false);
-      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(async (_files, _output, onProgress) => {
-        // 進捗を送信
-        onProgress({
-          fileId: 'file-1',
-          fileName: 'book.epub',
-          totalImages: 10,
-          processedImages: 5,
-          status: 'processing',
-        });
-        return [{ fileName: 'book.epub', status: 'completed', imageCount: 10 }];
-      });
+      (processEpubFiles as ReturnType<typeof vi.fn>).mockImplementation(
+        async (_files, _output, onProgress) => {
+          // 進捗を送信
+          onProgress({
+            fileId: 'file-1',
+            fileName: 'book.epub',
+            totalImages: 10,
+            processedImages: 5,
+            status: 'processing',
+          });
+          return [{ fileName: 'book.epub', status: 'completed', imageCount: 10 }];
+        },
+      );
 
       // fs.statをモック
       (fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({

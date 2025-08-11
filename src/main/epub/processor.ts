@@ -20,7 +20,10 @@ async function getPLimit() {
       pLimitModule = module.default;
     } catch {
       // フォールバック: p-limitが使えない場合は単純な制限なし関数を返す
-      pLimitModule = () => <T>(fn: () => Promise<T>) => fn();
+      pLimitModule =
+        () =>
+        <T>(fn: () => Promise<T>) =>
+          fn();
     }
   }
   return pLimitModule;

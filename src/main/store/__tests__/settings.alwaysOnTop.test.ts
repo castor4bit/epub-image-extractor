@@ -27,7 +27,7 @@ describe('settingsStore - 最前面表示設定', () => {
     // settingsStoreを動的にインポート
     const settingsModule = await import('../settings');
     settingsStore = settingsModule.settingsStore;
-    
+
     // 初期化を待つ
     await settingsStore.waitForInit();
   });
@@ -46,7 +46,7 @@ describe('settingsStore - 最前面表示設定', () => {
   test('alwaysOnTopの設定が保存される', () => {
     // 設定を変更
     settingsStore.set('alwaysOnTop', false);
-    
+
     // 設定が保存されたことを確認（実際のストアまたはフォールバックが使用される）
     const settings = settingsStore.get();
     expect(settings).toBeDefined();
@@ -65,10 +65,10 @@ describe('settingsStore - 最前面表示設定', () => {
   test('リセット時にalwaysOnTopもクリアされる', () => {
     // 設定を変更
     settingsStore.set('alwaysOnTop', false);
-    
+
     // リセット
     settingsStore.resetToDefaults();
-    
+
     // デフォルトに戻ることを確認
     const settings = settingsStore.get();
     expect(settings).toBeDefined();

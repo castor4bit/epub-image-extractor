@@ -99,7 +99,7 @@ async function getStore(): Promise<any> {
   try {
     // electron-store v10はESMモジュールなので動的インポート
     const { default: Store } = await import('electron-store');
-    
+
     const schema = {
       outputDirectory: {
         type: 'string' as const,
@@ -172,7 +172,7 @@ class SettingsStoreProxy {
 
   constructor() {
     // 初期化時に非同期でストアを取得
-    this.storePromise = getStore().then(store => {
+    this.storePromise = getStore().then((store) => {
       this.cachedStore = store;
       return store;
     });
@@ -203,7 +203,7 @@ class SettingsStoreProxy {
         this.cachedStore.set(keyOrSettings, value);
       } else {
         // ストアが初期化されるまで待つ
-        this.storePromise.then(store => {
+        this.storePromise.then((store) => {
           store.set(keyOrSettings, value);
         });
       }
@@ -260,7 +260,7 @@ class SettingsStoreProxy {
     if (this.cachedStore) {
       this.cachedStore.clear();
     } else {
-      this.storePromise.then(store => {
+      this.storePromise.then((store) => {
         store.clear();
       });
     }
