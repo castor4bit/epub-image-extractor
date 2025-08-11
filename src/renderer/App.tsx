@@ -8,6 +8,7 @@ import { FileDropZone } from './components/FileDropZone';
 import { FileProcessingList } from './components/FileProcessingList';
 import { SettingsWindow } from './components/SettingsWindow';
 import { WindowHoverDetector } from './components/WindowHoverDetector';
+import { formatError } from './utils/errorMessages';
 import './i18n';
 
 function App() {
@@ -90,7 +91,8 @@ function App() {
           setIsProcessing(false);
           window.electronAPI.updateProcessingState(false);
         } else {
-          alert(`${t('errors.fileProcessing')}: ${result.error}`);
+          const errorMessage = formatError(result.error);
+          alert(`${t('errors.fileProcessing')}: ${errorMessage}`);
           setIsProcessing(false);
           window.electronAPI.updateProcessingState(false);
         }
