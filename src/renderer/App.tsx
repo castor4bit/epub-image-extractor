@@ -8,6 +8,7 @@ import { FileDropZone } from './components/FileDropZone';
 import { FileProcessingList } from './components/FileProcessingList';
 import { SettingsWindow } from './components/SettingsWindow';
 import { WindowHoverDetector } from './components/WindowHoverDetector';
+import { formatError } from './utils/errorMessages';
 import './i18n';
 
 function App() {
@@ -90,14 +91,15 @@ function App() {
           setIsProcessing(false);
           window.electronAPI.updateProcessingState(false);
         } else {
-          alert(`${t('errors.fileProcessing')}: ${result.error}`);
+          const errorMessage = formatError(result.error);
+          alert(`${t('errors.FILE_PROCESSING')}: ${errorMessage}`);
           setIsProcessing(false);
           window.electronAPI.updateProcessingState(false);
         }
       } catch (error) {
         console.error('処理エラー:', error);
         // より詳細なエラーメッセージを表示
-        let errorMessage = t('errors.fileProcessing');
+        let errorMessage = t('errors.FILE_PROCESSING');
         if (error instanceof Error) {
           errorMessage += `\n\n詳細: ${error.message}`;
           if (error.stack) {
@@ -142,7 +144,7 @@ function App() {
         setFiles(droppedFiles);
         processFiles(droppedFiles);
       } else {
-        alert(t('errors.invalidFile'));
+        alert(t('errors.INVALID_FILE'));
       }
     },
     [processFiles, t],
@@ -165,7 +167,7 @@ function App() {
           setFiles(validFiles);
           processFiles(validFiles);
         } else {
-          alert(t('errors.invalidFile'));
+          alert(t('errors.INVALID_FILE'));
         }
       }
     },
