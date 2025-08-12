@@ -1,5 +1,6 @@
 import i18n from '../i18n';
 import { ErrorCode } from '../../shared/error-types';
+import { isJapaneseLanguage } from '../../shared/utils/language';
 
 /**
  * Convert error code to localized message
@@ -30,7 +31,7 @@ export function formatError(error: unknown): string {
     const errorObj = error as { code: string; userMessage?: string; message?: string };
 
     // If we're in Japanese, return the userMessage as is
-    if (i18n.language === 'ja' && errorObj.userMessage) {
+    if (isJapaneseLanguage(i18n.language) && errorObj.userMessage) {
       return errorObj.userMessage;
     }
 

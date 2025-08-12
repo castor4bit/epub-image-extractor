@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { formatError, getErrorMessage } from '../errorMessages';
 import i18n from '../../i18n';
+import { containsJapaneseCharacters } from '../../../shared/utils/language';
 
 describe('errorMessages', () => {
   describe('formatError', () => {
@@ -123,7 +124,7 @@ describe('errorMessages', () => {
         testCases.forEach(({ error, expected }) => {
           const result = formatError(error);
           expect(result).toBe(expected);
-          expect(result).not.toMatch(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/); // No Japanese characters
+          expect(containsJapaneseCharacters(result)).toBe(false); // No Japanese characters
         });
       });
 
@@ -212,13 +213,13 @@ describe('errorMessages', () => {
           // Test English
           await i18n.changeLanguage('en');
           const enMessage = getErrorMessage(code);
-          expect(enMessage).not.toMatch(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/); // No Japanese
+          expect(containsJapaneseCharacters(enMessage)).toBe(false); // No Japanese
           expect(enMessage).not.toBe(code); // Should not return the code itself
 
           // Test Japanese
           await i18n.changeLanguage('ja');
           const jaMessage = getErrorMessage(code);
-          expect(jaMessage).toMatch(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/); // Has Japanese
+          expect(containsJapaneseCharacters(jaMessage)).toBe(true); // Has Japanese
           expect(jaMessage).not.toBe(code); // Should not return the code itself
         }
       });
