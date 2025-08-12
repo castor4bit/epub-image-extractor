@@ -209,6 +209,12 @@ function App() {
 
   // 進捗リスナーを設定
   useEffect(() => {
+    // electronAPIが存在しない場合は警告（テスト環境など）
+    if (!window.electronAPI?.onProgress) {
+      console.warn('window.electronAPI.onProgress is not available');
+      return;
+    }
+
     const cleanup = window.electronAPI.onProgress((progressData: ProcessingProgress) => {
       setProgress((prev) => ({
         ...prev,
