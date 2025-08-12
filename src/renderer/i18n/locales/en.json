@@ -83,10 +83,10 @@
     "DIRECTORY_CREATE_ERROR_WITH_NAME": "Failed to create chapter directory: {{dirName}}",
     "RESOURCE_LIMIT_EXCEEDED": "Resource limit exceeded",
     "NETWORK_ERROR": "Network error occurred",
-    "PERMISSION_DENIED": "Permission denied",
+    "PERMISSION_DENIED": "File access denied",
     "OPERATION_CANCELLED": "Operation cancelled",
     "INVALID_PATH": "Invalid path",
-    "UNKNOWN_ERROR": "Unknown error occurred",
+    "UNKNOWN_ERROR": "An unknown error occurred",
     "PROCESSING_TIMEOUT": "Processing timeout",
     "PROCESSING_ERROR": "Error occurred during processing",
     "IMAGE_EXTRACTION_FAILED": "Failed to extract images",
@@ -95,7 +95,13 @@
     "NAV_NOT_FOUND": "Navigation information not found",
     "NAV_TOC_NOT_FOUND": "TOC not found in Navigation Document",
     "VERSION_INFO_ERROR": "Failed to get version information",
-    "SETTINGS_SAVE_ERROR": "Failed to save settings"
+    "SETTINGS_SAVE_ERROR": "Failed to save settings",
+    "INVALID_EPUB_FORMAT": "Invalid EPUB format",
+    "ZIP_EXTRACTION_ERROR": "Failed to extract ZIP file",
+    "OUTPUT_DIR_ERROR": "Failed to create output directory",
+    "IMAGE_EXTRACTION_ERROR": "Failed to extract images",
+    "CHAPTER_ORGANIZATION_ERROR": "Failed to organize chapters",
+    "DISK_FULL": "Insufficient disk space"
   },
   "units": {
     "images": "images",
