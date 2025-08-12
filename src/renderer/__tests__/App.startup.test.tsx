@@ -32,7 +32,7 @@ beforeEach(() => {
 describe('App Startup', () => {
   it('should render without crashing', async () => {
     const { container } = render(<App />);
-    
+
     // アプリケーションが正常にレンダリングされることを確認
     await waitFor(() => {
       expect(container.querySelector('.app')).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('App Startup', () => {
 
   it('should display the application title', async () => {
     const { getByText } = render(<App />);
-    
+
     // タイトルが表示されることを確認
     await waitFor(() => {
       expect(getByText('EPUB Image Extractor')).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('App Startup', () => {
 
   it('should display the drop zone initially', async () => {
     const { getByText } = render(<App />);
-    
+
     // ドロップゾーンが表示されることを確認
     await waitFor(() => {
       expect(getByText(/EPUBファイルをドロップ|Drop EPUB files here/)).toBeInTheDocument();
@@ -60,35 +60,35 @@ describe('App Startup', () => {
   it('should handle missing electronAPI gracefully', async () => {
     // コンソール警告のスパイ
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    
+
     // electronAPIを削除
     delete (window as any).electronAPI;
-    
+
     // アプリがクラッシュしないことを確認
     const { container } = render(<App />);
-    
+
     // アプリケーションが正常にレンダリングされることを確認
     await waitFor(() => {
       expect(container.querySelector('.app')).toBeInTheDocument();
     });
-    
+
     // 警告が出力されることを確認
     expect(consoleWarnSpy).toHaveBeenCalledWith('window.electronAPI.onProgress is not available');
-    
+
     consoleWarnSpy.mockRestore();
   });
 
   it('should handle i18n initialization errors', async () => {
     // i18nのエラーをシミュレート
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     const { container } = render(<App />);
-    
+
     // アプリケーションが依然としてレンダリングされることを確認
     await waitFor(() => {
       expect(container.querySelector('.app')).toBeInTheDocument();
     });
-    
+
     consoleErrorSpy.mockRestore();
   });
 });
