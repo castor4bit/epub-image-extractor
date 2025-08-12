@@ -53,7 +53,7 @@ describe('errorMessages', () => {
           const result = formatError(error);
           expect(result).toBe(error.userMessage);
           // Check that it contains Japanese characters (hiragana, katakana, or kanji)
-          expect(result).toMatch(/[぀-ゟ゠-ヿ一-龯]/);
+          expect(containsJapaneseCharacters(result)).toBe(true);
         });
       });
 
