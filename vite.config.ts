@@ -38,6 +38,9 @@ export default defineConfig({
             outDir: 'dist-electron/preload',
             rollupOptions: {
               external: ['electron'],
+              output: {
+                entryFileNames: 'index.mjs', // .mjs拡張子を使用
+              },
             },
           },
         },
