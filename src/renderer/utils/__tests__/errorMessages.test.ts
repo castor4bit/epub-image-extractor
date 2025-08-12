@@ -19,52 +19,74 @@ describe('errorMessages', () => {
         await i18n.changeLanguage('ja');
       });
 
-      it('should return Japanese userMessage for AppError with code', () => {
+      it('should return localized message from i18n for AppError with code', () => {
         const error = {
           code: 'EPUB_PARSE_ERROR',
-          userMessage: 'EPUBファイルの解析に失敗しました',
+          userMessage: '古いメッセージ', // Old hardcoded message (should be ignored)
           message: 'Failed to parse EPUB file',
         };
         
         const result = formatError(error);
+        // Should use i18n translation, not the userMessage
         expect(result).toBe('EPUBファイルの解析に失敗しました');
+        expect(result).not.toBe('古いメッセージ');
       });
 
-      it('should return Japanese userMessage for different error codes', () => {
-        const errors = [
+      it('should return localized Japanese messages for different error codes', () => {
+        const testCases = [
           {
-            code: 'FILE_NOT_FOUND',
-            userMessage: 'ファイルが見つかりません',
-            message: 'File not found',
+            error: {
+              code: 'FILE_NOT_FOUND',
+              userMessage: '違うメッセージ', // Wrong message
+              message: 'File not found',
+            },
+            expected: 'ファイルが見つかりません', // From i18n
           },
           {
-            code: 'INVALID_EPUB_FORMAT',
-            userMessage: '無効なEPUB形式です',
-            message: 'Invalid EPUB format',
+            error: {
+              code: 'INVALID_EPUB_FORMAT',
+              userMessage: '違うメッセージ', // Wrong message
+              message: 'Invalid EPUB format',
+            },
+            expected: '無効なEPUB形式です', // From i18n
           },
           {
-            code: 'ZIP_EXTRACTION_ERROR',
-            userMessage: 'ZIPファイルの展開に失敗しました',
-            message: 'Failed to extract ZIP file',
+            error: {
+              code: 'ZIP_EXTRACTION_ERROR',
+              userMessage: '違うメッセージ', // Wrong message
+              message: 'Failed to extract ZIP file',
+            },
+            expected: 'ZIPファイルの展開に失敗しました', // From i18n
           },
         ];
 
-        errors.forEach((error) => {
+        testCases.forEach(({ error, expected }) => {
           const result = formatError(error);
-          expect(result).toBe(error.userMessage);
-          // Check that it contains Japanese characters (hiragana, katakana, or kanji)
+          expect(result).toBe(expected); // Should use i18n translation
+          expect(result).not.toBe(error.userMessage); // Should NOT use userMessage
           expect(containsJapaneseCharacters(result)).toBe(true);
         });
       });
 
-      it('should handle errors without userMessage', () => {
+      it('should handle unknown error codes', () => {
         const error = {
-          code: 'SOME_ERROR',
+          code: 'UNKNOWN_ERROR_CODE',
           message: 'Some error occurred',
         };
         
         const result = formatError(error);
-        expect(result).toBe('不明なエラーが発生しました');
+        expect(result).toBe('不明なエラーが発生しました'); // Default from i18n
+      });
+
+      it('should fallback to userMessage when code is empty', () => {
+        const error = {
+          code: '', // Empty code
+          userMessage: 'フォールバックメッセージ',
+          message: 'Fallback message',
+        };
+        
+        const result = formatError(error);
+        expect(result).toBe('フォールバックメッセージ');
       });
     });
 
@@ -73,15 +95,18 @@ describe('errorMessages', () => {
         await i18n.changeLanguage('en');
       });
 
-      it('should return English message for AppError with code', () => {
+      it('should return localized English message from i18n for AppError with code', () => {
         const error = {
           code: 'EPUB_PARSE_ERROR',
-          userMessage: 'EPUBファイルの解析に失敗しました',
-          message: 'Failed to parse EPUB file',
+          userMessage: 'EPUBファイルの解析に失敗しました', // Japanese userMessage (should be ignored)
+          message: 'Some other message',
         };
         
         const result = formatError(error);
+        // Should use i18n English translation
         expect(result).toBe('Failed to parse EPUB file');
+        expect(result).not.toBe('EPUBファイルの解析に失敗しました'); // Not the Japanese userMessage
+        expect(result).not.toBe('Some other message'); // Not the message field
         expect(result).not.toContain('EPUB_PARSE_ERROR'); // Should not show error code
       });
 

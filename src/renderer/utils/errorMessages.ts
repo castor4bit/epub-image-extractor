@@ -30,17 +30,12 @@ export function formatError(error: unknown): string {
   if (typeof error === 'object' && 'code' in error) {
     const errorObj = error as { code: string; userMessage?: string; message?: string };
 
-    // If we're in Japanese, return the userMessage as is
-    if (isJapaneseLanguage(i18n.language) && errorObj.userMessage) {
-      return errorObj.userMessage;
-    }
-
-    // For other languages, try to get localized message by code
+    // Always try to get localized message by code first
     if (errorObj.code) {
       return getErrorMessage(errorObj.code);
     }
 
-    // Fallback to userMessage or message
+    // Fallback to userMessage or message if no code
     return errorObj.userMessage || errorObj.message || i18n.t('errors.UNKNOWN_ERROR');
   }
 
