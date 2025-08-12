@@ -68,9 +68,9 @@
     "en": "English"
   },
   "errors": {
-    "fileProcessing": "An error occurred while processing the file",
-    "invalidFile": "Invalid file format",
-    "noImages": "No images found",
+    "FILE_PROCESSING": "An error occurred while processing the file",
+    "INVALID_FILE": "Invalid file format",
+    "NO_IMAGES": "No images found",
     "EPUB_PARSE_ERROR": "Failed to parse EPUB file",
     "EPUB_INVALID_FORMAT": "Invalid EPUB format",
     "EPUB_INVALID_FORMAT_CONTAINER": "Invalid EPUB format (container.xml not found)",

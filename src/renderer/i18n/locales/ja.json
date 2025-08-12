@@ -68,9 +68,9 @@
     "en": "English"
   },
   "errors": {
-    "fileProcessing": "ファイル処理中にエラーが発生しました",
-    "invalidFile": "無効なファイル形式です",
-    "noImages": "画像が見つかりませんでした",
+    "FILE_PROCESSING": "ファイル処理中にエラーが発生しました",
+    "INVALID_FILE": "無効なファイル形式です",
+    "NO_IMAGES": "画像が見つかりませんでした",
     "EPUB_PARSE_ERROR": "EPUBファイルの解析に失敗しました",
     "EPUB_INVALID_FORMAT": "EPUBファイルの形式が無効です",
     "EPUB_INVALID_FORMAT_CONTAINER": "EPUBファイルの形式が無効です（container.xmlが見つかりません）",
