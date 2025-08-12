@@ -1,6 +1,5 @@
 import i18n from '../i18n';
 import { ErrorCode } from '../../shared/error-types';
-import { isJapaneseLanguage } from '../../shared/utils/language';
 
 /**
  * Convert error code to localized message
