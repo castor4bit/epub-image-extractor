@@ -110,56 +110,73 @@ describe('errorMessages', () => {
         expect(result).not.toContain('EPUB_PARSE_ERROR'); // Should not show error code
       });
 
-      it('should return English messages for different error codes', () => {
+      it('should return English messages from i18n, not from message field', () => {
         const testCases = [
           {
             error: {
               code: 'FILE_NOT_FOUND',
               userMessage: 'ファイルが見つかりません',
-              message: 'File not found',
+              message: 'Wrong: file was not found', // Different from i18n
             },
-            expected: 'File not found',
+            expected: 'File not found', // From i18n
           },
           {
             error: {
-              code: 'INVALID_EPUB_FORMAT',
+              code: 'INVALID_EPUB_FORMAT', 
               userMessage: '無効なEPUB形式です',
-              message: 'Invalid EPUB format',
+              message: 'Wrong: EPUB format is invalid', // Different from i18n
             },
-            expected: 'Invalid EPUB format',
+            expected: 'Invalid EPUB format', // From i18n
           },
           {
             error: {
               code: 'ZIP_EXTRACTION_ERROR',
               userMessage: 'ZIPファイルの展開に失敗しました',
-              message: 'Failed to extract ZIP file',
+              message: 'Wrong: could not extract ZIP', // Different from i18n
             },
-            expected: 'Failed to extract ZIP file',
+            expected: 'Failed to extract ZIP file', // From i18n
           },
           {
             error: {
               code: 'OUTPUT_DIR_ERROR',
               userMessage: '出力ディレクトリの作成に失敗しました',
-              message: 'Failed to create output directory',
+              message: 'Wrong: output directory creation failed', // Different from i18n
             },
-            expected: 'Failed to create output directory',
+            expected: 'Failed to create output directory', // From i18n
           },
         ];
 
         testCases.forEach(({ error, expected }) => {
           const result = formatError(error);
-          expect(result).toBe(expected);
+          expect(result).toBe(expected); // Should use i18n
+          expect(result).not.toBe(error.message); // Should NOT use message field
+          expect(result).not.toBe(error.userMessage); // Should NOT use userMessage
           expect(containsJapaneseCharacters(result)).toBe(false); // No Japanese characters
         });
       });
 
-      it('should handle errors without code', () => {
+      it('should return default i18n message for errors without code', () => {
         const error = {
           message: 'Some error occurred',
+          // No code field at all
         };
         
         const result = formatError(error);
-        expect(result).toBe('An unknown error occurred');
+        expect(result).toBe('An unknown error occurred'); // Default from i18n
+        expect(result).not.toBe('Some error occurred'); // Should NOT use message field
+      });
+
+      it('should use i18n for unknown error codes', () => {
+        const error = {
+          code: 'COMPLETELY_UNKNOWN_CODE',
+          message: 'Fallback message text',
+          userMessage: 'Japanese fallback',
+        };
+        
+        const result = formatError(error);
+        expect(result).toBe('An unknown error occurred'); // Default from i18n
+        expect(result).not.toBe('Fallback message text'); // NOT the message field
+        expect(result).not.toBe('Japanese fallback'); // NOT the userMessage
       });
 
       it('should handle string errors', () => {
