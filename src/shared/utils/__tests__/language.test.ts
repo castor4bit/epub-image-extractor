@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  isJapaneseLanguage,
-  containsJapaneseCharacters,
-} from '../language';
+import { isJapaneseLanguage, containsJapaneseCharacters } from '../language';
 
 describe('Language Utilities', () => {
   describe('isJapaneseLanguage', () => {
@@ -66,5 +63,4 @@ describe('Language Utilities', () => {
       expect(containsJapaneseCharacters('한글')).toBe(false); // Korean
     });
   });
-
 });

@@ -25,7 +25,7 @@ describe('errorMessages', () => {
           userMessage: '古いメッセージ', // Old hardcoded message (should be ignored)
           message: 'Failed to parse EPUB file',
         };
-        
+
         const result = formatError(error);
         // Should use i18n translation, not the userMessage
         expect(result).toBe('EPUBファイルの解析に失敗しました');
@@ -73,7 +73,7 @@ describe('errorMessages', () => {
           code: 'UNKNOWN_ERROR_CODE',
           message: 'Some error occurred',
         };
-        
+
         const result = formatError(error);
         expect(result).toBe('不明なエラーが発生しました'); // Default from i18n
       });
@@ -84,7 +84,7 @@ describe('errorMessages', () => {
           userMessage: 'フォールバックメッセージ',
           message: 'Fallback message',
         };
-        
+
         const result = formatError(error);
         expect(result).toBe('フォールバックメッセージ');
       });
@@ -101,7 +101,7 @@ describe('errorMessages', () => {
           userMessage: 'EPUBファイルの解析に失敗しました', // Japanese userMessage (should be ignored)
           message: 'Some other message',
         };
-        
+
         const result = formatError(error);
         // Should use i18n English translation
         expect(result).toBe('Failed to parse EPUB file');
@@ -122,7 +122,7 @@ describe('errorMessages', () => {
           },
           {
             error: {
-              code: 'INVALID_EPUB_FORMAT', 
+              code: 'INVALID_EPUB_FORMAT',
               userMessage: '無効なEPUB形式です',
               message: 'Wrong: EPUB format is invalid', // Different from i18n
             },
@@ -160,7 +160,7 @@ describe('errorMessages', () => {
           message: 'Some error occurred',
           // No code field at all
         };
-        
+
         const result = formatError(error);
         expect(result).toBe('An unknown error occurred'); // Default from i18n
         expect(result).not.toBe('Some error occurred'); // Should NOT use message field
@@ -172,7 +172,7 @@ describe('errorMessages', () => {
           message: 'Fallback message text',
           userMessage: 'Japanese fallback',
         };
-        
+
         const result = formatError(error);
         expect(result).toBe('An unknown error occurred'); // Default from i18n
         expect(result).not.toBe('Fallback message text'); // NOT the message field
@@ -181,7 +181,7 @@ describe('errorMessages', () => {
 
       it('should handle string errors', () => {
         const error = 'Simple error message';
-        
+
         const result = formatError(error);
         // String errors are returned as-is unless they look like error codes
         expect(result).toBe('Simple error message');
@@ -191,7 +191,7 @@ describe('errorMessages', () => {
     describe('getErrorMessage', () => {
       it('should return Japanese message for known error codes when language is ja', async () => {
         await i18n.changeLanguage('ja');
-        
+
         expect(getErrorMessage('EPUB_PARSE_ERROR')).toBe('EPUBファイルの解析に失敗しました');
         expect(getErrorMessage('FILE_NOT_FOUND')).toBe('ファイルが見つかりません');
         expect(getErrorMessage('INVALID_EPUB_FORMAT')).toBe('無効なEPUB形式です');
@@ -199,7 +199,7 @@ describe('errorMessages', () => {
 
       it('should return English message for known error codes when language is en', async () => {
         await i18n.changeLanguage('en');
-        
+
         expect(getErrorMessage('EPUB_PARSE_ERROR')).toBe('Failed to parse EPUB file');
         expect(getErrorMessage('FILE_NOT_FOUND')).toBe('File not found');
         expect(getErrorMessage('INVALID_EPUB_FORMAT')).toBe('Invalid EPUB format');
@@ -209,7 +209,7 @@ describe('errorMessages', () => {
         await i18n.changeLanguage('en');
         const enMessage = getErrorMessage('UNKNOWN_CODE');
         expect(enMessage).toContain('unknown');
-        
+
         await i18n.changeLanguage('ja');
         const jaMessage = getErrorMessage('UNKNOWN_CODE');
         expect(jaMessage).toContain('不明');
