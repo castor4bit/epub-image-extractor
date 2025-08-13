@@ -50,7 +50,7 @@ describe('Navigation Restrictions', () => {
     // In test environment (not development), localhost should be blocked
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'test';
-    
+
     // Should block localhost in non-development
     willNavigateHandler(mockEvent, 'http://localhost:5173/index.html');
     expect(mockEvent.preventDefault).toHaveBeenCalled();
@@ -64,7 +64,7 @@ describe('Navigation Restrictions', () => {
     vi.clearAllMocks();
     willNavigateHandler(mockEvent, 'https://malicious-site.com');
     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    
+
     process.env.NODE_ENV = originalEnv;
   });
 
