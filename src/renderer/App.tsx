@@ -141,8 +141,21 @@ function App() {
       const droppedFiles = Array.from(e.dataTransfer.files);
 
       if (droppedFiles.length > 0) {
-        setFiles(droppedFiles);
-        processFiles(droppedFiles);
+        // 有効なファイルのみをフィルタリング
+        const validFiles = droppedFiles.filter(
+          (file) =>
+            file.name.toLowerCase().endsWith('.epub') ||
+            file.name.toLowerCase().endsWith('.zip') ||
+            file.type === 'application/epub+zip' ||
+            file.type === 'application/zip',
+        );
+
+        if (validFiles.length > 0) {
+          setFiles(validFiles);
+          processFiles(validFiles);
+        } else {
+          alert(t('errors.INVALID_FILE'));
+        }
       } else {
         alert(t('errors.INVALID_FILE'));
       }

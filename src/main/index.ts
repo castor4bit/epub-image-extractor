@@ -31,6 +31,8 @@ import { isE2ETestMode } from './utils/testMode';
 import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2e-helpers';
 import { setupWindowOpacityHandlers } from './utils/windowOpacity';
 import { setElectronApp } from './utils/logger';
+import { setupContentSecurityPolicy } from './security/csp';
+import { setupNavigationRestrictions } from './security/navigation';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -73,6 +75,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: false, // ESM preloadスクリプトを使用するために必要
+      webviewTag: false, // webviewタグを無効化（セキュリティ向上）
       // E2Eビルドの場合は.cjs、通常ビルドは.mjs（ESM）
       preload: join(
         __dirname,
@@ -169,6 +173,10 @@ function createWindow() {
 app.whenReady().then(async () => {
   // Electronアプリケーションをロガーに設定
   setElectronApp(app);
+
+  // セキュリティ設定の初期化
+  setupContentSecurityPolicy();
+  setupNavigationRestrictions();
 
   // settingsStoreの初期化を待つ
   await settingsStore.waitForInit();

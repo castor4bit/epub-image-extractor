@@ -28,7 +28,23 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
   });
 
   // EPUBファイル処理
-  ipcMain.handle('epub:process', async (_event, filePaths: string[]) => {
+  ipcMain.handle('epub:process', async (_event, filePaths: unknown) => {
+    // Input validation
+    if (!Array.isArray(filePaths)) {
+      throw new Error('Invalid input: filePaths must be an array');
+    }
+
+    // Validate each file path
+    for (const filePath of filePaths) {
+      if (typeof filePath !== 'string') {
+        throw new Error('Invalid input: each file path must be a string');
+      }
+
+      // Basic path validation (no path traversal)
+      if (filePath.includes('..')) {
+        throw new Error('Invalid path: path traversal not allowed');
+      }
+    }
     const tempFiles: string[] = [];
 
     logger.debug(
