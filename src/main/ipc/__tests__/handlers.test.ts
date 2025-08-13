@@ -273,7 +273,7 @@ describe('IPC Handlers', () => {
       });
 
       const handler = handlers.get('epub:process');
-      const result = await handler(null, filePaths);
+      const result = await handler(null, filePaths as unknown);
 
       expect(result).toEqual({
         success: false,

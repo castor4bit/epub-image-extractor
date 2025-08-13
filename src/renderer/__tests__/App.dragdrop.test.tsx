@@ -133,9 +133,7 @@ describe('App - ドラッグ&ドロップ機能', () => {
       fireEvent.drop(dropZone!, { dataTransfer });
 
       await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith(
-          expect.stringContaining('ファイル処理中にエラーが発生しました'),
-        );
+        expect(alertSpy).toHaveBeenCalledWith('無効なファイル形式です');
       });
 
       alertSpy.mockRestore();
