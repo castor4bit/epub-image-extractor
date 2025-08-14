@@ -27,7 +27,7 @@ import { settingsStore } from './store/settings';
 import { WINDOW_SIZES, WINDOW_OPACITY } from './constants/window';
 import { getTranslation } from './i18n/translations';
 import { LanguageCode } from '../shared/constants/languages';
-import { isE2ETestMode } from './utils/testMode';
+import { isTestMode } from './utils/testMode';
 import { setupE2ETestHelpers, setGlobalProcessingState } from './test-helpers/e2e-helpers';
 import { setupWindowOpacityHandlers } from './utils/windowOpacity';
 import { setElectronApp } from './utils/logger';
@@ -100,7 +100,7 @@ function createWindow() {
   ipcMain.on('app:updateProcessingState', (_event, processing: boolean) => {
     isProcessing = processing;
     // E2Eテスト用にグローバル状態を更新
-    if (isE2ETestMode()) {
+    if (isTestMode()) {
       setGlobalProcessingState(processing);
     }
   });
@@ -138,7 +138,7 @@ function createWindow() {
   });
 
   // E2Eテスト用のヘルパーを設定
-  if (isE2ETestMode()) {
+  if (isTestMode()) {
     setupE2ETestHelpers(mainWindow, () => isProcessing);
   }
 
