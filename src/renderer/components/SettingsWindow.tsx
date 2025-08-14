@@ -37,7 +37,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
 
   useEffect(() => {
     if (isOpen) {
-      // 設定を読み込む
+      // Load settings
       window.electronAPI.getSettings().then((loadedSettings) => {
         setSettings({
           outputDirectory: loadedSettings.outputDirectory ?? '',
@@ -49,7 +49,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           enableMouseHoverOpacity: loadedSettings.enableMouseHoverOpacity ?? true,
         });
       });
-      // ダイアログを開いたときにリセットフラグをクリア
+      // Clear reset flag when dialog opens
       setWasReset(false);
     }
   }, [isOpen]);
@@ -64,7 +64,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // 言語設定が変更された場合、i18nの言語を変更
+      // Change i18n language if language setting changed
       if (settings.language !== i18n.language) {
         i18n.changeLanguage(settings.language);
       }
@@ -102,7 +102,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       inactiveOpacity: defaultSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
       enableMouseHoverOpacity: defaultSettings.enableMouseHoverOpacity ?? true,
     });
-    // リセットフラグを設定
+    // Set reset flag
     setWasReset(true);
   };
 
