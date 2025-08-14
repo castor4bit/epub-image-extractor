@@ -18,7 +18,7 @@ describe('Window Constants', () => {
     expect(WINDOW_OPACITY).toBeDefined();
     expect(WINDOW_OPACITY.active).toBe(1.0);
     expect(WINDOW_OPACITY.inactive).toEqual({
-      default: 0.85,
+      default: 0.95,
       min: 0.1,
       max: 1.0,
       step: 0.05,
