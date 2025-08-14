@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import path from 'path';
 import os from 'os';
-import { isE2ETestMode } from '../utils/testMode';
+import { isTestMode } from '../utils/testMode';
 import { WINDOW_OPACITY } from '../constants/window';
 
 interface Settings {
@@ -21,15 +21,15 @@ interface Settings {
   };
 }
 
-// E2Eテストモードでは一時ディレクトリを使用
+// Use temporary directory in test mode
 const getDefaultOutputDirectory = (): string => {
-  if (isE2ETestMode()) {
-    return path.join(os.tmpdir(), 'epub-extractor-e2e', 'EPUB_Images');
+  if (isTestMode()) {
+    return path.join(os.tmpdir(), 'epub-extractor-test', 'EPUB_Images');
   }
   try {
     return path.join(app.getPath('desktop'), 'EPUB_Images');
   } catch {
-    // appが初期化されていない場合（テスト環境など）
+    // When app is not initialized (fallback)
     return path.join(os.homedir(), 'Desktop', 'EPUB_Images');
   }
 };
