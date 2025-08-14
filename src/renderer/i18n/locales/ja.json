@@ -96,6 +96,7 @@
     "NAV_TOC_NOT_FOUND": "Navigation Documentにtocが見つかりません",
     "VERSION_INFO_ERROR": "バージョン情報の取得に失敗しました",
     "SETTINGS_SAVE_ERROR": "設定の保存に失敗しました",
+    "SETTINGS_SAVE_ERROR_DETAIL": "設定の保存に失敗しました。詳細はコンソールをご確認ください。",
     "INVALID_EPUB_FORMAT": "無効なEPUB形式です",
     "ZIP_EXTRACTION_ERROR": "ZIPファイルの展開に失敗しました",
     "OUTPUT_DIR_ERROR": "出力ディレクトリの作成に失敗しました",

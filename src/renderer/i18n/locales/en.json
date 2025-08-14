@@ -96,6 +96,7 @@
     "NAV_TOC_NOT_FOUND": "TOC not found in Navigation Document",
     "VERSION_INFO_ERROR": "Failed to get version information",
     "SETTINGS_SAVE_ERROR": "Failed to save settings",
+    "SETTINGS_SAVE_ERROR_DETAIL": "Failed to save settings. Please check the console for details.",
     "INVALID_EPUB_FORMAT": "Invalid EPUB format",
     "ZIP_EXTRACTION_ERROR": "Failed to extract ZIP file",
     "OUTPUT_DIR_ERROR": "Failed to create output directory",

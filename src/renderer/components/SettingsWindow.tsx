@@ -84,7 +84,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       onClose();
     } catch (error) {
       console.error('Failed to save settings:', error);
-      alert('設定の保存に失敗しました。詳細はコンソールをご確認ください。');
+      alert(t('errors.SETTINGS_SAVE_ERROR_DETAIL'));
     } finally {
       setIsSaving(false);
     }
