@@ -151,9 +151,9 @@ describe('SettingsWindow - Reset and Save behavior', () => {
       expect(mockClearWindowBounds).toHaveBeenCalled();
     });
 
-    // 警告がログに出力される
+    // Warning is logged
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'ウィンドウサイズのリセットに失敗しましたが、設定は保存されました:',
+      'Failed to reset window bounds, but settings were saved:',
       expect.any(Error),
     );
 

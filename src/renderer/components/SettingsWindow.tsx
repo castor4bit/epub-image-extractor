@@ -71,23 +71,20 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
 
       await window.electronAPI.saveSettings(settings);
 
-      // リセット後の保存の場合、ウィンドウサイズもデフォルトに戻す
+      // Reset window size to default after reset
       if (wasReset) {
         try {
           await window.electronAPI.clearWindowBounds();
         } catch (clearError) {
-          // clearWindowBoundsのエラーは警告として扱い、保存自体は成功とする
-          console.warn(
-            'ウィンドウサイズのリセットに失敗しましたが、設定は保存されました:',
-            clearError,
-          );
+          // Treat window bounds reset errors as warnings, not failures
+          console.warn('Failed to reset window bounds, but settings were saved:', clearError);
         }
       }
 
       onClose();
     } catch (error) {
-      console.error('設定の保存に失敗しました:', error);
-      // ユーザーにエラーを通知
+      console.error('Failed to save settings:', error);
+      // Notify user of error
       alert('設定の保存に失敗しました。詳細はコンソールをご確認ください。');
     } finally {
       setIsSaving(false);
