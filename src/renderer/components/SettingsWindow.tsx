@@ -87,7 +87,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       onClose();
     } catch (error) {
       console.error('設定の保存に失敗しました:', error);
-      // ユーザーにエラーを通知（本来はUIで表示すべき）
+      // ユーザーにエラーを通知
       alert('設定の保存に失敗しました。詳細はコンソールをご確認ください。');
     } finally {
       setIsSaving(false);
