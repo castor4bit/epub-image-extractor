@@ -62,36 +62,29 @@ describe('SettingsWindow - Reset and Save behavior', () => {
   test('通常の保存ではウィンドウが閉じる', async () => {
     render(<SettingsWindow isOpen={true} onClose={mockOnClose} onShowAbout={mockOnShowAbout} />);
 
-    // Wait for settings to load
     await waitFor(() => {
       expect(mockGetSettings).toHaveBeenCalled();
     });
 
-    // Click save button
     const saveButton = screen.getByText('settings.actions.save');
     fireEvent.click(saveButton);
 
-    // Wait for save to complete
     await waitFor(() => {
       expect(mockSaveSettings).toHaveBeenCalled();
     });
 
-    // clearWindowBounds should not be called
     expect(mockClearWindowBounds).not.toHaveBeenCalled();
 
-    // Window should close
     expect(mockOnClose).toHaveBeenCalled();
   });
 
   test('リセット後の保存でもウィンドウが閉じる', async () => {
     render(<SettingsWindow isOpen={true} onClose={mockOnClose} onShowAbout={mockOnShowAbout} />);
 
-    // Wait for settings to load
     await waitFor(() => {
       expect(mockGetSettings).toHaveBeenCalled();
     });
 
-    // Click reset button
     const resetButton = screen.getByText('settings.actions.reset');
     fireEvent.click(resetButton);
 
@@ -99,19 +92,15 @@ describe('SettingsWindow - Reset and Save behavior', () => {
       expect(mockResetSettings).toHaveBeenCalled();
     });
 
-    // Click save button
     const saveButton = screen.getByText('settings.actions.save');
     fireEvent.click(saveButton);
 
-    // Wait for save to complete
     await waitFor(() => {
       expect(mockSaveSettings).toHaveBeenCalled();
     });
 
-    // clearWindowBounds should be called
     expect(mockClearWindowBounds).toHaveBeenCalled();
 
-    // Window should close
     expect(mockOnClose).toHaveBeenCalled();
   });
 
@@ -119,17 +108,14 @@ describe('SettingsWindow - Reset and Save behavior', () => {
     // Make clearWindowBounds throw an error
     mockClearWindowBounds.mockRejectedValue(new Error('Failed to clear window bounds'));
 
-    // Mock console.warn
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     render(<SettingsWindow isOpen={true} onClose={mockOnClose} onShowAbout={mockOnShowAbout} />);
 
-    // Wait for settings to load
     await waitFor(() => {
       expect(mockGetSettings).toHaveBeenCalled();
     });
 
-    // Click reset button
     const resetButton = screen.getByText('settings.actions.reset');
     fireEvent.click(resetButton);
 
@@ -137,11 +123,9 @@ describe('SettingsWindow - Reset and Save behavior', () => {
       expect(mockResetSettings).toHaveBeenCalled();
     });
 
-    // Click save button
     const saveButton = screen.getByText('settings.actions.save');
     fireEvent.click(saveButton);
 
-    // Wait for save attempt
     await waitFor(() => {
       expect(mockSaveSettings).toHaveBeenCalled();
     });
@@ -157,7 +141,6 @@ describe('SettingsWindow - Reset and Save behavior', () => {
       expect.any(Error),
     );
 
-    // Window should close (even with error)
     expect(mockOnClose).toHaveBeenCalled();
 
     consoleWarnSpy.mockRestore();
