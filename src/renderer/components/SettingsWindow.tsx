@@ -77,7 +77,10 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           await window.electronAPI.clearWindowBounds();
         } catch (clearError) {
           // clearWindowBoundsのエラーは警告として扱い、保存自体は成功とする
-          console.warn('ウィンドウサイズのリセットに失敗しましたが、設定は保存されました:', clearError);
+          console.warn(
+            'ウィンドウサイズのリセットに失敗しましたが、設定は保存されました:',
+            clearError,
+          );
         }
       }
 

@@ -60,13 +60,7 @@ describe('SettingsWindow - Reset and Save behavior', () => {
   });
 
   test('通常の保存ではウィンドウが閉じる', async () => {
-    render(
-      <SettingsWindow
-        isOpen={true}
-        onClose={mockOnClose}
-        onShowAbout={mockOnShowAbout}
-      />
-    );
+    render(<SettingsWindow isOpen={true} onClose={mockOnClose} onShowAbout={mockOnShowAbout} />);
 
     // 設定が読み込まれるのを待つ
     await waitFor(() => {
@@ -90,13 +84,7 @@ describe('SettingsWindow - Reset and Save behavior', () => {
   });
 
   test('リセット後の保存でもウィンドウが閉じる', async () => {
-    render(
-      <SettingsWindow
-        isOpen={true}
-        onClose={mockOnClose}
-        onShowAbout={mockOnShowAbout}
-      />
-    );
+    render(<SettingsWindow isOpen={true} onClose={mockOnClose} onShowAbout={mockOnShowAbout} />);
 
     // 設定が読み込まれるのを待つ
     await waitFor(() => {
@@ -134,13 +122,7 @@ describe('SettingsWindow - Reset and Save behavior', () => {
     // console.warnをモック
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    render(
-      <SettingsWindow
-        isOpen={true}
-        onClose={mockOnClose}
-        onShowAbout={mockOnShowAbout}
-      />
-    );
+    render(<SettingsWindow isOpen={true} onClose={mockOnClose} onShowAbout={mockOnShowAbout} />);
 
     // 設定が読み込まれるのを待つ
     await waitFor(() => {
@@ -172,7 +154,7 @@ describe('SettingsWindow - Reset and Save behavior', () => {
     // 警告がログに出力される
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       'ウィンドウサイズのリセットに失敗しましたが、設定は保存されました:',
-      expect.any(Error)
+      expect.any(Error),
     );
 
     // ウィンドウは閉じられる（エラーがあっても）
