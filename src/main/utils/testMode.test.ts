@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { isE2ETestMode, E2E_DELAYS, addE2EDelay, addE2EDelayByType } from './testMode';
+import { isTestMode, E2E_DELAYS, addE2EDelay, addE2EDelayByType } from './testMode';
 
 describe('Test Mode Utils', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -19,35 +19,25 @@ describe('Test Mode Utils', () => {
     vi.restoreAllMocks();
   });
 
-  describe('isE2ETestMode', () => {
-    test('should return true when E2E_TEST_MODE is "true"', () => {
-      process.env.E2E_TEST_MODE = 'true';
-      expect(isE2ETestMode()).toBe(true);
+  describe('isTestMode', () => {
+    test('should return true when NODE_ENV is "test"', () => {
+      process.env.NODE_ENV = 'test';
+      expect(isTestMode()).toBe(true);
     });
 
-    test('should return true when E2E_TEST_MODE is "1"', () => {
-      process.env.E2E_TEST_MODE = '1';
-      expect(isE2ETestMode()).toBe(true);
+    test('should return false when NODE_ENV is not "test"', () => {
+      process.env.NODE_ENV = 'production';
+      expect(isTestMode()).toBe(false);
     });
 
-    test('should return false when E2E_TEST_MODE is not set', () => {
-      delete process.env.E2E_TEST_MODE;
-      expect(isE2ETestMode()).toBe(false);
+    test('should return false when NODE_ENV is undefined', () => {
+      delete process.env.NODE_ENV;
+      expect(isTestMode()).toBe(false);
     });
 
-    test('should return false when E2E_TEST_MODE is "false"', () => {
-      process.env.E2E_TEST_MODE = 'false';
-      expect(isE2ETestMode()).toBe(false);
-    });
-
-    test('should return false when E2E_TEST_MODE is "0"', () => {
-      process.env.E2E_TEST_MODE = '0';
-      expect(isE2ETestMode()).toBe(false);
-    });
-
-    test('should return false when E2E_TEST_MODE is any other value', () => {
-      process.env.E2E_TEST_MODE = 'yes';
-      expect(isE2ETestMode()).toBe(false);
+    test('should return false when NODE_ENV is "development"', () => {
+      process.env.NODE_ENV = 'development';
+      expect(isTestMode()).toBe(false);
     });
   });
 
@@ -68,8 +58,8 @@ describe('Test Mode Utils', () => {
   });
 
   describe('addE2EDelay', () => {
-    test('should add delay when E2E test mode is enabled', async () => {
-      process.env.E2E_TEST_MODE = 'true';
+    test('should add delay when test mode is enabled', async () => {
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       const delayPromise = addE2EDelay(100);
@@ -85,8 +75,8 @@ describe('Test Mode Utils', () => {
       await delayPromise;
     });
 
-    test('should not add delay when E2E test mode is disabled', async () => {
-      delete process.env.E2E_TEST_MODE;
+    test('should not add delay when test mode is disabled', async () => {
+      process.env.NODE_ENV = 'production';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       await addE2EDelay(100);
@@ -96,7 +86,7 @@ describe('Test Mode Utils', () => {
     });
 
     test('should handle zero delay', async () => {
-      process.env.E2E_TEST_MODE = 'true';
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       const delayPromise = addE2EDelay(0);
@@ -110,7 +100,7 @@ describe('Test Mode Utils', () => {
 
   describe('addE2EDelayByType', () => {
     test('should add delay for FILE_PROCESSING_START', async () => {
-      process.env.E2E_TEST_MODE = 'true';
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       const delayPromise = addE2EDelayByType('FILE_PROCESSING_START');
@@ -122,7 +112,7 @@ describe('Test Mode Utils', () => {
     });
 
     test('should add delay for IMAGE_PROCESSING', async () => {
-      process.env.E2E_TEST_MODE = 'true';
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       const delayPromise = addE2EDelayByType('IMAGE_PROCESSING');
@@ -134,7 +124,7 @@ describe('Test Mode Utils', () => {
     });
 
     test('should add delay for CHAPTER_PROCESSING', async () => {
-      process.env.E2E_TEST_MODE = 'true';
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       const delayPromise = addE2EDelayByType('CHAPTER_PROCESSING');
@@ -146,7 +136,7 @@ describe('Test Mode Utils', () => {
     });
 
     test('should add delay for FILE_PROCESSING_END', async () => {
-      process.env.E2E_TEST_MODE = 'true';
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       const delayPromise = addE2EDelayByType('FILE_PROCESSING_END');
@@ -157,8 +147,8 @@ describe('Test Mode Utils', () => {
       await delayPromise;
     });
 
-    test('should not add delay when E2E test mode is disabled', async () => {
-      delete process.env.E2E_TEST_MODE;
+    test('should not add delay when test mode is disabled', async () => {
+      process.env.NODE_ENV = 'production';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       await addE2EDelayByType('FILE_PROCESSING_START');
@@ -169,40 +159,39 @@ describe('Test Mode Utils', () => {
 
   describe('Integration tests', () => {
     test('should work correctly with multiple delays', async () => {
-      process.env.E2E_TEST_MODE = 'true';
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       const promises = [
         addE2EDelayByType('FILE_PROCESSING_START'),
-        addE2EDelay(50),
         addE2EDelayByType('IMAGE_PROCESSING'),
+        addE2EDelayByType('CHAPTER_PROCESSING'),
       ];
 
       expect(setTimeoutSpy).toHaveBeenCalledTimes(3);
 
-      // Advance all timers
-      vi.advanceTimersByTime(300);
+      // Advance time for all delays
+      vi.advanceTimersByTime(300); // Max delay time
 
       await Promise.all(promises);
     });
 
     test('should handle environment changes correctly', async () => {
+      process.env.NODE_ENV = 'test';
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
-      // Start with E2E mode disabled
-      delete process.env.E2E_TEST_MODE;
-
-      await addE2EDelay(100);
-      expect(setTimeoutSpy).not.toHaveBeenCalled();
-
-      // Enable E2E mode
-      process.env.E2E_TEST_MODE = 'true';
-
-      const delayPromise = addE2EDelay(100);
+      // First delay should work
+      const promise1 = addE2EDelay(50);
       expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(50);
+      await promise1;
 
-      vi.advanceTimersByTime(100);
-      await delayPromise;
+      // Change environment
+      process.env.NODE_ENV = 'production';
+
+      // Second delay should not work
+      await addE2EDelay(50);
+      expect(setTimeoutSpy).toHaveBeenCalledTimes(1); // Still only 1 call
     });
   });
 });
