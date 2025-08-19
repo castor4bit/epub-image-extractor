@@ -100,9 +100,7 @@ describe('App Component', () => {
       });
 
       await waitFor(() => {
-        expect(window.alert).toHaveBeenCalledWith(
-          expect.stringContaining('ファイル処理中にエラーが発生しました'),
-        );
+        expect(window.alert).toHaveBeenCalledWith('無効なファイル形式です');
       });
     }
   });

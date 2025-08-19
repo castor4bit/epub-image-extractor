@@ -37,7 +37,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
 
   useEffect(() => {
     if (isOpen) {
-      // 設定を読み込む
+      // Load settings
       window.electronAPI.getSettings().then((loadedSettings) => {
         setSettings({
           outputDirectory: loadedSettings.outputDirectory ?? '',
@@ -49,7 +49,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           enableMouseHoverOpacity: loadedSettings.enableMouseHoverOpacity ?? true,
         });
       });
-      // ダイアログを開いたときにリセットフラグをクリア
+      // Clear reset flag when dialog opens
       setWasReset(false);
     }
   }, [isOpen]);
@@ -64,21 +64,27 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // 言語設定が変更された場合、i18nの言語を変更
+      // Change i18n language if language setting changed
       if (settings.language !== i18n.language) {
         i18n.changeLanguage(settings.language);
       }
 
       await window.electronAPI.saveSettings(settings);
 
-      // リセット後の保存の場合、ウィンドウサイズもデフォルトに戻す
+      // Reset window size to default after reset
       if (wasReset) {
-        await window.electronAPI.clearWindowBounds();
+        try {
+          await window.electronAPI.clearWindowBounds();
+        } catch (clearError) {
+          // Treat window bounds reset errors as warnings, not failures
+          console.warn('Failed to reset window bounds, but settings were saved:', clearError);
+        }
       }
 
       onClose();
     } catch (error) {
-      console.error('設定の保存に失敗しました:', error);
+      console.error('Failed to save settings:', error);
+      alert(t('errors.SETTINGS_SAVE_ERROR_DETAIL'));
     } finally {
       setIsSaving(false);
     }
@@ -95,7 +101,7 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
       inactiveOpacity: defaultSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
       enableMouseHoverOpacity: defaultSettings.enableMouseHoverOpacity ?? true,
     });
-    // リセットフラグを設定
+    // Set reset flag
     setWasReset(true);
   };
 
