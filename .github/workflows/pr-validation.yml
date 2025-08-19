@@ -59,9 +59,6 @@ jobs:
           libxss1 \
           libxtst6
     
-    - name: Install Playwright
-      run: npx playwright install --with-deps chromium
-    
     - name: Run E2E smoke tests
       run: xvfb-run -a -s "-screen 0 1280x1024x24 -ac -nolisten tcp -dpi 96 +extension GLX" npm run test:e2e:smoke
       env:
@@ -106,9 +103,6 @@ jobs:
           libnss3 \
           libxss1 \
           libxtst6
-    
-    - name: Install Playwright
-      run: npx playwright install --with-deps chromium
     
     - name: Run E2E tests (Linux)
       if: matrix.os == 'ubuntu-latest'
