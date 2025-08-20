@@ -1,6 +1,6 @@
 {
   "name": "epub-image-extractor",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Desktop application to extract images from EPUB files organized by chapters",
   "main": "dist-electron/main/index.js",
   "author": {
