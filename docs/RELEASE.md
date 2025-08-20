@@ -11,7 +11,7 @@ EPUB Image Extractorは**release-please**を使用した自動リリース シ�
 1. **開発**: conventional commitsでコードを開発
 2. **プッシュ**: `main`ブランチにpush
 3. **Stage 1 - リリース準備**: 
-   - GitHub Actionsで「Release Please」ワークフローを**手動実行**
+   - GitHub Actionsで「Prepare Release PR」ワークフローを**手動実行**
    - Release PRが作成される
    - PR Checksが自動的に実行される（lint、テスト、ビルド）
 4. **Release PR確認とマージ**: 
@@ -19,7 +19,7 @@ EPUB Image Extractorは**release-please**を使用した自動リリース シ�
    - PR Checksがすべて成功していることを確認
    - PRをマージ
 5. **Stage 2 - リリース実行**:
-   - GitHub Actionsで「Execute Release」ワークフローを**手動実行**
+   - GitHub Actionsで「Publish GitHub Release」ワークフローを**手動実行**
    - GitHubリリースが作成される
    - 各プラットフォーム用のビルドが実行される
    - ビルド成果物がGitHub Releaseにアップロードされる
@@ -128,7 +128,7 @@ Release PRは手動でワークフローを実行した時のみ作成・更新�
 特定のバージョンでリリースしたい場合：
 
 1. **GitHub Actionsページに移動**: リポジトリの「Actions」タブ
-2. **「Release Please」ワークフローを選択**
+2. **「Prepare Release PR」ワークフローを選択**
 3. **「Run workflow」をクリック**
 4. **リリースタイプを選択**:
    - `auto`: コミット履歴から自動決定（推奨）
@@ -142,7 +142,7 @@ Release PRは手動でワークフローを実行した時のみ作成・更新�
 **Release PR**をマージした後：
 
 1. **GitHub Actionsページに移動**: リポジトリの「Actions」タブ
-2. **「Execute Release」ワークフローを選択**
+2. **「Publish GitHub Release」ワークフローを選択**
 3. **「Run workflow」をクリック**
 4. **オプション設定**:
    - `Skip build process`: テスト時のみチェック（通常は未チェック）
@@ -182,7 +182,7 @@ git push origin main
 # PR Checksが完了するのを待つ
 # 作成されたPRをマージ
 
-# Stage 2: GitHub Actionsで「Execute Release」を手動実行
+# Stage 2: GitHub Actionsで「Publish GitHub Release」を手動実行
 ```
 
 ### 特定バージョンでのリリース
@@ -198,13 +198,13 @@ BREAKING CHANGE: All UI components have been redesigned with new API"
 
 ## 🔧 GitHub Actionsワークフロー
 
-### 1. release-please.yml
+### 1. prepare-release-pr.yml
 **Stage 1: Release PR作成**用のワークフロー
 - トリガー: `workflow_dispatch`（手動実行のみ）
 - 機能: Release PRの作成（`skip-github-release: true`により、リリースは作成しない）
 - 利点: 作成されたPRは通常のPRとして扱われ、PR Checksが自動実行される
 
-### 2. release-execute.yml
+### 2. publish-github-release.yml
 **Stage 2: リリース実行**用のワークフロー
 - トリガー: `workflow_dispatch`（手動実行のみ）
 - 前提条件: Release PRがマージ済みであること（24時間以内）
@@ -309,7 +309,7 @@ git push origin main
 
 - [ ] Release PRがマージ済みである
 - [ ] mainブランチが最新の状態である
-- [ ] 前回のリリースから24時間以内である（Execute Releaseの制限）
+- [ ] 前回のリリースから24時間以内である（Publish GitHub Releaseの制限）
 
 ## 🚨 トラブルシューティング
 
@@ -320,7 +320,7 @@ git push origin main
    - `feat:`、`fix:`などのタイプが正しく使用されているか確認
 
 2. **GitHub Actionsの確認**
-   - `.github/workflows/release-please.yml`が正しく設定されているか確認
+   - `.github/workflows/prepare-release-pr.yml`が正しく設定されているか確認
    - GitHub Actionsの実行ログを確認
 
 3. **権限の確認**
@@ -345,7 +345,7 @@ git push origin main
 3. **Node.jsバージョン**
    - Node.js 24.0.0以上を使用していることを確認
 
-### Execute Releaseが失敗する場合
+### Publish GitHub Releaseが失敗する場合
 
 1. **「No recently merged release PR found」エラー**
    - Release PRがマージされているか確認
