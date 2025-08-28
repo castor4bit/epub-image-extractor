@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.2](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.1...v0.6.2) (2025-08-28)
+
+
+### Features
+
+* **esm:** Enable ESM with type:module in package.json (Phase 7) ([#57](https://github.com/castor4bit/epub-image-extractor/issues/57)) ([c2d779e](https://github.com/castor4bit/epub-image-extractor/commit/c2d779eb61e8f7134af2334593905949a4b8a301))
+* **esm:** ESM migration phase 1 - test infrastructure ([#45](https://github.com/castor4bit/epub-image-extractor/issues/45)) ([128959a](https://github.com/castor4bit/epub-image-extractor/commit/128959a3a1c496316ed423c2aadb2835432bccdf))
+* **esm:** ESM migration phase 2 - utility module tests ([#46](https://github.com/castor4bit/epub-image-extractor/issues/46)) ([b9ae1bb](https://github.com/castor4bit/epub-image-extractor/commit/b9ae1bbe172508ec501297f1c92af3943d2f4c31))
+* **esm:** ESM migration phase 3 - additional utility tests ([#47](https://github.com/castor4bit/epub-image-extractor/issues/47)) ([0f3024a](https://github.com/castor4bit/epub-image-extractor/commit/0f3024a292e41cccaa226a0b74f758c10604e36c))
+* **security:** implement security measures for sandbox-disabled environment ([#72](https://github.com/castor4bit/epub-image-extractor/issues/72)) ([f13d4a5](https://github.com/castor4bit/epub-image-extractor/commit/f13d4a5a66e4019ad27f3ebc097c06305a0c0d3c))
+
+
+### Bug Fixes
+
+* complete i18n support for error messages ([#68](https://github.com/castor4bit/epub-image-extractor/issues/68)) ([9f94545](https://github.com/castor4bit/epub-image-extractor/commit/9f945456b5ff05d2e30fc6fc1a8d4f66083f38bb))
+* enable CI for release PRs using draft PR workflow ([#92](https://github.com/castor4bit/epub-image-extractor/issues/92)) ([7545dbc](https://github.com/castor4bit/epub-image-extractor/commit/7545dbcf788df0b61b01fc925643ad19825c91b6))
+* handle clearWindowBounds errors gracefully in settings save ([#73](https://github.com/castor4bit/epub-image-extractor/issues/73)) ([ed3f012](https://github.com/castor4bit/epub-image-extractor/commit/ed3f012b0179e18c72c905dcf414bc79bdfa0932))
+* **test:** restore settings integration test after ESM migration ([#58](https://github.com/castor4bit/epub-image-extractor/issues/58)) ([199e617](https://github.com/castor4bit/epub-image-extractor/commit/199e617ac8c9ede8bd964b463cb7146e7c98f641))
+* update TypeScript moduleResolution for @vitejs/plugin-react v5 compatibility ([#82](https://github.com/castor4bit/epub-image-extractor/issues/82)) ([8a0ad3c](https://github.com/castor4bit/epub-image-extractor/commit/8a0ad3c8a949a9ecf76e130ae9980c2c52149df4))
+* use .mjs extension for ESM preload script ([#71](https://github.com/castor4bit/epub-image-extractor/issues/71)) ([795743a](https://github.com/castor4bit/epub-image-extractor/commit/795743ac74acb0533f55bc5ea676b55a2cd796f0))
+
+
+### Code Refactoring
+
+* **ci:** consolidate CI workflows to reduce redundancy ([#56](https://github.com/castor4bit/epub-image-extractor/issues/56)) ([db3b666](https://github.com/castor4bit/epub-image-extractor/commit/db3b6664d37628289f9519d8d2b6a23ab06101ca))
+* cleanup ESM migration artifacts ([#62](https://github.com/castor4bit/epub-image-extractor/issues/62)) ([4ca9aa7](https://github.com/castor4bit/epub-image-extractor/commit/4ca9aa7c334d8de72a815686f6a8c8b4159dce97))
+* consolidate test environment detection to simplify codebase ([#75](https://github.com/castor4bit/epub-image-extractor/issues/75)) ([5d4e777](https://github.com/castor4bit/epub-image-extractor/commit/5d4e777ed2b051ca3216917d4f7c478765b79e05))
+* **logger:** remove require() usage for ESM compatibility ([#50](https://github.com/castor4bit/epub-image-extractor/issues/50)) ([06622f2](https://github.com/castor4bit/epub-image-extractor/commit/06622f2186b4be35420ddf6c15a0e790b5294470))
+
 ## [0.6.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.0...v0.6.1) (2025-07-30)
 
 
