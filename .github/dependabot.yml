@@ -12,6 +12,11 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Tokyo"
+    # Cooldown設定: 新バージョン公開後の待機期間
+    cooldown:
+      semver-major-days: 21  # メジャー更新は3週間待機
+      semver-minor-days: 7   # マイナー更新は1週間待機
+      semver-patch-days: 3   # パッチ更新は3日待機
     # 同時に開くPRの最大数
     open-pull-requests-limit: 10
     # PRのラベル
