@@ -1,45 +1,45 @@
-# Dependabot設定ファイル
-# 依存関係の自動更新を管理します
+# Dependabot configuration file
+# Manages automated dependency updates
 
 version: 2
 updates:
-  # npm依存関係の更新
+  # npm dependency updates
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      # 毎週月曜日の午前9時（UTC）に実行
+      # Run every Monday at 9:00 AM (UTC)
       interval: "weekly"
       day: "monday"
       time: "09:00"
       timezone: "Asia/Tokyo"
-    # Cooldown設定: 新バージョン公開後の待機期間
+    # Cooldown settings: Wait period after new version releases
     cooldown:
-      semver-major-days: 21  # メジャー更新は3週間待機
-      semver-minor-days: 7   # マイナー更新は1週間待機
-      semver-patch-days: 3   # パッチ更新は3日待機
-    # 同時に開くPRの最大数
+      semver-major-days: 21  # Major updates wait 3 weeks
+      semver-minor-days: 7   # Minor updates wait 1 week
+      semver-patch-days: 3   # Patch updates wait 3 days
+    # Maximum number of open pull requests
     open-pull-requests-limit: 10
-    # PRのラベル
+    # PR labels
     labels:
       - "dependencies"
       - "automated"
-    # 依存関係をグループ化して管理
+    # Group dependencies for batch updates
     groups:
-      # 開発用依存関係をまとめて更新
+      # Development dependencies updated together
       development-dependencies:
         dependency-type: "development"
         update-types:
           - "minor"
           - "patch"
-      # 本番用依存関係は個別に更新（より慎重に）
+      # Production dependencies updated individually (more cautious)
       production-dependencies:
         dependency-type: "production"
         update-types:
           - "patch"
-    # セキュリティアップデートは最優先
+    # Security updates have highest priority
     allow:
       - dependency-type: "all"
-    # コミットメッセージの設定
+    # Commit message configuration
     commit-message:
       prefix: "chore"
       prefix-development: "chore"
