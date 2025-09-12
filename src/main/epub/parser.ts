@@ -13,6 +13,7 @@ import { logger } from '../utils/logger';
 import path from 'path';
 import { parseStringPromise } from '../utils/xmlParser';
 import { createZipReader, IZipReader } from '../utils/zip-reader';
+import sanitizeHtml from 'sanitize-html';
 
 export interface EpubData {
   manifest: Record<string, ManifestItem>;
@@ -225,7 +226,7 @@ async function parseNCX(ncxContent: string): Promise<ChapterInfo[]> {
   return chapters;
 }
 
-async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo[]> {
+export async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo[]> {
   const chapters: ChapterInfo[] = [];
   let order = 1;
 
@@ -252,8 +253,13 @@ async function parseNavigationDocument(htmlContent: string): Promise<ChapterInfo
         const href = aMatch[1];
         const titleHtml = aMatch[2];
 
-        // HTMLタグを除去してテキストを取得
-        const title = titleHtml.replace(/<[^>]*>/g, '').trim();
+        // sanitize-htmlを使用して安全にテキストを抽出
+        const cleanedHtml = sanitizeHtml(titleHtml, {
+          allowedTags: [], // すべてのタグを削除
+          allowedAttributes: {}, // すべての属性を削除
+        });
+        // 連続する空白を1つに正規化してトリム
+        const title = cleanedHtml.replace(/\s+/g, ' ').trim();
 
         if (title && href) {
           chapters.push({
