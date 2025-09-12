@@ -40,7 +40,9 @@ updates:
     allow:
       - dependency-type: "all"
     # Commit message configuration
+    # Production deps use "fix" to trigger releases
+    # Development deps use "chore" as they don't affect users
     commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
+      prefix: "fix"              # Production dependencies
+      prefix-development: "chore" # Development dependencies
       include: "scope"
