@@ -255,4 +255,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
       arch: process.arch,
     };
   });
+
+  // Auto-update handlers will be registered separately by AutoUpdateManager
 }

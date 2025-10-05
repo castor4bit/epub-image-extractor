@@ -48,7 +48,9 @@
     "dist:mac-arm64": "npm run build && electron-builder --mac --arm64"
   },
   "dependencies": {
+    "electron-log": "^5.4.3",
     "electron-store": "^10.1.0",
+    "electron-updater": "^6.6.2",
     "fast-xml-parser": "^5.2.5",
     "fflate": "^0.8.2",
     "i18next": "^25.5.2",
@@ -118,7 +120,7 @@
         }
       ],
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "hardenedRuntime": false,
+      "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "identity": null,
       "extendInfo": {
@@ -152,7 +154,11 @@
     "portable": {
       "artifactName": "${productName}-${version}-${arch}-Portable.${ext}"
     },
-    "publish": null
+    "publish": {
+      "provider": "github",
+      "owner": "castor4bit",
+      "repo": "epub-image-extractor"
+    }
   },
   "engines": {
     "node": ">=24.0.0"
