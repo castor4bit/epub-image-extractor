@@ -184,17 +184,19 @@ function createWindow() {
   // IPCハンドラーを登録
   registerIpcHandlers(mainWindow);
 
-  // Auto-update機能を初期化
-  autoUpdateManager = new AutoUpdateManager((event, data) => {
-    if (event === 'update:status') {
-      sendUpdateStatus(mainWindow!, data as UpdateStatusInfo);
-    } else if (event === 'update:progress') {
-      sendUpdateProgress(mainWindow!, data as UpdateProgressInfo);
-    }
-  });
+  // Auto-update機能を初期化（テストモードでは無効化）
+  if (!isTestMode()) {
+    autoUpdateManager = new AutoUpdateManager((event, data) => {
+      if (event === 'update:status') {
+        sendUpdateStatus(mainWindow!, data as UpdateStatusInfo);
+      } else if (event === 'update:progress') {
+        sendUpdateProgress(mainWindow!, data as UpdateProgressInfo);
+      }
+    });
 
-  // Auto-update用のIPCハンドラーを登録
-  registerAutoUpdateHandlers(mainWindow, autoUpdateManager);
+    // Auto-update用のIPCハンドラーを登録
+    registerAutoUpdateHandlers(mainWindow, autoUpdateManager);
+  }
 }
 
 app.whenReady().then(async () => {
