@@ -118,7 +118,7 @@
         }
       ],
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "hardenedRuntime": false,
+      "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "identity": null,
       "extendInfo": {
@@ -152,7 +152,11 @@
     "portable": {
       "artifactName": "${productName}-${version}-${arch}-Portable.${ext}"
     },
-    "publish": null
+    "publish": {
+      "provider": "github",
+      "owner": "castor4bit",
+      "repo": "epub-image-extractor"
+    }
   },
   "engines": {
     "node": ">=24.0.0"

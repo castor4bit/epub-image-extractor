@@ -33,9 +33,20 @@ import { setupWindowOpacityHandlers } from './utils/windowOpacity';
 import { setElectronApp } from './utils/logger';
 import { setupContentSecurityPolicy } from './security/csp';
 import { setupNavigationRestrictions } from './security/navigation';
+import {
+  AutoUpdateManager,
+  UpdateStatusInfo,
+  UpdateProgressInfo,
+} from './autoUpdate/AutoUpdateManager';
+import {
+  registerAutoUpdateHandlers,
+  sendUpdateStatus,
+  sendUpdateProgress,
+} from './autoUpdate/ipcHandlers';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let autoUpdateManager: AutoUpdateManager | null = null;
 
 // アプリケーション名を設定
 // メニューバーには英語、アプリ内は日本語を使用
@@ -134,6 +145,10 @@ function createWindow() {
       clearTimeout(saveTimer);
       saveTimer = null;
     }
+    if (autoUpdateManager) {
+      autoUpdateManager.cleanup();
+      autoUpdateManager = null;
+    }
     mainWindow = null;
   });
 
@@ -168,6 +183,18 @@ function createWindow() {
 
   // IPCハンドラーを登録
   registerIpcHandlers(mainWindow);
+
+  // Auto-update機能を初期化
+  autoUpdateManager = new AutoUpdateManager((event, data) => {
+    if (event === 'update:status') {
+      sendUpdateStatus(mainWindow!, data as UpdateStatusInfo);
+    } else if (event === 'update:progress') {
+      sendUpdateProgress(mainWindow!, data as UpdateProgressInfo);
+    }
+  });
+
+  // Auto-update用のIPCハンドラーを登録
+  registerAutoUpdateHandlers(mainWindow, autoUpdateManager);
 }
 
 app.whenReady().then(async () => {
