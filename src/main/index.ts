@@ -175,7 +175,10 @@ function createWindow() {
 
   // Update checker機能を初期化（テストモードでは無効化）
   if (!isTestMode()) {
-    updateChecker = new UpdateChecker();
+    updateChecker = new UpdateChecker((version: string) => {
+      // Send update notification to renderer
+      mainWindow?.webContents.send('update:startup-notification', version);
+    });
 
     // Update checker用のIPCハンドラーを登録
     registerUpdateCheckHandlers(mainWindow, updateChecker);

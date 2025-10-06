@@ -26,6 +26,7 @@ interface ElectronAPI {
   // 更新確認
   checkForUpdates: () => Promise<{ updateAvailable: boolean; version?: string }>;
   openReleasesPage: () => Promise<void>;
+  onStartupUpdateNotification: (callback: (version: string) => void) => () => void;
 }
 
 interface Window {
