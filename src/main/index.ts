@@ -33,12 +33,12 @@ import { setupWindowOpacityHandlers } from './utils/windowOpacity';
 import { setElectronApp } from './utils/logger';
 import { setupContentSecurityPolicy } from './security/csp';
 import { setupNavigationRestrictions } from './security/navigation';
-import { AutoUpdateManager } from './autoUpdate/AutoUpdateManager';
-import { registerAutoUpdateHandlers } from './autoUpdate/ipcHandlers';
+import { UpdateChecker } from './autoUpdate/UpdateChecker';
+import { registerUpdateCheckHandlers } from './autoUpdate/ipcHandlers';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
-let autoUpdateManager: AutoUpdateManager | null = null;
+let updateChecker: UpdateChecker | null = null;
 
 // アプリケーション名を設定
 // メニューバーには英語、アプリ内は日本語を使用
@@ -137,9 +137,9 @@ function createWindow() {
       clearTimeout(saveTimer);
       saveTimer = null;
     }
-    if (autoUpdateManager) {
-      autoUpdateManager.cleanup();
-      autoUpdateManager = null;
+    if (updateChecker) {
+      updateChecker.cleanup();
+      updateChecker = null;
     }
     mainWindow = null;
   });
@@ -176,12 +176,12 @@ function createWindow() {
   // IPCハンドラーを登録
   registerIpcHandlers(mainWindow);
 
-  // Auto-update機能を初期化（テストモードでは無効化）
+  // Update checker機能を初期化（テストモードでは無効化）
   if (!isTestMode()) {
-    autoUpdateManager = new AutoUpdateManager();
+    updateChecker = new UpdateChecker();
 
-    // Auto-update用のIPCハンドラーを登録
-    registerAutoUpdateHandlers(mainWindow, autoUpdateManager);
+    // Update checker用のIPCハンドラーを登録
+    registerUpdateCheckHandlers(mainWindow, updateChecker);
   }
 }
 

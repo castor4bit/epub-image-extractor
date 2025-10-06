@@ -2,7 +2,7 @@ import { app, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
-export class AutoUpdateManager {
+export class UpdateChecker {
   private isPackaged: boolean;
 
   constructor() {
@@ -13,49 +13,26 @@ export class AutoUpdateManager {
       return;
     }
 
-    this.setupAutoUpdater();
+    this.setupUpdater();
   }
 
-  private setupAutoUpdater(): void {
-    // Configure logger
-    autoUpdater.logger = log;
-    if (autoUpdater.logger) {
-      (autoUpdater.logger as typeof log).transports.file.level = 'info';
-    }
-
-    // Disable auto download
+  private setupUpdater(): void {
+    // Disable auto download and install
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = false;
-
-    // Set up minimal event handlers for logging only
-    autoUpdater.on('checking-for-update', () => {
-      log.info('Checking for update...');
-    });
-
-    autoUpdater.on('update-available', (info) => {
-      log.info('Update available:', info.version);
-    });
-
-    autoUpdater.on('update-not-available', () => {
-      log.info('Update not available. Current version is up to date.');
-    });
-
-    autoUpdater.on('error', (err) => {
-      log.error('Error checking for updates:', err);
-    });
 
     // Check for updates on startup
     this.checkForUpdatesOnStartup();
   }
 
   /**
-   * Automatically check for updates on startup
+   * Check for updates on startup (silent)
    */
   private checkForUpdatesOnStartup(): void {
     if (!this.isPackaged) return;
 
     autoUpdater.checkForUpdates().catch((err) => {
-      log.error('Failed to check for updates:', err);
+      log.error('Failed to check for updates on startup:', err);
     });
   }
 
@@ -99,9 +76,9 @@ export class AutoUpdateManager {
   }
 
   /**
-   * Cleanup resources
+   * Cleanup is not needed as we don't register event listeners
    */
   public cleanup(): void {
-    autoUpdater.removeAllListeners();
+    // No-op: we don't register event listeners
   }
 }
