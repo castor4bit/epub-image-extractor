@@ -255,6 +255,4 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
       arch: process.arch,
     };
   });
-
-  // Update check handlers are registered separately by UpdateChecker
 }
