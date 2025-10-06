@@ -78,7 +78,7 @@
     "@vitest/ui": "^3.2.4",
     "concurrently": "^9.2.1",
     "conventional-commits-parser": "^6.2.0",
-    "electron": "^37.5.1",
+    "electron": "^38.1.0",
     "electron-builder": "^26.0.12",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
