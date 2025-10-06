@@ -16,12 +16,12 @@ export function registerAutoUpdateHandlers(
     }
   });
 
-  // Install downloaded update and restart
-  ipcMain.handle('update:install-and-restart', async () => {
+  // Open GitHub Releases page for manual download
+  ipcMain.handle('update:open-releases-page', async () => {
     try {
-      autoUpdateManager.quitAndInstall();
+      autoUpdateManager.openReleasesPage();
     } catch (error) {
-      console.error('Failed to install update:', error);
+      console.error('Failed to open releases page:', error);
       throw error;
     }
   });
