@@ -71,6 +71,45 @@ describe('UpdateChecker', () => {
       expect(autoUpdater.checkForUpdates).toHaveBeenCalledTimes(1);
     });
 
+    it('should call onUpdateAvailable callback when update is found on startup', async () => {
+      (app as any).isPackaged = true;
+      const onUpdateAvailable = vi.fn();
+      vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+        updateInfo: {
+          version: '0.6.3',
+          files: [],
+          path: '',
+          sha512: '',
+          releaseDate: '',
+        },
+        downloadPromise: null as any,
+        cancellationToken: null as any,
+        versionInfo: {
+          version: '0.6.3',
+        } as any,
+      });
+
+      new UpdateChecker(onUpdateAvailable);
+
+      // Wait for async check to complete
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onUpdateAvailable).toHaveBeenCalledWith('0.6.3');
+    });
+
+    it('should not call callback when no update is available on startup', async () => {
+      (app as any).isPackaged = true;
+      const onUpdateAvailable = vi.fn();
+      vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue(null as any);
+
+      new UpdateChecker(onUpdateAvailable);
+
+      // Wait for async check to complete
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onUpdateAvailable).not.toHaveBeenCalled();
+    });
+
     it('should log error if startup check fails', async () => {
       (app as any).isPackaged = true;
       const error = new Error('Network error');

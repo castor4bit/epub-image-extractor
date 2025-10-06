@@ -7,6 +7,7 @@ import { CompactDropZone } from './components/CompactDropZone';
 import { FileDropZone } from './components/FileDropZone';
 import { FileProcessingList } from './components/FileProcessingList';
 import { SettingsWindow } from './components/SettingsWindow';
+import { UpdateNotificationBanner } from './components/UpdateNotificationBanner';
 import { WindowHoverDetector } from './components/WindowHoverDetector';
 import { formatError } from './utils/errorMessages';
 import './i18n';
@@ -21,6 +22,7 @@ function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [completedResults, setCompletedResults] = useState<ExtractionResult[]>([]);
   const [hasAnyResults, setHasAnyResults] = useState(false);
+  const [updateVersion, setUpdateVersion] = useState<string | null>(null);
 
   // ファイル処理
   const processFiles = useCallback(
@@ -264,6 +266,20 @@ function App() {
     return cleanup;
   }, []);
 
+  // 起動時の更新通知リスナーを設定
+  useEffect(() => {
+    if (!window.electronAPI?.onStartupUpdateNotification) {
+      console.warn('window.electronAPI.onStartupUpdateNotification is not available');
+      return;
+    }
+
+    const cleanup = window.electronAPI.onStartupUpdateNotification((version: string) => {
+      setUpdateVersion(version);
+    });
+
+    return cleanup;
+  }, []);
+
   return (
     <div className="app">
       <header className="app-header">
@@ -315,6 +331,7 @@ function App() {
         onShowAbout={handleShowAbout}
       />
       <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+      <UpdateNotificationBanner version={updateVersion} onDismiss={() => setUpdateVersion(null)} />
       <WindowHoverDetector />
     </div>
   );

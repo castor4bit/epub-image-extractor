@@ -56,6 +56,14 @@ const electronAPI = {
   // 更新確認
   checkForUpdates: () => ipcRenderer.invoke('update:check-for-updates'),
   openReleasesPage: () => ipcRenderer.invoke('update:open-releases-page'),
+  onStartupUpdateNotification: (callback: (version: string) => void) => {
+    const listener = (_event: IpcRendererEvent, version: string) => callback(version);
+    ipcRenderer.on('update:startup-notification', listener);
+    // クリーンアップ関数を返す
+    return () => {
+      ipcRenderer.removeListener('update:startup-notification', listener);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

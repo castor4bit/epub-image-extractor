@@ -3,16 +3,27 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
 export class UpdateChecker {
-  constructor() {
+  private onUpdateAvailable?: (version: string) => void;
+
+  constructor(onUpdateAvailable?: (version: string) => void) {
+    this.onUpdateAvailable = onUpdateAvailable;
+
     // Only check for updates in packaged app
     if (!app.isPackaged) {
       return;
     }
 
     // Silent check on startup
-    autoUpdater.checkForUpdates().catch((err) => {
-      log.error('Failed to check for updates on startup:', err);
-    });
+    autoUpdater
+      .checkForUpdates()
+      .then((result) => {
+        if (result?.updateInfo && this.onUpdateAvailable) {
+          this.onUpdateAvailable(result.updateInfo.version);
+        }
+      })
+      .catch((err) => {
+        log.error('Failed to check for updates on startup:', err);
+      });
   }
 
   /**
