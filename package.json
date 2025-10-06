@@ -120,7 +120,7 @@
         }
       ],
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "hardenedRuntime": true,
+      "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "identity": null,
       "extendInfo": {
