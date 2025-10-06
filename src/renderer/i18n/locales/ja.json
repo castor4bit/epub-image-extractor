@@ -118,5 +118,13 @@
     "license": "ライセンス",
     "licenseText": "このソフトウェアはMITライセンスの下で配布されています。",
     "close": "閉じる"
+  },
+  "update": {
+    "checkNow": "更新を確認",
+    "checking": "確認中...",
+    "upToDate": "最新バージョンです",
+    "newVersionAvailable": "v{{version}} が利用可能です",
+    "viewOnGitHub": "GitHubで確認",
+    "checkFailed": "更新確認に失敗しました"
   }
 }
