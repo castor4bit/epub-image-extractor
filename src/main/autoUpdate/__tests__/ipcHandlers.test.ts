@@ -65,9 +65,7 @@ describe('registerUpdateCheckHandlers', () => {
 
     it('should return false on error', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(mockUpdateChecker.checkForUpdates).mockRejectedValue(
-        new Error('Network error'),
-      );
+      vi.mocked(mockUpdateChecker.checkForUpdates).mockRejectedValue(new Error('Network error'));
 
       registerUpdateCheckHandlers(mockWindow, mockUpdateChecker);
       const handler = handlers.get('update:check-for-updates')!;
