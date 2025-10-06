@@ -90,7 +90,9 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
 
         {updateStatus === 'available' && newVersion && (
           <div className="update-available">
-            <p className="update-message">{t('update.newVersionAvailable', { version: newVersion })}</p>
+            <p className="update-message">
+              {t('update.newVersionAvailable', { version: newVersion })}
+            </p>
             <button onClick={handleOpenReleasesPage} className="view-github-button">
               {t('update.viewOnGitHub')}
             </button>

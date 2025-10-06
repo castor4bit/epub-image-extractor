@@ -179,12 +179,10 @@ describe('VersionInfo - Update Check UI', () => {
   });
 
   it('should clear previous update status when checking again', async () => {
-    mockCheckForUpdates
-      .mockResolvedValueOnce({ updateAvailable: false })
-      .mockResolvedValueOnce({
-        updateAvailable: true,
-        version: '0.7.0',
-      });
+    mockCheckForUpdates.mockResolvedValueOnce({ updateAvailable: false }).mockResolvedValueOnce({
+      updateAvailable: true,
+      version: '0.7.0',
+    });
 
     render(<VersionInfo />);
 
