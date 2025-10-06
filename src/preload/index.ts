@@ -53,6 +53,9 @@ const electronAPI = {
       ipcRenderer.send(channel, ...args);
     }
   },
+  // 更新確認
+  checkForUpdates: () => ipcRenderer.invoke('update:check-for-updates'),
+  openReleasesPage: () => ipcRenderer.invoke('update:open-releases-page'),
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

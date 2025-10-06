@@ -7,9 +7,18 @@ interface VersionInfoProps {
   onShowAbout?: () => void;
 }
 
+type UpdateStatus = 'idle' | 'checking' | 'available' | 'latest';
+
+interface UpdateCheckResult {
+  updateAvailable: boolean;
+  version?: string;
+}
+
 export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShowAbout }) => {
   const { t } = useTranslation();
   const [versionInfo, setVersionInfo] = useState<AppVersionInfo | null>(null);
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('idle');
+  const [newVersion, setNewVersion] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const loadVersionInfo = async () => {
@@ -23,6 +32,33 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
 
     loadVersionInfo();
   }, []);
+
+  const handleCheckForUpdates = async () => {
+    setUpdateStatus('checking');
+    setNewVersion(undefined);
+
+    try {
+      const result: UpdateCheckResult = await window.electronAPI.checkForUpdates();
+
+      if (result.updateAvailable && result.version) {
+        setUpdateStatus('available');
+        setNewVersion(result.version);
+      } else {
+        setUpdateStatus('latest');
+      }
+    } catch (error) {
+      console.error('更新確認に失敗しました:', error);
+      setUpdateStatus('idle');
+    }
+  };
+
+  const handleOpenReleasesPage = async () => {
+    try {
+      await window.electronAPI.openReleasesPage();
+    } catch (error) {
+      console.error('GitHubリリースページを開けませんでした:', error);
+    }
+  };
 
   if (!versionInfo) {
     return null;
@@ -39,6 +75,27 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
           <span className="version-label">{t('about.version')}:</span>
           <span className="version-value">{versionInfo.version}</span>
         </div>
+      </div>
+
+      <div className="update-check-section">
+        <button
+          onClick={handleCheckForUpdates}
+          disabled={updateStatus === 'checking'}
+          className="check-update-button"
+        >
+          {updateStatus === 'checking' ? t('update.checking') : t('update.checkNow')}
+        </button>
+
+        {updateStatus === 'latest' && <p className="update-latest">{t('update.upToDate')}</p>}
+
+        {updateStatus === 'available' && newVersion && (
+          <div className="update-available">
+            <p className="update-message">{t('update.newVersionAvailable', { version: newVersion })}</p>
+            <button onClick={handleOpenReleasesPage} className="view-github-button">
+              {t('update.viewOnGitHub')}
+            </button>
+          </div>
+        )}
       </div>
 
       {onShowAbout && (
