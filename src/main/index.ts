@@ -33,16 +33,8 @@ import { setupWindowOpacityHandlers } from './utils/windowOpacity';
 import { setElectronApp } from './utils/logger';
 import { setupContentSecurityPolicy } from './security/csp';
 import { setupNavigationRestrictions } from './security/navigation';
-import {
-  AutoUpdateManager,
-  UpdateStatusInfo,
-  UpdateProgressInfo,
-} from './autoUpdate/AutoUpdateManager';
-import {
-  registerAutoUpdateHandlers,
-  sendUpdateStatus,
-  sendUpdateProgress,
-} from './autoUpdate/ipcHandlers';
+import { AutoUpdateManager } from './autoUpdate/AutoUpdateManager';
+import { registerAutoUpdateHandlers } from './autoUpdate/ipcHandlers';
 
 let mainWindow: BrowserWindow | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -186,13 +178,7 @@ function createWindow() {
 
   // Auto-update機能を初期化（テストモードでは無効化）
   if (!isTestMode()) {
-    autoUpdateManager = new AutoUpdateManager((event, data) => {
-      if (event === 'update:status') {
-        sendUpdateStatus(mainWindow!, data as UpdateStatusInfo);
-      } else if (event === 'update:progress') {
-        sendUpdateProgress(mainWindow!, data as UpdateProgressInfo);
-      }
-    });
+    autoUpdateManager = new AutoUpdateManager();
 
     // Auto-update用のIPCハンドラーを登録
     registerAutoUpdateHandlers(mainWindow, autoUpdateManager);

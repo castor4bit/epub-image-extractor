@@ -2,37 +2,14 @@ import { app, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
-export type UpdateStatus = 'checking' | 'available' | 'not-available' | 'downloaded' | 'error';
-
-export interface UpdateStatusInfo {
-  status: UpdateStatus;
-  version?: string;
-  releaseNotes?: string;
-  error?: string;
-}
-
-export interface UpdateProgressInfo {
-  percent: number;
-  bytesPerSecond: number;
-  transferred: number;
-  total: number;
-}
-
-export type UpdateEventCallback = (
-  event: string,
-  data: UpdateStatusInfo | UpdateProgressInfo,
-) => void;
-
 export class AutoUpdateManager {
-  private eventCallback: UpdateEventCallback;
   private isPackaged: boolean;
 
-  constructor(eventCallback: UpdateEventCallback) {
-    this.eventCallback = eventCallback;
+  constructor() {
     this.isPackaged = app.isPackaged;
 
     if (!this.isPackaged) {
-      log.info('Auto-update disabled in development mode');
+      log.info('Update check disabled in development mode');
       return;
     }
 
@@ -46,51 +23,26 @@ export class AutoUpdateManager {
       (autoUpdater.logger as typeof log).transports.file.level = 'info';
     }
 
-    // Disable auto download (manual workflow for unsigned apps)
+    // Disable auto download
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = false;
 
-    // Set up event handlers
+    // Set up minimal event handlers for logging only
     autoUpdater.on('checking-for-update', () => {
       log.info('Checking for update...');
-      this.eventCallback('update:status', { status: 'checking' });
     });
 
     autoUpdater.on('update-available', (info) => {
       log.info('Update available:', info.version);
-      this.eventCallback('update:status', {
-        status: 'available',
-        version: info.version,
-        releaseNotes: info.releaseNotes as string,
-      });
     });
 
-    autoUpdater.on('update-not-available', (_info) => {
+    autoUpdater.on('update-not-available', () => {
       log.info('Update not available. Current version is up to date.');
-      this.eventCallback('update:status', { status: 'not-available' });
     });
 
     autoUpdater.on('error', (err) => {
-      log.error('Error in auto-updater:', err);
-      this.eventCallback('update:status', {
-        status: 'error',
-        error: err.message || String(err),
-      });
+      log.error('Error checking for updates:', err);
     });
-
-    autoUpdater.on('download-progress', (progressObj) => {
-      log.info(
-        `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`,
-      );
-      this.eventCallback('update:progress', {
-        percent: progressObj.percent,
-        bytesPerSecond: progressObj.bytesPerSecond,
-        transferred: progressObj.transferred,
-        total: progressObj.total,
-      });
-    });
-
-    // Note: update-downloaded event won't fire with autoDownload=false
 
     // Check for updates on startup
     this.checkForUpdatesOnStartup();
@@ -102,7 +54,6 @@ export class AutoUpdateManager {
   private checkForUpdatesOnStartup(): void {
     if (!this.isPackaged) return;
 
-    // Only check, don't download automatically
     autoUpdater.checkForUpdates().catch((err) => {
       log.error('Failed to check for updates:', err);
     });
