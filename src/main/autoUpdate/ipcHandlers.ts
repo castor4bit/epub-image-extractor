@@ -1,14 +1,14 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { AutoUpdateManager } from './AutoUpdateManager';
+import { UpdateChecker } from './UpdateChecker';
 
-export function registerAutoUpdateHandlers(
+export function registerUpdateCheckHandlers(
   mainWindow: BrowserWindow,
-  autoUpdateManager: AutoUpdateManager,
+  updateChecker: UpdateChecker,
 ): void {
   // Manually check for updates
   ipcMain.handle('update:check-for-updates', async () => {
     try {
-      const result = await autoUpdateManager.checkForUpdates();
+      const result = await updateChecker.checkForUpdates();
       return result;
     } catch (error) {
       console.error('Failed to check for updates:', error);
@@ -19,7 +19,7 @@ export function registerAutoUpdateHandlers(
   // Open GitHub Releases page for manual download
   ipcMain.handle('update:open-releases-page', async () => {
     try {
-      autoUpdateManager.openReleasesPage();
+      updateChecker.openReleasesPage();
     } catch (error) {
       console.error('Failed to open releases page:', error);
       throw error;
@@ -28,6 +28,6 @@ export function registerAutoUpdateHandlers(
 
   // Get current version
   ipcMain.handle('update:get-version', async () => {
-    return autoUpdateManager.getCurrentVersion();
+    return updateChecker.getCurrentVersion();
   });
 }
