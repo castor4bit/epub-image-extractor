@@ -137,10 +137,7 @@ function createWindow() {
       clearTimeout(saveTimer);
       saveTimer = null;
     }
-    if (updateChecker) {
-      updateChecker.cleanup();
-      updateChecker = null;
-    }
+    updateChecker = null;
     mainWindow = null;
   });
 

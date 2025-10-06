@@ -3,51 +3,30 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
 export class UpdateChecker {
-  private isPackaged: boolean;
-
   constructor() {
-    this.isPackaged = app.isPackaged;
-
-    if (!this.isPackaged) {
-      log.info('Update check disabled in development mode');
+    // Only check for updates in packaged app
+    if (!app.isPackaged) {
       return;
     }
 
-    this.setupUpdater();
-  }
-
-  private setupUpdater(): void {
-    // Disable auto download and install
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = false;
-
-    // Check for updates on startup
-    this.checkForUpdatesOnStartup();
-  }
-
-  /**
-   * Check for updates on startup (silent)
-   */
-  private checkForUpdatesOnStartup(): void {
-    if (!this.isPackaged) return;
-
+    // Silent check on startup
     autoUpdater.checkForUpdates().catch((err) => {
       log.error('Failed to check for updates on startup:', err);
     });
   }
 
   /**
-   * Manually check for updates
+   * Check for updates
    */
   public async checkForUpdates(): Promise<{ updateAvailable: boolean; version?: string }> {
-    if (!this.isPackaged) {
+    if (!app.isPackaged) {
       return { updateAvailable: false };
     }
 
     try {
       const result = await autoUpdater.checkForUpdates();
 
-      if (result && result.updateInfo) {
+      if (result?.updateInfo) {
         return {
           updateAvailable: true,
           version: result.updateInfo.version,
@@ -62,7 +41,7 @@ export class UpdateChecker {
   }
 
   /**
-   * Open GitHub Releases page for manual download
+   * Open GitHub Releases page
    */
   public openReleasesPage(): void {
     shell.openExternal('https://github.com/castor4bit/epub-image-extractor/releases/latest');
@@ -73,12 +52,5 @@ export class UpdateChecker {
    */
   public getCurrentVersion(): string {
     return app.getVersion();
-  }
-
-  /**
-   * Cleanup is not needed as we don't register event listeners
-   */
-  public cleanup(): void {
-    // No-op: we don't register event listeners
   }
 }

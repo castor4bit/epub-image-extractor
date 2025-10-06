@@ -256,5 +256,5 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     };
   });
 
-  // Auto-update handlers will be registered separately by AutoUpdateManager
+  // Update check handlers are registered separately by UpdateChecker
 }
