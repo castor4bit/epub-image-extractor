@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
@@ -46,9 +46,9 @@ export class AutoUpdateManager {
       (autoUpdater.logger as typeof log).transports.file.level = 'info';
     }
 
-    // Auto download and install configuration
-    autoUpdater.autoDownload = true;
-    autoUpdater.autoInstallOnAppQuit = true;
+    // Disable auto download (manual workflow for unsigned apps)
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = false;
 
     // Set up event handlers
     autoUpdater.on('checking-for-update', () => {
@@ -90,25 +90,20 @@ export class AutoUpdateManager {
       });
     });
 
-    autoUpdater.on('update-downloaded', (info) => {
-      log.info('Update downloaded:', info.version);
-      this.eventCallback('update:status', {
-        status: 'downloaded',
-        version: info.version,
-      });
-    });
+    // Note: update-downloaded event won't fire with autoDownload=false
 
     // Check for updates on startup
-    this.checkForUpdatesAndNotify();
+    this.checkForUpdatesOnStartup();
   }
 
   /**
-   * Automatically check for updates and notify user
+   * Automatically check for updates on startup
    */
-  private checkForUpdatesAndNotify(): void {
+  private checkForUpdatesOnStartup(): void {
     if (!this.isPackaged) return;
 
-    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+    // Only check, don't download automatically
+    autoUpdater.checkForUpdates().catch((err) => {
       log.error('Failed to check for updates:', err);
     });
   }
@@ -139,12 +134,10 @@ export class AutoUpdateManager {
   }
 
   /**
-   * Install update and restart application
+   * Open GitHub Releases page for manual download
    */
-  public quitAndInstall(): void {
-    if (!this.isPackaged) return;
-
-    autoUpdater.quitAndInstall();
+  public openReleasesPage(): void {
+    shell.openExternal('https://github.com/castor4bit/epub-image-extractor/releases/latest');
   }
 
   /**
