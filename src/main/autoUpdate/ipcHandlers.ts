@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { AutoUpdateManager, UpdateStatusInfo, UpdateProgressInfo } from './AutoUpdateManager';
+import { AutoUpdateManager } from './AutoUpdateManager';
 
 export function registerAutoUpdateHandlers(
   mainWindow: BrowserWindow,
@@ -30,12 +30,4 @@ export function registerAutoUpdateHandlers(
   ipcMain.handle('update:get-version', async () => {
     return autoUpdateManager.getCurrentVersion();
   });
-}
-
-export function sendUpdateStatus(mainWindow: BrowserWindow, data: UpdateStatusInfo): void {
-  mainWindow.webContents.send('update:status', data);
-}
-
-export function sendUpdateProgress(mainWindow: BrowserWindow, data: UpdateProgressInfo): void {
-  mainWindow.webContents.send('update:progress', data);
 }
