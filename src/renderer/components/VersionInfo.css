@@ -151,7 +151,7 @@
 
 .check-update-button {
   width: 100%;
-  background-color: #007aff;
+  background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
   border: none;
   color: white;
   padding: 8px 16px;
@@ -160,25 +160,29 @@
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
 }
 
 .check-update-button:hover:not(:disabled) {
-  background-color: #0051d5;
+  background: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
 .check-update-button:disabled {
-  background-color: #a0a0a0;
+  background: linear-gradient(135deg, #a0a0a0 0%, #909090 100%);
   cursor: not-allowed;
   opacity: 0.7;
+  box-shadow: none;
 }
 
 .update-latest {
   margin-top: 8px;
   padding: 8px 12px;
-  background-color: #e8f5e9;
-  border: 1px solid #c8e6c9;
+  background-color: #f0f4ff;
+  border: 1px solid #d0deff;
   border-radius: 4px;
-  color: #2e7d32;
+  color: #5a67d8;
   font-size: 13px;
   text-align: center;
 }
@@ -186,14 +190,15 @@
 .update-available {
   margin-top: 8px;
   padding: 12px;
-  background-color: #fff3e0;
-  border: 1px solid #ffe0b2;
+  background: linear-gradient(135deg, #f7f9ff 0%, #f0f4ff 100%);
+  border: 1px solid #d0deff;
   border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
 }
 
 .update-message {
   margin: 0 0 8px 0;
-  color: #e65100;
+  color: #667eea;
   font-size: 13px;
   font-weight: 500;
   text-align: center;
@@ -201,7 +206,7 @@
 
 .view-github-button {
   width: 100%;
-  background-color: #24292e;
+  background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
   border: none;
   color: white;
   padding: 8px 16px;
@@ -210,10 +215,13 @@
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
 }
 
 .view-github-button:hover {
-  background-color: #1b1f23;
+  background: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
 /* Dark mode for update section */
