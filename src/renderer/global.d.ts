@@ -23,6 +23,10 @@ interface ElectronAPI {
   openFolder: (path: string) => Promise<{ success: boolean; error?: string }>;
   updateProcessingState: (isProcessing: boolean) => void;
   send: (channel: string, ...args: unknown[]) => void;
+  // 更新確認
+  checkForUpdates: () => Promise<{ updateAvailable: boolean; version?: string }>;
+  openReleasesPage: () => Promise<void>;
+  onStartupUpdateNotification: (callback: (version: string) => void) => () => void;
 }
 
 interface Window {
