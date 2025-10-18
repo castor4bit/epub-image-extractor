@@ -118,5 +118,13 @@
     "license": "License",
     "licenseText": "This software is distributed under the MIT License.",
     "close": "Close"
+  },
+  "update": {
+    "checkNow": "Check for Updates",
+    "checking": "Checking...",
+    "upToDate": "You're up to date",
+    "newVersionAvailable": "v{{version}} is available",
+    "viewOnGitHub": "View on GitHub",
+    "checkFailed": "Failed to check for updates"
   }
 }
