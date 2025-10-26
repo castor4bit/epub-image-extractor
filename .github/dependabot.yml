@@ -46,3 +46,33 @@ updates:
       prefix: "fix"              # Production dependencies
       prefix-development: "chore" # Development dependencies
       include: "scope"
+
+  # GitHub Actions dependency updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      # Run every Monday at 9:00 AM (UTC)
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    # Maximum number of open pull requests
+    open-pull-requests-limit: 5
+    # PR labels
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    # Group all GitHub Actions updates together
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Commit message configuration
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"

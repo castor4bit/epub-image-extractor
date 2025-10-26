@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Release PR (Auto)
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
         id: release
         if: github.event.inputs.release_type == 'auto' || github.event.inputs.release_type == ''
         with:
@@ -33,7 +33,7 @@ jobs:
           skip-github-release: true
       
       - name: Create Release PR (Explicit)
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
         id: release-explicit
         if: github.event.inputs.release_type != 'auto' && github.event.inputs.release_type != ''
         with:
