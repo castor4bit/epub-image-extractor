@@ -79,7 +79,7 @@ jobs:
         path: release-artifacts
     
     - name: Create Release
-      uses: softprops/action-gh-release@26994186c0ac3ef5cae75ac16aa32e8153525f77 # v1
+      uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
       with:
         files: release-artifacts/**/*
         draft: false
