@@ -25,15 +25,33 @@ updates:
       - "automated"
     # Group dependencies for batch updates
     groups:
+      # React core packages updated together for compatibility
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
       # Development dependencies updated together
       development-dependencies:
         dependency-type: "development"
+        exclude-patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
         update-types:
           - "minor"
           - "patch"
       # Production dependencies updated individually (more cautious)
       production-dependencies:
         dependency-type: "production"
+        exclude-patterns:
+          - "react"
+          - "react-dom"
         update-types:
           - "patch"
     # Security updates have highest priority
