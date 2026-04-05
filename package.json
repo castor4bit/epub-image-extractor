@@ -151,7 +151,8 @@
     },
     "portable": {
       "artifactName": "${productName}-${version}-${arch}-Portable.${ext}"
-    }
+    },
+    "publish": null
   },
   "engines": {
     "node": ">=24.0.0"
