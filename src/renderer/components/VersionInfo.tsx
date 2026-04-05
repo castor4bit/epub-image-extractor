@@ -7,12 +7,7 @@ interface VersionInfoProps {
   onShowAbout?: () => void;
 }
 
-type UpdateStatus = 'idle' | 'checking' | 'available' | 'latest';
-
-interface UpdateCheckResult {
-  updateAvailable: boolean;
-  version?: string;
-}
+type UpdateStatus = 'idle' | 'checking' | 'available' | 'latest' | 'error';
 
 export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShowAbout }) => {
   const { t } = useTranslation();
@@ -38,9 +33,11 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
     setNewVersion(undefined);
 
     try {
-      const result: UpdateCheckResult = await window.electronAPI.checkForUpdates();
+      const result = await window.electronAPI.checkForUpdates();
 
-      if (result.updateAvailable && result.version) {
+      if (result.error) {
+        setUpdateStatus('error');
+      } else if (result.updateAvailable && result.version) {
         setUpdateStatus('available');
         setNewVersion(result.version);
       } else {
@@ -48,7 +45,7 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
       }
     } catch (error) {
       console.error('更新確認に失敗しました:', error);
-      setUpdateStatus('idle');
+      setUpdateStatus('error');
     }
   };
 
@@ -87,6 +84,8 @@ export const VersionInfo: React.FC<VersionInfoProps> = ({ className = '', onShow
         </button>
 
         {updateStatus === 'latest' && <p className="update-latest">{t('update.upToDate')}</p>}
+
+        {updateStatus === 'error' && <p className="update-error">{t('update.checkFailed')}</p>}
 
         {updateStatus === 'available' && newVersion && (
           <div className="update-available">

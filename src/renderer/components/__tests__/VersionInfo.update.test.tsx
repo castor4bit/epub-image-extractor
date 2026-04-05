@@ -153,7 +153,24 @@ describe('VersionInfo - Update Check UI', () => {
     expect(mockOpenReleasesPage).toHaveBeenCalledTimes(1);
   });
 
-  it('should handle update check error gracefully', async () => {
+  it('should show error message when update check returns error', async () => {
+    mockCheckForUpdates.mockResolvedValue({ updateAvailable: false, error: 'Network error' });
+
+    render(<VersionInfo />);
+
+    await waitFor(() => {
+      expect(screen.getByText('0.6.2')).toBeInTheDocument();
+    });
+
+    const checkButton = screen.getByRole('button', { name: /更新を確認/ });
+    await userEvent.click(checkButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/更新確認に失敗しました/)).toBeInTheDocument();
+    });
+  });
+
+  it('should show error message when update check throws', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockCheckForUpdates.mockRejectedValue(new Error('Network error'));
 
@@ -167,14 +184,9 @@ describe('VersionInfo - Update Check UI', () => {
     await userEvent.click(checkButton);
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /更新を確認/ })).toBeInTheDocument();
+      expect(screen.getByText(/更新確認に失敗しました/)).toBeInTheDocument();
     });
 
-    // Should not show any update status
-    expect(screen.queryByText(/最新バージョンです/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/が利用可能です/)).not.toBeInTheDocument();
-
-    expect(consoleErrorSpy).toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
   });
 

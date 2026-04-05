@@ -151,11 +151,6 @@
     },
     "portable": {
       "artifactName": "${productName}-${version}-${arch}-Portable.${ext}"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "castor4bit",
-      "repo": "epub-image-extractor"
     }
   },
   "engines": {

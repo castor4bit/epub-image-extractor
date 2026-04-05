@@ -1,6 +1,19 @@
-import { app, shell } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+import { app, net, shell } from 'electron';
+
+const GITHUB_API_URL =
+  'https://api.github.com/repos/castor4bit/epub-image-extractor/releases/latest';
+const GITHUB_RELEASES_URL = 'https://github.com/castor4bit/epub-image-extractor/releases/latest';
+const REQUEST_TIMEOUT_MS = 10000;
+
+interface GitHubRelease {
+  tag_name: string;
+}
+
+export interface UpdateCheckResult {
+  updateAvailable: boolean;
+  version?: string;
+  error?: string;
+}
 
 export class UpdateChecker {
   private onUpdateAvailable?: (version: string) => void;
@@ -13,81 +26,69 @@ export class UpdateChecker {
       return;
     }
 
-    // Silent check on startup
-    autoUpdater
-      .checkForUpdates()
-      .then((result) => {
-        if (result?.updateInfo && this.onUpdateAvailable) {
+    this.fetchLatestVersion()
+      .then((latestVersion) => {
+        if (latestVersion && this.onUpdateAvailable) {
           const currentVersion = app.getVersion();
-          const newVersion = result.updateInfo.version;
-
-          // Version comparison to avoid false positives
-          if (this.compareVersions(newVersion, currentVersion) > 0) {
-            this.onUpdateAvailable(newVersion);
-            log.info(`New version available on startup: ${newVersion}`);
-          } else {
-            log.info(`Current version ${currentVersion} is up to date`);
+          if (this.compareVersions(latestVersion, currentVersion) > 0) {
+            this.onUpdateAvailable(latestVersion);
           }
         }
       })
-      .catch((err) => {
-        log.error('Failed to check for updates on startup:', err);
+      .catch(() => {
+        // Silent failure on startup
       });
   }
 
-  /**
-   * Check for updates
-   */
-  public async checkForUpdates(): Promise<{ updateAvailable: boolean; version?: string }> {
+  public async checkForUpdates(): Promise<UpdateCheckResult> {
     if (!app.isPackaged) {
       return { updateAvailable: false };
     }
 
     try {
-      const result = await autoUpdater.checkForUpdates();
+      const latestVersion = await this.fetchLatestVersion();
 
-      if (result?.updateInfo) {
+      if (latestVersion) {
         const currentVersion = app.getVersion();
-        const newVersion = result.updateInfo.version;
-
-        // semver version comparison (e.g., "0.7.0" > "0.6.2")
-        if (this.compareVersions(newVersion, currentVersion) > 0) {
-          return {
-            updateAvailable: true,
-            version: newVersion,
-          };
+        if (this.compareVersions(latestVersion, currentVersion) > 0) {
+          return { updateAvailable: true, version: latestVersion };
         }
-
-        log.info(`Current version (${currentVersion}) is up to date`);
       }
 
       return { updateAvailable: false };
     } catch (error) {
-      log.error('Error checking for updates:', error);
-      return { updateAvailable: false };
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      return { updateAvailable: false, error: message };
     }
   }
 
-  /**
-   * Open GitHub Releases page
-   */
   public openReleasesPage(): void {
-    shell.openExternal('https://github.com/castor4bit/epub-image-extractor/releases/latest');
+    shell.openExternal(GITHUB_RELEASES_URL);
   }
 
-  /**
-   * Get current application version
-   */
   public getCurrentVersion(): string {
     return app.getVersion();
   }
 
-  /**
-   * Compare two semantic version strings
-   * @param v1 First version (e.g., "0.7.0")
-   * @param v2 Second version (e.g., "0.6.2")
-   * @returns 1 if v1 > v2, -1 if v1 < v2, 0 if v1 === v2
-   */
+  private async fetchLatestVersion(): Promise<string | null> {
+    const response = await net.fetch(GITHUB_API_URL, {
+      headers: { Accept: 'application/vnd.github.v3+json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API returned ${response.status}`);
+    }
+
+    const data = (await response.json()) as GitHubRelease;
+    if (!data.tag_name) {
+      return null;
+    }
+
+    // Strip leading "v" if present (e.g., "v0.7.0" -> "0.7.0")
+    return data.tag_name.replace(/^v/, '');
+  }
+
   private compareVersions(v1: string, v2: string): number {
     const parts1 = v1.split('.').map(Number);
     const parts2 = v2.split('.').map(Number);
