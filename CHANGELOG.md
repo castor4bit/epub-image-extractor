@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.3](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.2...v0.6.3) (2026-04-05)
+
+
+### Features
+
+* implement auto-update functionality ([#115](https://github.com/castor4bit/epub-image-extractor/issues/115)) ([c0ff512](https://github.com/castor4bit/epub-image-extractor/commit/c0ff512b25433e99b10b8db9572d6b54d3e4b9a5))
+
+
+### Bug Fixes
+
+* **deps:** bump electron-store from 10.1.0 to 11.0.2 ([#145](https://github.com/castor4bit/epub-image-extractor/issues/145)) ([6ac464a](https://github.com/castor4bit/epub-image-extractor/commit/6ac464a16a3ba08d382a6eaba3ef8958fc44f7d1))
+* **deps:** bump fast-xml-parser from 5.2.5 to 5.3.0 ([#142](https://github.com/castor4bit/epub-image-extractor/issues/142)) ([2c5ec38](https://github.com/castor4bit/epub-image-extractor/commit/2c5ec384900fd02ae08880186b3cefecfc73f87c))
+* **deps:** bump i18next from 25.5.2 to 25.6.0 ([#140](https://github.com/castor4bit/epub-image-extractor/issues/140)) ([88f6ea4](https://github.com/castor4bit/epub-image-extractor/commit/88f6ea40aa944cc1eceebeef2b96842d2ac47b5a))
+* **deps:** bump p-limit from 7.1.1 to 7.2.0 ([#158](https://github.com/castor4bit/epub-image-extractor/issues/158)) ([7bcf94f](https://github.com/castor4bit/epub-image-extractor/commit/7bcf94f1539a0f288b92b537186c83b0c62094c5))
+* **deps:** bump pino from 9.11.0 to 9.12.0 ([#121](https://github.com/castor4bit/epub-image-extractor/issues/121)) ([43251ec](https://github.com/castor4bit/epub-image-extractor/commit/43251ecf9907617d42518e1f3dfac7d40040a69c))
+* **deps:** bump pino from 9.12.0 to 10.0.0 ([#139](https://github.com/castor4bit/epub-image-extractor/issues/139)) ([3f4e90e](https://github.com/castor4bit/epub-image-extractor/commit/3f4e90e651d6fdf6fad9c5a8f6130a2886deac45))
+* **deps:** bump pino from 9.9.5 to 9.11.0 ([#114](https://github.com/castor4bit/epub-image-extractor/issues/114)) ([b4ed34f](https://github.com/castor4bit/epub-image-extractor/commit/b4ed34f2cb0d1d0527d44f3df7e07f9352f1cb69))
+* **deps:** bump react-i18next from 15.7.3 to 16.0.0 ([#137](https://github.com/castor4bit/epub-image-extractor/issues/137)) ([34bff3c](https://github.com/castor4bit/epub-image-extractor/commit/34bff3c6e150c9bf4b29760467e5ff6085c04755))
+* **deps:** bump react-i18next from 16.0.0 to 16.5.2 ([#187](https://github.com/castor4bit/epub-image-extractor/issues/187)) ([0443d49](https://github.com/castor4bit/epub-image-extractor/commit/0443d498b8a563e5e4b4fa4f29c2db31b9d306ec))
+* **deps:** bump secure-json-parse from 4.0.0 to 4.1.0 ([#138](https://github.com/castor4bit/epub-image-extractor/issues/138)) ([54a1e65](https://github.com/castor4bit/epub-image-extractor/commit/54a1e658ac369a775559d329eb5afdd0bdd506fc))
+* **deps:** bump the production-dependencies group across 1 directory with 2 updates ([#110](https://github.com/castor4bit/epub-image-extractor/issues/110)) ([94cc181](https://github.com/castor4bit/epub-image-extractor/commit/94cc181e848d44ae2c9bdd87c49358b87c10561a))
+* **deps:** bump the production-dependencies group across 1 directory with 2 updates ([#126](https://github.com/castor4bit/epub-image-extractor/issues/126)) ([82a05d3](https://github.com/castor4bit/epub-image-extractor/commit/82a05d3695628121d666ed56deba79ea6648cac1))
+* **deps:** bump the production-dependencies group across 1 directory with 4 updates ([#171](https://github.com/castor4bit/epub-image-extractor/issues/171)) ([517b5f4](https://github.com/castor4bit/epub-image-extractor/commit/517b5f49201e0435bcdaa4f397c7b5f5e4667832))
+* **deps:** configure Dependabot to use fix prefix for production dependencies ([#107](https://github.com/castor4bit/epub-image-extractor/issues/107)) ([88a35aa](https://github.com/castor4bit/epub-image-extractor/commit/88a35aa2ff8c10a05f6b0966a349f61f80b3b433))
+* **security:** replace regex HTML sanitization with sanitize-html library ([#109](https://github.com/castor4bit/epub-image-extractor/issues/109)) ([949ffb5](https://github.com/castor4bit/epub-image-extractor/commit/949ffb5f255101bb7e28865fb8f1f1a66d4c2f60))
+
 ## [0.6.2](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.1...v0.6.2) (2025-08-28)
 
 
