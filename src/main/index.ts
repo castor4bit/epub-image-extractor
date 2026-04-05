@@ -176,8 +176,15 @@ function createWindow() {
   // Update checker機能を初期化（テストモードでは無効化）
   if (!isTestMode()) {
     updateChecker = new UpdateChecker((version: string) => {
-      // Send update notification to renderer
-      mainWindow?.webContents.send('update:startup-notification', version);
+      if (!mainWindow) return;
+      // Wait for renderer to be ready before sending notification
+      if (mainWindow.webContents.isLoading()) {
+        mainWindow.webContents.once('did-finish-load', () => {
+          mainWindow?.webContents.send('update:startup-notification', version);
+        });
+      } else {
+        mainWindow.webContents.send('update:startup-notification', version);
+      }
     });
 
     // Update checker用のIPCハンドラーを登録
