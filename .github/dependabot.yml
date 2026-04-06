@@ -3,8 +3,8 @@
 
 version: 2
 updates:
-  # npm dependency updates
-  - package-ecosystem: "npm"
+  # pnpm dependency updates
+  - package-ecosystem: "pnpm"
     directory: "/"
     schedule:
       # Run every Monday at 9:00 AM (UTC)

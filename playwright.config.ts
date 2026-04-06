@@ -48,7 +48,7 @@ export default defineConfig({
 
   // テスト前のビルド
   webServer: {
-    command: 'npm run build',
+    command: 'pnpm build',
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
   },
