@@ -58,7 +58,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-i18next": "^16.5.2",
-    "sanitize-html": "^2.17.0"
+    "sanitize-html": "^2.17.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -70,7 +70,7 @@
     "@types/node": "^24.10.4",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "@types/sanitize-html": "^2.16.0",
+    "@types/sanitize-html": "^2.16.1",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.46.1",
     "@vitejs/plugin-react": "^5.1.2",
