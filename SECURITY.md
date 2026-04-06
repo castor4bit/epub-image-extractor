@@ -44,7 +44,7 @@ This application uses `sandbox: false` for ESM preload script compatibility. To 
 2. **Validate all user input** before processing
 3. **Use IPC handlers** for privileged operations
 4. **Keep dependencies updated** to patch known vulnerabilities
-5. **Regular security audits** using `npm audit`
+5. **Regular security audits** using `pnpm audit`
 
 ## Known Limitations
 
@@ -60,11 +60,11 @@ For security concerns or vulnerability reports, please contact the maintainers d
 
 ```bash
 # Check for known vulnerabilities
-npm audit
+pnpm audit
 
 # Check for outdated dependencies
-npm outdated
+pnpm outdated
 
 # Run security tests
-npm test -- src/main/security/
+pnpm test -- src/main/security/
 ```

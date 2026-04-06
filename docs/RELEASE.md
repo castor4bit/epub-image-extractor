@@ -296,11 +296,11 @@ git push origin main
 
 ### 開発者向け
 
-- [ ] すべてのテストが通る（`npm test`）
-- [ ] 統合テストが通る（`npm run test:integration`）
-- [ ] Lintエラーがない（`npm run lint`）
-- [ ] TypeScriptコンパイルが通る（`npm run typecheck`）
-- [ ] ビルドが成功する（`npm run build`）
+- [ ] すべてのテストが通る（`pnpm test`）
+- [ ] 統合テストが通る（`pnpm test:integration`）
+- [ ] Lintエラーがない（`pnpm lint`）
+- [ ] TypeScriptコンパイルが通る（`pnpm typecheck`）
+- [ ] ビルドが成功する（`pnpm build`）
 - [ ] Conventional Commitsルールに従っている
 
 ### Release PR確認時
@@ -336,16 +336,16 @@ git push origin main
 
 1. **ローカルビルドテスト**
    ```bash
-   npm run build
-   npm run dist:mac  # macOS
-   npm run dist:win  # Windows
+   pnpm build
+   pnpm dist:mac  # macOS
+   pnpm dist:win  # Windows
    ```
 
 2. **依存関係の確認**
    ```bash
-   npm ci
-   npm run typecheck
-   npm test
+   pnpm install --frozen-lockfile
+   pnpm typecheck
+   pnpm test
    ```
 
 3. **Node.jsバージョン**

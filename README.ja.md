@@ -37,7 +37,7 @@ macOSで初めてアプリを起動する際、以下の警告が表示される
 ### 前提条件（開発用）
 
 - Node.js 24.0.0以上
-- npm
+- pnpm（corepack経由で管理）
 
 ### 開発環境のセットアップ
 
@@ -46,28 +46,31 @@ macOSで初めてアプリを起動する際、以下の警告が表示される
 git clone <repository-url>
 cd epub-image-extractor
 
+# corepackでpnpmを有効化
+corepack enable pnpm
+
 # 依存関係をインストール
-npm install
+pnpm install
 
 # 開発モードで実行
-npm run electron:dev
+pnpm electron:dev
 ```
 
 ### プロダクションビルド
 
 ```bash
 # 現在のプラットフォーム用にビルド
-npm run dist
+pnpm dist
 
 # Windows用にビルド（インストーラーとポータブル版）
-npm run dist:win
+pnpm dist:win
 
 # macOS用にビルド
-npm run dist:mac
+pnpm dist:mac
 
 # 特定のアーキテクチャ用
-npm run dist:mac-x64    # Intel Mac用
-npm run dist:mac-arm64  # Apple Silicon Mac用
+pnpm dist:mac-x64    # Intel Mac用
+pnpm dist:mac-arm64  # Apple Silicon Mac用
 ```
 
 ### 配布形式
@@ -146,32 +149,32 @@ src/
 
 ```bash
 # 単体テストを実行
-npm test
+pnpm test
 
 # 統合テストを実行
-npm run test:integration
+pnpm test:integration
 
 # すべてのテストを実行
-npm run test:all
+pnpm test:all
 
 # カバレッジ付きでテストを実行
-npm run test:coverage
+pnpm test:coverage
 ```
 
 ### コード品質
 
 ```bash
 # ESLintを実行
-npm run lint
+pnpm lint
 
 # ESLintの問題を修正
-npm run lint:fix
+pnpm lint:fix
 
 # コードフォーマット
-npm run format
+pnpm format
 
 # 型チェック
-npm run typecheck
+pnpm typecheck
 ```
 
 ## セキュリティ機能
@@ -203,12 +206,12 @@ npm run typecheck
 
 開発時にデバッグログを有効にするには：
 ```bash
-LOG_LEVEL=debug npm run electron:dev
+LOG_LEVEL=debug pnpm electron:dev
 ```
 
 ### よくある問題
 
-1. **「Cannot find module」エラー**: `npm install`を実行してすべての依存関係がインストールされているか確認
+1. **「Cannot find module」エラー**: `pnpm install`を実行してすべての依存関係がインストールされているか確認
 2. **macOSでのビルド失敗**: Xcode Command Line Toolsのインストールが必要な場合があります
 3. **大きなEPUBファイル**: 多くの画像を含むファイルは処理に時間がかかります。リソース制限に達した場合は警告が表示されます
 4. **目次情報がない場合**: 目次が正しく設定されていないEPUBでは、すべての画像が「001_未分類」フォルダに抽出されます

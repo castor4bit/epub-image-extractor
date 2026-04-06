@@ -13,23 +13,23 @@
 
 ```bash
 # すべてのE2Eテストを実行
-npm run test:e2e
+pnpm test:e2e
 
 # 特定のテストファイルのみ実行
-npm run test:e2e -- processing-controls.spec.ts
+pnpm test:e2e -- processing-controls.spec.ts
 
 # ヘッドレスモードを無効にして実行（デバッグ用）
-npm run test:e2e -- --headed
+pnpm test:e2e -- --headed
 
 # 特定のテストケースのみ実行
-npm run test:e2e -- --grep "処理中はドロップゾーンが無効化される"
+pnpm test:e2e -- --grep "処理中はドロップゾーンが無効化される"
 ```
 
 ### デバッグモード
 
 ```bash
 # Playwrightのデバッグモードで実行
-PWDEBUG=1 npm run test:e2e
+PWDEBUG=1 pnpm test:e2e
 
 # VSCodeでのデバッグ
 # .vscode/launch.json に設定を追加して使用
@@ -123,12 +123,12 @@ test.describe('機能名', () => {
 
 1. **ビルドエラー**
    ```bash
-   npm run build
+   pnpm build
    ```
 
 2. **Playwrightのインストール**
    ```bash
-   npx playwright install
+   pnpm exec playwright install
    ```
 
 3. **権限エラー（macOS）**

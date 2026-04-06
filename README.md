@@ -37,7 +37,7 @@ This is only required for the first launch. The app is signed with an ad-hoc sig
 ### Prerequisites (for development)
 
 - Node.js 24.0.0 or higher
-- npm
+- pnpm (managed via corepack)
 
 ### Development Setup
 
@@ -46,28 +46,31 @@ This is only required for the first launch. The app is signed with an ad-hoc sig
 git clone <repository-url>
 cd epub-image-extractor
 
+# Enable pnpm via corepack
+corepack enable pnpm
+
 # Install dependencies
-npm install
+pnpm install
 
 # Run in development mode
-npm run electron:dev
+pnpm electron:dev
 ```
 
 ### Building for Production
 
 ```bash
 # Build for current platform
-npm run dist
+pnpm dist
 
 # Build for Windows (installer and portable)
-npm run dist:win
+pnpm dist:win
 
 # Build for macOS
-npm run dist:mac
+pnpm dist:mac
 
 # Build for specific architectures
-npm run dist:mac-x64    # Intel Macs
-npm run dist:mac-arm64  # Apple Silicon Macs
+pnpm dist:mac-x64    # Intel Macs
+pnpm dist:mac-arm64  # Apple Silicon Macs
 ```
 
 ### Distribution Formats
@@ -188,44 +191,44 @@ src/
 
 ```bash
 # Run unit tests
-npm test
+pnpm test
 
 # Run integration tests
-npm run test:integration
+pnpm test:integration
 
 # Run all tests
-npm run test:all
+pnpm test:all
 
 # Run E2E tests
-npm run test:e2e
+pnpm test:e2e
 
 # Run E2E tests with visual browser
-npm run test:e2e:headed
+pnpm test:e2e:headed
 
 # Run E2E smoke tests only
-npm run test:e2e:smoke
+pnpm test:e2e:smoke
 
 # Debug E2E tests
-npm run test:e2e:debug
+pnpm test:e2e:debug
 
 # Run tests with coverage
-npm run test:coverage
+pnpm test:coverage
 ```
 
 ### Code Quality
 
 ```bash
 # Run ESLint
-npm run lint
+pnpm lint
 
 # Fix ESLint issues
-npm run lint:fix
+pnpm lint:fix
 
 # Format code
-npm run format
+pnpm format
 
 # Type check
-npm run typecheck
+pnpm typecheck
 ```
 
 ## Security Features
@@ -250,7 +253,7 @@ The application uses a custom icon featuring an open book with floating images. 
 
 ### Common Issues
 
-1. **"Cannot find module" error**: Run `npm install` to ensure all dependencies are installed
+1. **"Cannot find module" error**: Run `pnpm install` to ensure all dependencies are installed
 2. **Build failures on macOS**: You may need to install Xcode Command Line Tools
 3. **Large EPUB files**: Files with many images may take longer to process. The app will warn if resource limits are reached
 4. **Missing navigation/TOC**: EPUBs without proper navigation will have all images extracted to "001_未分類" folder
@@ -263,7 +266,7 @@ The application uses pino for logging. Log files are located at:
 
 To enable debug logging in development:
 ```bash
-LOG_LEVEL=debug npm run electron:dev
+LOG_LEVEL=debug pnpm electron:dev
 ```
 
 ## License

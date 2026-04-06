@@ -48,16 +48,16 @@ VSCodeの統合ターミナルで以下のコマンドを実行：
 
 ```bash
 # すべてのE2Eテストを実行
-npm run test:e2e
+pnpm test:e2e
 
 # 特定のテストファイルを実行
-npm run test:e2e -- e2e/dragdrop.spec.ts
+pnpm test:e2e -- e2e/dragdrop.spec.ts
 
 # UIモードで実行（視覚的にテストを確認）
-npx playwright test --ui
+pnpm exec playwright test --ui
 
 # デバッグモードで実行
-npx playwright test --debug
+pnpm exec playwright test --debug
 ```
 
 ## 3. テスト結果の確認
@@ -69,13 +69,13 @@ npx playwright test --debug
 
 ### HTMLレポートの表示
 ```bash
-npx playwright show-report
+pnpm exec playwright show-report
 ```
 
 ### トレースファイルの確認
 失敗したテストのトレースファイルを確認：
 ```bash
-npx playwright show-trace test-results/[test-name]/trace.zip
+pnpm exec playwright show-trace test-results/[test-name]/trace.zip
 ```
 
 ## 4. 便利な機能
@@ -83,16 +83,16 @@ npx playwright show-trace test-results/[test-name]/trace.zip
 ### ヘッドレスモードの切り替え
 `playwright.config.ts`で設定するか、環境変数で制御：
 ```bash
-HEADED=true npm run test:e2e
+HEADED=true pnpm test:e2e
 ```
 
 ### 特定のテストのみ実行
 ```bash
 # grepパターンでフィルタ
-npm run test:e2e -- -g "ドラッグ"
+pnpm test:e2e -- -g "ドラッグ"
 
 # @smokeタグ付きテストのみ
-npm run test:e2e -- -g "@smoke"
+pnpm test:e2e -- -g "@smoke"
 ```
 
 ### テストのデバッグ
@@ -104,11 +104,11 @@ npm run test:e2e -- -g "@smoke"
 
 ### テストが表示されない場合
 1. Playwright拡張機能を再読み込み（Cmd+Shift+P → "Developer: Reload Window"）
-2. `npm install` を実行して依存関係を確認
-3. `npm run build` でアプリケーションをビルド
+2. `pnpm install` を実行して依存関係を確認
+3. `pnpm build` でアプリケーションをビルド
 
 ### タイムアウトエラーが発生する場合
-- テスト実行前に必ず `npm run build` を実行
+- テスト実行前に必ず `pnpm build` を実行
 - デフォルトタイムアウトは5秒に設定されています
 - 特定の要素を待つ場合は Playwright の expect API を使用してください
 
