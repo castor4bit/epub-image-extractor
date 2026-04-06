@@ -18,11 +18,11 @@
 
 ### 3. コード品質の検証
 **コミット前に必ず以下のすべてが成功することを確認すること**
-- `npm run build` - TypeScriptとViteビルドの成功を確認
-- `npm run lint` - ESLintによるコード品質チェック
-- `npm run format` - Prettierによるコードフォーマット
-- `npm test` - すべてのユニットテストの成功
-- 必要に応じて `npm run dist:mac` または `npm run dist:win` でプロダクションビルドを確認
+- `pnpm build` - TypeScriptとViteビルドの成功を確認
+- `pnpm lint` - ESLintによるコード品質チェック
+- `pnpm format` - Prettierによるコードフォーマット
+- `pnpm test` - すべてのユニットテストの成功
+- 必要に応じて `pnpm dist:mac` または `pnpm dist:win` でプロダクションビルドを確認
 
 ### 4. 実動作を検証するテスト
 **mockのみのテストは禁止、実機能を検証すること**

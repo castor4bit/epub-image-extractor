@@ -108,11 +108,11 @@ The `main-branch-protection.json` ruleset implements comprehensive protection fo
 
 1. **No Direct Push to Main**: Aligns with "すべての変更は PR 経由でマージ（main への直接 push は禁止）"
 2. **Quality Checks**: Ensures all commits pass:
-   - ESLint (`npm run lint`)
-   - TypeScript check (`npm run typecheck`)
-   - Unit tests (`npm test`)
-   - Integration tests (`npm run test:integration`)
-   - Build verification (`npm run build`)
+   - ESLint (`pnpm lint`)
+   - TypeScript check (`pnpm typecheck`)
+   - Unit tests (`pnpm test`)
+   - Integration tests (`pnpm test:integration`)
+   - Build verification (`pnpm build`)
 
 3. **Development Workflow**: Enforces the proper branch strategy:
    - Developers must create feature branches

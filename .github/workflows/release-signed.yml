@@ -15,26 +15,29 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
     - name: Setup Node.js
       uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
       with:
         node-version: 24.x
-        cache: 'npm'
-    
+        cache: 'pnpm'
+
     - name: Install dependencies
-      run: npm ci
-    
+      run: pnpm install --frozen-lockfile
+
     # 証明書設定は一時的に無効化
-    
+
     - name: Build and sign
       env:
         # macOSコード署名を無効化（証明書未設定のため）
         CSC_IDENTITY_AUTO_DISCOVERY: false
       run: |
-        npm run dist:mac-x64
-        npm run dist:mac-arm64
-    
+        pnpm dist:mac-x64
+        pnpm dist:mac-arm64
+
     - name: Upload artifacts
       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
@@ -45,22 +48,25 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
     - name: Setup Node.js
       uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
       with:
         node-version: 24.x
-        cache: 'npm'
-    
+        cache: 'pnpm'
+
     - name: Install dependencies
-      run: npm ci
-    
+      run: pnpm install --frozen-lockfile
+
     - name: Build and sign
       env:
         # Windowsコード署名を無効化（証明書未設定のため）
         CSC_IDENTITY_AUTO_DISCOVERY: false
-      run: npm run dist:win
-    
+      run: pnpm dist:win
+
     - name: Upload artifacts
       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
@@ -72,12 +78,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    
+
     - name: Download all artifacts
       uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
       with:
         path: release-artifacts
-    
+
     - name: Create Release
       uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
       with:
