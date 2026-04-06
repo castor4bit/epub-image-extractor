@@ -12,6 +12,8 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Tokyo"
+    # Reject versions published less than 7 days ago
+    minimum-version-age: "7 days"
     # Cooldown settings: Wait period after new version releases
     cooldown:
       semver-major-days: 21  # Major updates wait 3 weeks
@@ -74,6 +76,8 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Tokyo"
+    # Reject versions published less than 7 days ago
+    minimum-version-age: "7 days"
     # Maximum number of open pull requests
     open-pull-requests-limit: 5
     # PR labels
