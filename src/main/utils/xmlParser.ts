@@ -22,7 +22,8 @@ const createParser = () => {
     allowBooleanAttributes: false,
     stopNodes: [],
     // 特定の要素を常に配列として扱う（xml2jsとの互換性のため）
-    isArray: (name: string, jpath: string, _isLeafNode: boolean, _isAttribute: boolean) => {
+    isArray: (name: string, jpath: string | object, _isLeafNode: boolean, _isAttribute: boolean) => {
+      if (typeof jpath !== 'string') return false;
       // container.xml
       if (jpath === 'container.rootfiles' && name === 'rootfiles') return true;
       if (jpath === 'container.rootfiles.rootfile' && name === 'rootfile') return true;
