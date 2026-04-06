@@ -3,8 +3,9 @@
 
 version: 2
 updates:
-  # pnpm dependency updates
-  - package-ecosystem: "pnpm"
+  # pnpm dependency updates (Dependabot uses "npm" ecosystem for pnpm projects,
+  # detecting pnpm-lock.yaml automatically)
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       # Run every Monday at 9:00 AM (UTC)
