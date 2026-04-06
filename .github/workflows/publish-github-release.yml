@@ -40,18 +40,18 @@ jobs:
               direction: 'desc',
               per_page: 10
             });
-            
-            const releasePR = pulls.find(pr => 
-              pr.merged_at && 
+
+            const releasePR = pulls.find(pr =>
+              pr.merged_at &&
               pr.title.startsWith('chore(main): release') &&
               new Date(pr.merged_at) > new Date(Date.now() - 24 * 60 * 60 * 1000) // 24時間以内
             );
-            
+
             if (!releasePR) {
               core.setFailed('No recently merged release PR found. Please merge a release PR first.');
               return;
             }
-            
+
             console.log(`Found merged release PR: #${releasePR.number} - ${releasePR.title}`);
             core.setOutput('pr_number', releasePR.number);
             core.setOutput('pr_title', releasePR.title);
@@ -68,7 +68,7 @@ jobs:
     needs: create-release
     if: needs.create-release.outputs.release_created == 'true' && github.event.inputs.skip_build != 'true'
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
         include:
@@ -81,29 +81,32 @@ jobs:
           - os: windows-latest
             arch: x64
             build_cmd: dist:win
-    
+
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         # 作成されたタグをチェックアウト
         ref: ${{ needs.create-release.outputs.tag_name }}
-    
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
     - name: Setup Node.js
       uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
       with:
         node-version: 24.x
-        cache: 'npm'
-    
+        cache: 'pnpm'
+
     - name: Install dependencies
-      run: npm ci
-    
+      run: pnpm install --frozen-lockfile
+
     - name: Build application
-      run: npm run ${{ matrix.build_cmd }}
+      run: pnpm ${{ matrix.build_cmd }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # コード署名を無効化（後でad-hoc署名を追加）
         CSC_IDENTITY_AUTO_DISCOVERY: false
-    
+
     - name: Add ad-hoc signature (macOS)
       if: matrix.os == 'macos-latest'
       run: |
@@ -111,57 +114,57 @@ jobs:
         PRODUCT_NAME="EPUB Image Extractor"
         VERSION=$(node -p "require('./package.json').version")
         DMG_FILE="release/${PRODUCT_NAME}-${VERSION}-${{ matrix.arch }}.dmg"
-        
+
         echo "Looking for DMG: $DMG_FILE"
-        
+
         # Verify DMG exists
         if [ ! -f "$DMG_FILE" ]; then
           echo "Error: DMG file not found: $DMG_FILE"
           exit 1
         fi
-        
+
         echo "Found DMG: $DMG_FILE"
-        
+
         # Create temporary directory
         TEMP_DIR=$(mktemp -d)
         echo "Temp directory: $TEMP_DIR"
-        
+
         # Mount DMG
         MOUNT_POINT="$TEMP_DIR/mnt"
         mkdir -p "$MOUNT_POINT"
         hdiutil attach "$DMG_FILE" -nobrowse -mountpoint "$MOUNT_POINT"
-        
+
         # Find application
         APP_PATH=$(find "$MOUNT_POINT" -name "*.app" -type d | head -n 1)
         echo "Found app: $APP_PATH"
-        
+
         # Get original app name
         APP_NAME=$(basename "$APP_PATH")
         echo "App name: $APP_NAME"
-        
+
         # Create working directory
         WORK_DIR="$TEMP_DIR/work"
         mkdir -p "$WORK_DIR"
-        
+
         # Copy entire DMG contents to preserve layout
         echo "Copying DMG contents..."
         cp -R "$MOUNT_POINT/"* "$WORK_DIR/"
-        
+
         # Unmount DMG
         hdiutil detach "$MOUNT_POINT"
-        
+
         # Add ad-hoc signature
         echo "Adding ad-hoc signature to $APP_NAME..."
         codesign --force --deep --sign - "$WORK_DIR/$APP_NAME"
-        
+
         # Verify signature
         echo "Verifying signature..."
         codesign --verify --verbose "$WORK_DIR/$APP_NAME"
-        
+
         # Create new DMG with preserved layout
         DMG_NAME=$(basename "$DMG_FILE" .dmg)
         NEW_DMG="release/${DMG_NAME}-signed.dmg"
-        
+
         echo "Creating new DMG: $NEW_DMG"
         hdiutil create -volname "$PRODUCT_NAME" \
           -fs HFS+ \
@@ -169,15 +172,15 @@ jobs:
           -ov \
           -format UDZO \
           "$NEW_DMG"
-        
+
         # Replace original DMG with signed version
         mv "$NEW_DMG" "$DMG_FILE"
-        
+
         # Cleanup
         rm -rf "$TEMP_DIR"
-        
+
         echo "Ad-hoc signing completed successfully"
-    
+
     - name: Upload macOS artifacts
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -198,15 +201,15 @@ jobs:
     needs: [create-release, build-and-release]
     if: needs.create-release.outputs.release_created == 'true' && github.event.inputs.skip_build != 'true'
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    
+
     - name: Download all artifacts
       uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
       with:
         path: release-artifacts
-    
+
     - name: Upload release assets
       uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
       with:

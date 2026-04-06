@@ -23,24 +23,27 @@ jobs:
     strategy:
       matrix:
         arch: [x64, arm64]
-    
+
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
     - name: Setup Node.js
       uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
       with:
         node-version: 24.x
-        cache: 'npm'
-    
+        cache: 'pnpm'
+
     - name: Install dependencies
-      run: npm ci
-    
+      run: pnpm install --frozen-lockfile
+
     - name: Build macOS ${{ matrix.arch }}
-      run: npm run dist:mac-${{ matrix.arch }}
+      run: pnpm dist:mac-${{ matrix.arch }}
       env:
         CSC_IDENTITY_AUTO_DISCOVERY: false
-    
+
     - name: Upload macOS ${{ matrix.arch }} build
       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
@@ -51,24 +54,27 @@ jobs:
   build-windows:
     if: ${{ github.event.inputs.platforms == 'all' || github.event.inputs.platforms == 'windows-only' }}
     runs-on: windows-latest
-    
+
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
     - name: Setup Node.js
       uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
       with:
         node-version: 24.x
-        cache: 'npm'
-    
+        cache: 'pnpm'
+
     - name: Install dependencies
-      run: npm ci
-    
+      run: pnpm install --frozen-lockfile
+
     - name: Build Windows
-      run: npm run dist:win
+      run: pnpm dist:win
       env:
         CSC_IDENTITY_AUTO_DISCOVERY: false
-    
+
     - name: Upload Windows build
       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
@@ -80,7 +86,7 @@ jobs:
     needs: [build-mac, build-windows]
     runs-on: ubuntu-latest
     if: always()
-    
+
     steps:
     - name: Build summary
       run: |
