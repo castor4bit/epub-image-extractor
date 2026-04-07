@@ -41,11 +41,12 @@
     "release:major": "echo 'To create a major release: Go to GitHub Actions → Prepare Release PR → Run workflow → Select major'",
     "electron": "electron .",
     "electron:dev": "vite",
-    "dist": "pnpm build && electron-builder",
-    "dist:win": "pnpm build && electron-builder --win",
-    "dist:mac": "pnpm build && electron-builder --mac",
-    "dist:mac-x64": "pnpm build && electron-builder --mac --x64",
-    "dist:mac-arm64": "pnpm build && electron-builder --mac --arm64"
+    "clean": "rm -rf dist dist-electron",
+    "dist": "pnpm clean && pnpm build && electron-builder",
+    "dist:win": "pnpm clean && pnpm build && electron-builder --win",
+    "dist:mac": "pnpm clean && pnpm build && electron-builder --mac",
+    "dist:mac-x64": "pnpm clean && pnpm build && electron-builder --mac --x64",
+    "dist:mac-arm64": "pnpm clean && pnpm build && electron-builder --mac --arm64"
   },
   "dependencies": {
     "electron-store": "^11.0.2",
