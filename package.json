@@ -41,26 +41,27 @@
     "release:major": "echo 'To create a major release: Go to GitHub Actions → Prepare Release PR → Run workflow → Select major'",
     "electron": "electron .",
     "electron:dev": "vite",
-    "dist": "pnpm build && electron-builder",
-    "dist:win": "pnpm build && electron-builder --win",
-    "dist:mac": "pnpm build && electron-builder --mac",
-    "dist:mac-x64": "pnpm build && electron-builder --mac --x64",
-    "dist:mac-arm64": "pnpm build && electron-builder --mac --arm64"
+    "clean": "rm -rf dist dist-electron",
+    "dist": "pnpm clean && pnpm build && electron-builder",
+    "dist:win": "pnpm clean && pnpm build && electron-builder --win",
+    "dist:mac": "pnpm clean && pnpm build && electron-builder --mac",
+    "dist:mac-x64": "pnpm clean && pnpm build && electron-builder --mac --x64",
+    "dist:mac-arm64": "pnpm clean && pnpm build && electron-builder --mac --arm64"
   },
   "dependencies": {
-    "electron-store": "^11.0.2",
     "fast-xml-parser": "^5.5.10",
-    "fflate": "^0.8.2",
-    "i18next": "^25.6.2",
     "p-limit": "^7.3.0",
     "pino": "^10.0.0",
-    "pino-pretty": "^13.1.3",
+    "pino-pretty": "^13.1.3"
+  },
+  "devDependencies": {
+    "electron-store": "^11.0.2",
+    "fflate": "^0.8.2",
+    "i18next": "^25.6.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-i18next": "^16.5.2",
-    "sanitize-html": "^2.17.0"
-  },
-  "devDependencies": {
+    "sanitize-html": "^2.17.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.58.2",
