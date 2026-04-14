@@ -43,8 +43,8 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
       chapters: result.chapters,
       outputPath: result.outputPath,
       error: result.errors?.[0],
-      // fileIdからタイムスタンプを抽出
-      timestamp: parseInt(result.fileId.split('-').pop() || '0') || Date.now() - 1000000,
+      // Extract timestamp from fileId (format: file-{index}-{timestamp}); fall back to 0 for malformed ids
+      timestamp: parseInt(result.fileId.split('-').pop() || '0') || 0,
     });
     processedFileIds.add(result.fileId);
   });
@@ -60,8 +60,8 @@ export const FileProcessingList: React.FC<FileProcessingListProps> = ({
         totalImages: prog.totalImages,
         processedImages: prog.processedImages,
         error: prog.error,
-        // fileIdから��イムスタンプを抽出（形式: file-{index}-{timestamp}）
-        timestamp: parseInt(prog.fileId.split('-').pop() || '0') || Date.now(),
+        // Extract timestamp from fileId (format: file-{index}-{timestamp}); fall back to 0 for malformed ids
+        timestamp: parseInt(prog.fileId.split('-').pop() || '0') || 0,
       });
     }
   });
