@@ -61,7 +61,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-i18next": "^16.6.6",
-    "sanitize-html": "^2.17.2",
+    "sanitize-html": "^2.17.3",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@playwright/test": "^1.59.1",
