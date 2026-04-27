@@ -57,7 +57,7 @@
   "devDependencies": {
     "electron-store": "^11.0.2",
     "fflate": "^0.8.2",
-    "i18next": "^25.10.10",
+    "i18next": "^26.0.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-i18next": "^16.6.6",
