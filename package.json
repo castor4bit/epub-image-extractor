@@ -91,7 +91,7 @@
     "vite": "^7.3.2",
     "vite-plugin-electron": "^0.29.1",
     "vite-plugin-electron-renderer": "^0.14.5",
-    "vitest": "^3.2.4",
+    "vitest": "^4.1.0",
     "wait-on": "^9.0.5"
   },
   "build": {
