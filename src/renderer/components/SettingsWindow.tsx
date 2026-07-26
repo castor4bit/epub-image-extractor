@@ -48,9 +48,9 @@ export const SettingsWindow: React.FC<SettingsWindowProps> = ({ isOpen, onClose,
           inactiveOpacity: loadedSettings.inactiveOpacity ?? WINDOW_OPACITY.inactive.default,
           enableMouseHoverOpacity: loadedSettings.enableMouseHoverOpacity ?? true,
         });
+        // Clear reset flag when dialog opens
+        setWasReset(false);
       });
-      // Clear reset flag when dialog opens
-      setWasReset(false);
     }
   }, [isOpen]);
 

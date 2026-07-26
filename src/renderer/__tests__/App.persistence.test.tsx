@@ -92,6 +92,25 @@ describe('App - 結果の永続化', () => {
     });
   });
 
+  test('localStorageの内容が壊れていても起動でき、結果は空として扱われる', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    localStorageMock.getItem.mockReturnValue('{ this is not valid json');
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '保存された結果の読み込みエラー:',
+        expect.any(Error),
+      );
+    });
+
+    // 復元に失敗しても結果一覧は表示されない
+    expect(screen.queryByText('saved1.epub')).not.toBeInTheDocument();
+
+    consoleErrorSpy.mockRestore();
+  });
+
   test('処理完了時に結果をlocalStorageに保存する', async () => {
     const user = userEvent.setup();
 
