@@ -3,16 +3,11 @@ name: Prepare Release PR
 on:
   workflow_dispatch:
     inputs:
-      release_type:
-        description: 'Type of release'
+      release_as:
+        description: 'Explicit version to release, e.g. 0.8.0. Leave empty to derive it from conventional commits.'
         required: false
-        default: 'auto'
-        type: choice
-        options:
-          - 'auto'
-          - 'patch'
-          - 'minor'
-          - 'major'
+        default: ''
+        type: string
 
 permissions:
   contents: write
@@ -23,21 +18,34 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
+      # release-as accepts an exact version string only, never keywords like
+      # "patch"/"minor"/"major". Reject anything that is not semver so a typo
+      # fails loudly instead of producing a bogus release PR.
+      - name: Validate release_as
+        if: inputs.release_as != ''
+        env:
+          RELEASE_AS: ${{ inputs.release_as }}
+        run: |
+          if [[ ! "$RELEASE_AS" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)*$ ]]; then
+            echo "::error::release_as must be an exact version such as 0.8.0 (got: $RELEASE_AS)"
+            exit 1
+          fi
+
       - name: Create Release PR (Auto)
         uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release
-        if: github.event.inputs.release_type == 'auto' || github.event.inputs.release_type == ''
+        if: inputs.release_as == ''
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           skip-github-release: true
-      
+
       - name: Create Release PR (Explicit)
         uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release-explicit
-        if: github.event.inputs.release_type != 'auto' && github.event.inputs.release_type != ''
+        if: inputs.release_as != ''
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          release-as: ${{ github.event.inputs.release_type }}
+          release-as: ${{ inputs.release_as }}
           skip-github-release: true

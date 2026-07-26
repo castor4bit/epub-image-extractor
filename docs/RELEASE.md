@@ -136,12 +136,21 @@ Release PRは手動でワークフローを実行した時のみ作成・更新�
 1. **GitHub Actionsページに移動**: リポジトリの「Actions」タブ
 2. **「Prepare Release PR」ワークフローを選択**
 3. **「Run workflow」をクリック**
-4. **リリースタイプを選択**:
-   - `auto`: コミット履歴から自動決定（推奨）
-   - `patch`: パッチリリース (0.4.0 → 0.4.1)
-   - `minor`: マイナーリリース (0.4.0 → 0.5.0)
-   - `major`: メジャーリリース (0.4.0 → 1.0.0)
+4. **`release_as` にバージョンを入力**:
+   - 空欄: コミット履歴から自動決定（推奨）
+   - `0.8.0` のような**正確なバージョン文字列**: そのバージョンでRelease PRを作成
 5. **「Run workflow」で実行**
+
+> **注意**: `release_as` は release-please の `release-as` にそのまま渡されます。この設定は
+> 正確なバージョン文字列のみを受け付け、`patch` / `minor` / `major` のようなキーワードは
+> 使えません。誤入力はワークフロー冒頭の検証ステップで弾かれます。
+
+コミット経由で指定することもできます。`main` へのコミット本文に `Release-As: x.y.z` を
+含めると、release-please がそのバージョンでRelease PRを作成します。
+
+```bash
+git commit --allow-empty -m "chore: release 0.8.0" -m "Release-As: 0.8.0"
+```
 
 ### 4. リリース実行
 
