@@ -12,6 +12,21 @@ import { WindowHoverDetector } from './components/WindowHoverDetector';
 import { formatError } from './utils/errorMessages';
 import './i18n';
 
+// Restore previously saved extraction results from localStorage.
+// Used as a useState initializer so the very first render already has the data.
+function loadSavedResults(): ExtractionResult[] {
+  const savedResults = localStorage.getItem('epubExtractionResults');
+  if (!savedResults) {
+    return [];
+  }
+  try {
+    return JSON.parse(savedResults);
+  } catch (error) {
+    console.error('保存された結果の読み込みエラー:', error);
+    return [];
+  }
+}
+
 function App() {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
@@ -20,8 +35,8 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [completedResults, setCompletedResults] = useState<ExtractionResult[]>([]);
-  const [hasAnyResults, setHasAnyResults] = useState(false);
+  const [completedResults, setCompletedResults] = useState<ExtractionResult[]>(loadSavedResults);
+  const [hasAnyResults, setHasAnyResults] = useState(() => completedResults.length > 0);
   const [updateVersion, setUpdateVersion] = useState<string | null>(null);
 
   // ファイル処理
@@ -206,20 +221,6 @@ function App() {
   // About dialog を表示
   const handleShowAbout = useCallback(() => {
     setIsAboutOpen(true);
-  }, []);
-
-  // 初回ロード時にlocalStorageから結果を復元
-  useEffect(() => {
-    const savedResults = localStorage.getItem('epubExtractionResults');
-    if (savedResults) {
-      try {
-        const parsed = JSON.parse(savedResults);
-        setCompletedResults(parsed);
-        setHasAnyResults(parsed.length > 0);
-      } catch (error) {
-        console.error('保存された結果の読み込みエラー:', error);
-      }
-    }
   }, []);
 
   // 進捗リスナーを設定
