@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.3...v0.7.0) (2026-07-26)
+
+
+### Features
+
+* migrate from npm to pnpm ([#234](https://github.com/castor4bit/epub-image-extractor/issues/234)) ([c15c893](https://github.com/castor4bit/epub-image-extractor/commit/c15c893993b812fb285106e7468894b498a7b74f))
+* **security:** implement supply chain attack mitigations ([#236](https://github.com/castor4bit/epub-image-extractor/issues/236)) ([45e64e1](https://github.com/castor4bit/epub-image-extractor/commit/45e64e1f46c76c3fa9c2101b929660179ae98f8c))
+
+
+### Bug Fixes
+
+* **deps:** Bump fast-xml-parser from 5.5.11 to 5.7.0 ([#270](https://github.com/castor4bit/epub-image-extractor/issues/270)) ([2a3db19](https://github.com/castor4bit/epub-image-extractor/commit/2a3db19a1aca41d3ce6e753c2b8cc75cd32499d7))
+* **deps:** Bump fast-xml-parser from 5.7.0 to 5.10.1 ([#288](https://github.com/castor4bit/epub-image-extractor/issues/288)) ([6f8ce6c](https://github.com/castor4bit/epub-image-extractor/commit/6f8ce6cb944b64d8db91d6194b03e9edf27d7f79))
+* **deps:** bump i18next from 25.6.2 to 25.7.4 ([#188](https://github.com/castor4bit/epub-image-extractor/issues/188)) ([544d614](https://github.com/castor4bit/epub-image-extractor/commit/544d6148d899571f90603757273a95d3fab93414))
+* **deps:** Bump pino from 10.0.0 to 10.3.1 ([#259](https://github.com/castor4bit/epub-image-extractor/issues/259)) ([1b51b9c](https://github.com/castor4bit/epub-image-extractor/commit/1b51b9cb3dbc998520c2d8db2d0c4751f50766cc))
+* **deps:** bump the production-dependencies group across 1 directory with 14 updates ([#245](https://github.com/castor4bit/epub-image-extractor/issues/245)) ([ecaf602](https://github.com/castor4bit/epub-image-extractor/commit/ecaf6023be99e320012d4b87788d3fdfdc1c866d))
+* **deps:** Bump the production-dependencies group with 9 updates ([#253](https://github.com/castor4bit/epub-image-extractor/issues/253)) ([7a70165](https://github.com/castor4bit/epub-image-extractor/commit/7a701650e03d071ef9efd80a83638074f6885900))
+* **deps:** bump the react group with 4 updates ([#162](https://github.com/castor4bit/epub-image-extractor/issues/162)) ([19e0672](https://github.com/castor4bit/epub-image-extractor/commit/19e0672a13d8c31dacf765fc7d4869e1534703b5))
+* prevent white screen on startup and reduce asar bundle size ([#241](https://github.com/castor4bit/epub-image-extractor/issues/241)) ([4560309](https://github.com/castor4bit/epub-image-extractor/commit/45603098cd60e0310eb33913032e2c5ec024e682))
+* remove duplicated tinyglobby entries from pnpm-lock.yaml ([#260](https://github.com/castor4bit/epub-image-extractor/issues/260)) ([a85cb25](https://github.com/castor4bit/epub-image-extractor/commit/a85cb2523bc280af6947c2c26264c154b7439b2b))
+* remove unsupported minimum-version-age from dependabot config ([#239](https://github.com/castor4bit/epub-image-extractor/issues/239)) ([935643f](https://github.com/castor4bit/epub-image-extractor/commit/935643faffd865c7ae8edaa8f8c611b8cf5f109b))
+* use npm ecosystem in dependabot config for pnpm project ([#238](https://github.com/castor4bit/epub-image-extractor/issues/238)) ([e4cb8c4](https://github.com/castor4bit/epub-image-extractor/commit/e4cb8c4c2f77e0cd80c991d195478133d809b518))
+
+
+### Chores
+
+* release 0.7.0 ([#299](https://github.com/castor4bit/epub-image-extractor/issues/299)) ([2056309](https://github.com/castor4bit/epub-image-extractor/commit/20563091a44463e96f4c6d0c86439c385d7f7408))
+
 ## [0.6.3](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.2...v0.6.3) (2026-04-05)
 
 
