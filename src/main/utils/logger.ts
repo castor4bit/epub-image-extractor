@@ -9,16 +9,37 @@ import { AppError } from '../../shared/error-types';
 let electronApp: App | null = null;
 
 // ElectronのappオブジェクトをセットするためのAPI
-export function setElectronApp(app: App): void {
+// ロガーはモジュール読み込み時に一度作られるため、appの注入後に作り直す。
+// export let + ESMのライブバインディングにより、利用側の import も新しい
+// インスタンスを参照する。
+export function setElectronApp(app: App | null): void {
   electronApp = app;
+  clearLoggerCache();
+  logger = createLogger();
+}
+
+// 本番かどうかの判定
+// パッケージ版のElectronは NODE_ENV を設定しないため、appがあれば
+// isPackaged を信頼する。appが無い場合のみ NODE_ENV にフォールバックする。
+export function isProductionRuntime(
+  app: Pick<App, 'isPackaged'> | null,
+  nodeEnv: string | undefined,
+): boolean {
+  if (nodeEnv === 'test') {
+    return false;
+  }
+  if (app) {
+    return app.isPackaged;
+  }
+  return nodeEnv === 'production';
 }
 
 // ログファイルのパスを取得（Electronが利用できない場合は一時ディレクトリを使用）
-function getLogPath(): string {
+export function resolveLogPath(app: Pick<App, 'getPath'> | null): string {
   // セットされたElectronアプリケーションを使用
-  if (electronApp && electronApp.getPath) {
+  if (app && app.getPath) {
     try {
-      return electronApp.getPath('userData');
+      return app.getPath('userData');
     } catch {
       // エラーが発生した場合はフォールバック
     }
@@ -51,24 +72,23 @@ export function createLogger(): pino.Logger {
     return loggerInstance;
   }
 
-  const logPath = getLogPath();
+  const logPath = resolveLogPath(electronApp);
   const logLevel = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'test' ? 'error' : 'info');
-  const isDevelopment = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
+  const isProduction = isProductionRuntime(electronApp, process.env.NODE_ENV);
+  const isDevelopment = !isProduction && process.env.NODE_ENV !== 'test';
   const isTest = process.env.NODE_ENV === 'test';
 
-  // テスト環境：トランスポートなし、開発環境：コンソール出力、本番環境：ファイル出力
-  const transport =
+  // テスト環境：出力先なし、開発環境：コンソール出力、本番環境：ファイル出力
+  // pino.transport() はワーカースレッド内で __dirname を使うため ESM バンドルでは
+  // 動作しない。ワーカーを使わない pino.destination() でファイルに書き出す。
+  // sync: true にしないとバッファされ、クラッシュ時に直前のログが失われる。
+  // 出力は warn/error のみで量が少ないため同期書き込みで問題ない。
+  const destination =
     isTest || isDevelopment
       ? undefined
-      : {
-          target: 'pino/file',
-          options: {
-            destination: path.join(logPath, 'app.log'),
-            mkdir: true,
-          },
-        };
+      : pino.destination({ dest: path.join(logPath, 'app.log'), mkdir: true, sync: true });
 
-  const pinoOptions: pino.LoggerOptions & { transport?: pino.TransportSingleOptions } = {
+  const pinoOptions: pino.LoggerOptions = {
     level: logLevel,
     timestamp: pino.stdTimeFunctions.isoTime,
     // 開発環境では人間が読みやすい形式に
@@ -105,13 +125,8 @@ export function createLogger(): pino.Logger {
     },
   };
 
-  // トランスポートがある場合のみ追加
-  if (transport) {
-    pinoOptions.transport = transport;
-  }
-
   try {
-    loggerInstance = pino(pinoOptions);
+    loggerInstance = destination ? pino(pinoOptions, destination) : pino(pinoOptions);
   } catch (error) {
     console.error('[Logger] Failed to create pino instance:', error);
     // フォールバック: 最小限のロガーを作成
@@ -124,7 +139,8 @@ export function createLogger(): pino.Logger {
 }
 
 // デフォルトロガーのエクスポート
-export const logger = createLogger();
+// setElectronApp() で差し替わるため const ではなく let
+export let logger = createLogger();
 
 // getLogger関数（後方互換性のため）
 export function getLogger(): pino.Logger {
