@@ -1,3 +1,7 @@
+// Side-effect CSS imports are handled by Vite, not TypeScript.
+// TypeScript 6 reports TS2882 for side-effect imports without declarations.
+declare module '*.css' {}
+
 // Electron APIの型定義
 interface ElectronAPI {
   getVersion: () => Promise<import('@shared/types').AppVersionInfo>;
