@@ -165,14 +165,24 @@ git commit --allow-empty -m "chore: release 0.8.0" -m "Release-As: 0.8.0"
 
 実行されると：
 1. **マージされたRelease PRの検証**: 24時間以内にマージされたRelease PRを確認
-2. **タグ作成**: `v0.4.1`のようなタグが自動作成
-3. **GitHub Release作成**: リリースノートとともに公開
-4. **ビルド実行**: 各プラットフォーム向けにビルド
+2. **GitHub Release作成（draft）**: リリースノートとともに**下書き**として作成
+3. **ビルド実行**: 各プラットフォーム向けにビルド
    - macOS: `EPUB-Image-Extractor-{version}-arm64.dmg`
    - macOS: `EPUB-Image-Extractor-{version}-x64.dmg`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Setup.exe`
    - Windows: `EPUB-Image-Extractor-{version}-x64-Portable.exe`
-5. **成果物アップロード**: ビルド成果物をGitHub Releaseに自動追加
+4. **成果物アップロード**: ビルド成果物をdraftリリースに追加
+5. **リリース公開**: draftを解除。**このタイミングで初めてタグが作成され、リリースが公開される**
+
+> **なぜdraftを経由するのか**
+>
+> 以前はリリースが先に公開され、成果物の添付は10〜15分後でした。その間 GitHub API の
+> `/releases/latest` は新バージョンを返すため、アプリのアップデート通知を見たユーザーが
+> 「GitHubで見る」を押すと、ダウンロードできるファイルが無いページに到達していました。
+>
+> draftリリースは `/releases/latest` から除外されるため、成果物が揃うまでアップデート
+> 通知は発生しません。なお**draftの間はタグが作成されない**ので、ビルドジョブは
+> タグではなくワークフローを起動したコミット（`github.sha`）をチェックアウトします。
 
 ## 🛠 メンテナンス作業
 
