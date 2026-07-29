@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.7.0...v0.7.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* **ci:** accept an exact version for the release_as input ([#301](https://github.com/castor4bit/epub-image-extractor/issues/301)) ([8434caf](https://github.com/castor4bit/epub-image-extractor/commit/8434cafdbfda2e1b21ecde1e625fadb44ccfa1b8))
+* **ci:** publish releases only after the assets are attached ([#305](https://github.com/castor4bit/epub-image-extractor/issues/305)) ([da8314c](https://github.com/castor4bit/epub-image-extractor/commit/da8314c2804f90371aef9b62eca27896e151f2c2))
+* **logger:** restore file logging in packaged builds ([#304](https://github.com/castor4bit/epub-image-extractor/issues/304)) ([12d474c](https://github.com/castor4bit/epub-image-extractor/commit/12d474c5f50fdf8fbb84ed4265c121ba66a3194b))
+
+
+### Continuous Integration
+
+* run the dependency audit as its own job ([#306](https://github.com/castor4bit/epub-image-extractor/issues/306)) ([ff72ac3](https://github.com/castor4bit/epub-image-extractor/commit/ff72ac394aaa13f9bd11f7face0465d6e86b8ccb))
+
 ## [0.7.0](https://github.com/castor4bit/epub-image-extractor/compare/v0.6.3...v0.7.0) (2026-07-26)
 
 
