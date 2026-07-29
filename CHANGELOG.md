@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.2](https://github.com/castor4bit/epub-image-extractor/compare/v0.7.1...v0.7.2) (2026-07-29)
+
+
+### Bug Fixes
+
+* **ci:** stop the publish workflow from opening a release PR ([#310](https://github.com/castor4bit/epub-image-extractor/issues/310)) ([f409297](https://github.com/castor4bit/epub-image-extractor/commit/f4092974aa5962f87202a151190be52c7b2020c2))
+
 ## [0.7.1](https://github.com/castor4bit/epub-image-extractor/compare/v0.7.0...v0.7.1) (2026-07-29)
 
 
