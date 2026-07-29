@@ -62,7 +62,12 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          # skip-github-releaseを指定しない（リリースを作成する）
+          # This workflow only tags and releases; prepare-release-pr.yml owns
+          # pull request creation. Without skip-github-pull-request the action
+          # also opens a release PR here, and because the release is still a
+          # draft its tag does not exist yet, so it reads the previous release
+          # as current and proposes rolling the version back.
+          skip-github-pull-request: true
 
   build-and-release:
     needs: create-release
