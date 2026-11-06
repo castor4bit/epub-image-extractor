@@ -69,6 +69,9 @@ jobs:
     - name: Run ESLint
       run: pnpm lint
 
+    - name: Check @types/node matches Electron's Node
+      run: node scripts/check-types-node.js
+
     - name: Run TypeScript check
       run: pnpm typecheck
 
