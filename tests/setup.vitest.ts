@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
@@ -121,6 +121,14 @@ if (typeof window !== 'undefined') {
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn()
     }))
+  });
+
+  // happy-dom does not implement alert(). Vitest 3 let vi.spyOn() replace the
+  // undefined property, but Vitest 4+ only spies on functions, so provide a no-op.
+  Object.defineProperty(global.window, 'alert', {
+    writable: true,
+    configurable: true,
+    value: () => {}
   });
 }
 

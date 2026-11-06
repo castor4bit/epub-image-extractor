@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, test, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import App from './App';
 import type { ProcessingProgress } from '@shared/types';
 
