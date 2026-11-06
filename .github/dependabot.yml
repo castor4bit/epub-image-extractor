@@ -58,6 +58,13 @@ updates:
     # Security updates have highest priority
     allow:
       - dependency-type: "all"
+    ignore:
+      # @types/node must match the Node.js major bundled with Electron, not
+      # the latest Node. Bump it together with Electron instead;
+      # scripts/check-types-node.js fails CI when they drift apart.
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
     # Commit message configuration
     # Production deps use "fix" to trigger releases
     # Development deps use "chore" as they don't affect users
