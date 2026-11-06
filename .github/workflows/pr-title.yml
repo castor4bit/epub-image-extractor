@@ -1,0 +1,40 @@
+name: PR Title
+
+# PRs are squash-merged, so the title becomes the commit message on main that
+# release-please reads. Kept separate from pr-validation so that editing the
+# title re-runs only this check, not the full test suite.
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  conventional-title:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        sparse-checkout: scripts
+
+    - name: Setup Node.js
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: '24'
+
+    - name: Check PR title follows Conventional Commits
+      # Pass the title through env, never interpolate it into the script
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      run: node scripts/check-pr-title.js
