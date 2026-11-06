@@ -90,7 +90,7 @@
     "vite": "^7.3.5",
     "vite-plugin-electron": "^0.29.1",
     "vite-plugin-electron-renderer": "^0.14.5",
-    "vitest": "^3.2.6"
+    "vitest": "^4.1.11"
   },
   "build": {
     "appId": "com.example.epub-image-extractor",
