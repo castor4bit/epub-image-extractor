@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // テスト環境の設定
 process.env.NODE_ENV = 'test';

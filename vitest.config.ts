@@ -11,6 +11,9 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json'],
+      // Vitest 4 removed coverage.all; list the sources explicitly so files
+      // that no test loads still show up as uncovered
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'node_modules/**',
         'dist/**',
