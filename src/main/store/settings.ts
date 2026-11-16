@@ -37,6 +37,7 @@ const getDefaultOutputDirectory = (): string => {
 // electron-store用の型定義
 interface StoreOptions {
   defaults: Settings;
+  cwd?: string;
 }
 
 // 動的インポートのキャッシュ
@@ -58,11 +59,12 @@ function createInMemoryStore(): any {
     enableMouseHoverOpacity: true,
   };
 
+  // Mirrors the electron-store API used by SettingsStoreProxy
   const store = {
-    get: (key?: string) => {
-      if (!key) return inMemoryStore;
-      return inMemoryStore[key];
+    get store() {
+      return inMemoryStore;
     },
+    get: (key: string) => inMemoryStore[key],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     set: (key: string, value: any) => {
       inMemoryStore[key] = value;
@@ -97,63 +99,7 @@ async function getStore(): Promise<any> {
   }
 
   try {
-    // electron-store v10はESMモジュールなので動的インポート
-    const { default: Store } = await import('electron-store');
-
-    const schema = {
-      outputDirectory: {
-        type: 'string' as const,
-      },
-      language: {
-        type: 'string' as const,
-        default: 'ja',
-      },
-      alwaysOnTop: {
-        type: 'boolean' as const,
-        default: true,
-      },
-      includeOriginalFilename: {
-        type: 'boolean' as const,
-        default: true,
-      },
-      includePageSpread: {
-        type: 'boolean' as const,
-        default: true,
-      },
-      inactiveOpacity: {
-        type: 'number' as const,
-        minimum: 0.1,
-        maximum: 1.0,
-        default: WINDOW_OPACITY.inactive.default,
-      },
-      enableMouseHoverOpacity: {
-        type: 'boolean' as const,
-        default: true,
-      },
-      windowBounds: {
-        type: 'object' as const,
-        properties: {
-          width: { type: 'number' as const },
-          height: { type: 'number' as const },
-          x: { type: 'number' as const },
-          y: { type: 'number' as const },
-        },
-      },
-    };
-
-    storeInstance = new Store<Settings>({
-      defaults: {
-        outputDirectory: getDefaultOutputDirectory(),
-        language: 'ja',
-        alwaysOnTop: true,
-        includeOriginalFilename: true,
-        includePageSpread: true,
-        inactiveOpacity: WINDOW_OPACITY.inactive.default,
-        enableMouseHoverOpacity: true,
-      },
-      schema,
-    } as StoreOptions);
-
+    storeInstance = await createElectronStore();
     storeInitialized = true;
     return storeInstance;
   } catch {
@@ -163,16 +109,79 @@ async function getStore(): Promise<any> {
   }
 }
 
+// Creates the electron-store backed store. `cwd` overrides the config
+// directory, which lets tests run the real store outside Electron.
+export async function createElectronStore(options: { cwd?: string } = {}) {
+  // electron-store v10はESMモジュールなので動的インポート
+  const { default: Store } = await import('electron-store');
+
+  const schema = {
+    outputDirectory: {
+      type: 'string' as const,
+    },
+    language: {
+      type: 'string' as const,
+      default: 'ja',
+    },
+    alwaysOnTop: {
+      type: 'boolean' as const,
+      default: true,
+    },
+    includeOriginalFilename: {
+      type: 'boolean' as const,
+      default: true,
+    },
+    includePageSpread: {
+      type: 'boolean' as const,
+      default: true,
+    },
+    inactiveOpacity: {
+      type: 'number' as const,
+      minimum: 0.1,
+      maximum: 1.0,
+      default: WINDOW_OPACITY.inactive.default,
+    },
+    enableMouseHoverOpacity: {
+      type: 'boolean' as const,
+      default: true,
+    },
+    windowBounds: {
+      type: 'object' as const,
+      properties: {
+        width: { type: 'number' as const },
+        height: { type: 'number' as const },
+        x: { type: 'number' as const },
+        y: { type: 'number' as const },
+      },
+    },
+  };
+
+  return new Store<Settings>({
+    defaults: {
+      outputDirectory: getDefaultOutputDirectory(),
+      language: 'ja',
+      alwaysOnTop: true,
+      includeOriginalFilename: true,
+      includePageSpread: true,
+      inactiveOpacity: WINDOW_OPACITY.inactive.default,
+      enableMouseHoverOpacity: true,
+    },
+    schema,
+    ...options,
+  } as StoreOptions);
+}
+
 // 同期的なインターフェースを提供するためのプロキシ
-class SettingsStoreProxy {
+export class SettingsStoreProxy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private storePromise: Promise<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private cachedStore: any = null;
 
-  constructor() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(storeFactory: () => Promise<any> = getStore) {
     // 初期化時に非同期でストアを取得
-    this.storePromise = getStore().then((store) => {
+    this.storePromise = storeFactory().then((store) => {
       this.cachedStore = store;
       return store;
     });
@@ -180,7 +189,8 @@ class SettingsStoreProxy {
 
   get(): Settings {
     if (this.cachedStore) {
-      return this.cachedStore.get();
+      // electron-store 12 (conf 16) rejects get() without a key; `.store` returns all settings
+      return this.cachedStore.store;
     }
     // ストアがまだ初期化されていない場合はデフォルト値を返す
     return {
