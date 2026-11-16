@@ -2,26 +2,9 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions, dialog, ipcMain }
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-// ESM support for __dirname and __filename (only needed in ESM mode)
-let __dirname: string;
-let __filename: string;
-
-// Type for Node.js CommonJS globals
-interface NodeGlobals {
-  __dirname?: string;
-  __filename?: string;
-}
-
-if (typeof import.meta.url !== 'undefined') {
-  // ESM mode
-  __filename = fileURLToPath(import.meta.url);
-  __dirname = dirname(__filename);
-} else {
-  // CommonJS mode (E2E builds)
-  const nodeGlobals = globalThis as unknown as NodeGlobals;
-  __dirname = nodeGlobals.__dirname || '';
-  __filename = nodeGlobals.__filename || '';
-}
+// Directory of this module. The E2E build outputs CommonJS, where Rolldown
+// replaces import.meta with an empty object, so prefer CommonJS __dirname there.
+const mainDir = typeof __dirname === 'string' ? __dirname : dirname(fileURLToPath(import.meta.url));
 import { registerIpcHandlers } from './ipc/handlers';
 import { settingsStore } from './store/settings';
 import { WINDOW_SIZES, WINDOW_OPACITY } from './constants/window';
@@ -48,7 +31,7 @@ app.name = 'EPUB Image Extractor';
 if (process.platform === 'darwin' && app.dock) {
   // 開発環境でも正しい名前を表示するための設定
   try {
-    const iconPath = join(__dirname, '../../public/icon.png');
+    const iconPath = join(mainDir, '../../public/icon.png');
     app.dock.setIcon(iconPath);
   } catch {
     // アイコン設定に失敗しても動作に影響ないため、エラーは無視
@@ -74,7 +57,7 @@ function createWindow() {
     icon:
       process.platform === 'darwin'
         ? undefined // macOSではアプリケーションバンドルのアイコンを使用
-        : join(__dirname, '../../build/icon.png'),
+        : join(mainDir, '../../build/icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -82,9 +65,9 @@ function createWindow() {
       webviewTag: false, // webviewタグを無効化（セキュリティ向上）
       // E2Eビルドの場合は.cjs、通常ビルドは.mjs（ESM）
       preload: join(
-        __dirname,
+        mainDir,
         '../preload',
-        __dirname.includes('dist-electron-e2e') ? 'index.cjs' : 'index.mjs',
+        mainDir.includes('dist-electron-e2e') ? 'index.cjs' : 'index.mjs',
       ),
     },
   });
@@ -93,7 +76,7 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(join(__dirname, '../../dist/index.html'));
+    mainWindow.loadFile(join(mainDir, '../../dist/index.html'));
   }
 
   // 処理状態を保持する変数

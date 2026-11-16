@@ -31,10 +31,9 @@ export default defineConfig({
                 // .cjs拡張子を使用
                 entryFileNames: '[name].cjs',
                 // コード分割を無効化
-                inlineDynamicImports: true,
+                codeSplitting: false,
                 // 厳密なCommonJS形式
                 exports: 'auto',
-                interop: 'auto',
               },
             },
           },
