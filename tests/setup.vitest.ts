@@ -69,17 +69,19 @@ vi.mock('electron', () => ({
 // electron-storeのモック
 vi.mock('electron-store', () => {
   const Store = vi.fn().mockImplementation(() => ({
-    get: vi.fn((key?: string) => {
-      if (!key) {
-        return {
-          outputDirectory: '/mock/desktop/EPUB_Images',
-          language: 'ja',
-          alwaysOnTop: true,
-          includeOriginalFilename: true,
-          includePageSpread: true,
-          inactiveOpacity: 0.8,
-          enableMouseHoverOpacity: true
-        };
+    store: {
+      outputDirectory: '/mock/desktop/EPUB_Images',
+      language: 'ja',
+      alwaysOnTop: true,
+      includeOriginalFilename: true,
+      includePageSpread: true,
+      inactiveOpacity: 0.8,
+      enableMouseHoverOpacity: true
+    },
+    // Like electron-store 12 (conf 16), get() requires a string key
+    get: vi.fn((key: unknown) => {
+      if (typeof key !== 'string') {
+        throw new TypeError(`Expected \`key\` to be of type \`string\`, got ${typeof key}`);
       }
       return undefined;
     }),
