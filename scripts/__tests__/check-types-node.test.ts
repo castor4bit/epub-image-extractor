@@ -6,6 +6,7 @@ import {
   compareMajors,
   getElectronNodeVersion,
   getTypesNodeVersion,
+  parseElectronNodeVersion,
 } from '../check-types-node.js';
 
 const scriptPath = fileURLToPath(new URL('../check-types-node.js', import.meta.url));
@@ -19,6 +20,20 @@ describe('compareMajors', () => {
     const message = compareMajors('24.22.2', '26.1.1');
     expect(message).toContain('24');
     expect(message).toContain('26');
+  });
+});
+
+describe('parseElectronNodeVersion', () => {
+  it('returns the printed version', () => {
+    expect(parseElectronNodeVersion('24.22.2\n')).toBe('24.22.2');
+  });
+
+  it('ignores the download message printed when the binary is fetched on first run', () => {
+    expect(parseElectronNodeVersion('Downloading Electron binary...\n24.22.2\n')).toBe('24.22.2');
+  });
+
+  it('throws when no version is printed', () => {
+    expect(() => parseElectronNodeVersion('Downloading Electron binary...\n')).toThrow();
   });
 });
 
