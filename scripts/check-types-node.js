@@ -24,6 +24,16 @@ export function compareMajors(electronNodeVersion, typesNodeVersion) {
   );
 }
 
+// Electron 42+ prints "Downloading Electron binary..." to stdout before the
+// version when it fetches the binary, so take the last line
+export function parseElectronNodeVersion(stdout) {
+  const version = stdout.trim().split('\n').pop().trim();
+  if (!/^\d+\.\d+\.\d+$/.test(version)) {
+    throw new Error(`Unexpected Electron output: ${stdout}`);
+  }
+  return version;
+}
+
 export function getElectronNodeVersion() {
   // Go through electron's CLI so the binary is downloaded on demand when the
   // package no longer installs it in postinstall (Electron 42+)
@@ -35,7 +45,7 @@ export function getElectronNodeVersion() {
   if (result.status !== 0) {
     throw new Error(`Failed to run Electron: ${result.stderr || result.error}`);
   }
-  return result.stdout.trim();
+  return parseElectronNodeVersion(result.stdout);
 }
 
 export function getTypesNodeVersion() {
