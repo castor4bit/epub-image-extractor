@@ -17,7 +17,7 @@ updates:
     cooldown:
       semver-major-days: 21  # Major updates wait 3 weeks
       semver-minor-days: 7   # Minor updates wait 1 week
-      semver-patch-days: 3   # Patch updates wait 3 days
+      semver-patch-days: 7   # Patch updates wait 1 week to match minimum-release-age in .npmrc
     # Maximum number of open pull requests
     open-pull-requests-limit: 10
     # PR labels
