@@ -32,6 +32,12 @@ jobs:
     - name: Run ESLint
       run: pnpm lint
 
+    # Electron 42+ downloads its binary on first run. Running this check before
+    # the unit tests fetches it up front, as pr-validation.yml does; letting the
+    # parallel unit test run trigger the download failed with spawn ETXTBSY.
+    - name: Check @types/node matches Electron's Node
+      run: node scripts/check-types-node.js
+
     - name: Run TypeScript check
       run: pnpm typecheck
 
